@@ -24,14 +24,8 @@ import {
 
 
 export async function genCaCert(options: CertOptions): Promise<IssueCertRet> {
-  const issueOpts = <IssueOptions> { ...initialCertOptions, ...options }
+  const issueOpts = await processIssueOpts(<IssueOptions> { ...initialCertOptions, ...options })
 
-  issueOpts.centerPath = await getCenterPath(issueOpts.centerName)
-  if ( ! issueOpts.centerPath) {
-    throw new Error(`centerPath: "${issueOpts.centerPath}" not exits for centerName: "${issueOpts.centerName}" \n
-      should create center dir by calling createCenter(centerName, path)
-    `)
-  }
   checkPass(issueOpts.pass)
   const privateKeyOpts = <PrivateKeyOptions> { ...initialPrivateKeyOptions, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
@@ -205,18 +199,10 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
   const { centerPath, keyBits, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
-  if (options.alg === 'rsa') {
-    if (keyBits && typeof keyBits === 'number') {
-      if (keyBits < 2048) {
-        options.keyBits = 2048
-      }
-      if (keyBits > 8192) {
-        options.keyBits = 8192
-      }
-    }
-    else {
-      options.keyBits = 2048
-    }
+  if ( ! centerPath) {
+    throw new Error(`centerPath: "${centerPath}" not exits for centerName: "${options.centerName}" \n
+      should create center dir by calling createCenter(centerName, path)
+    `)
   }
   if (pass) {
     if (typeof pass !== 'string') {
@@ -251,6 +237,37 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
 
   return options
 }
+
+
+async function processIssueOpts(options: IssueOptions): Promise<IssueOptions > {
+  const { keyBits, pass } = options
+
+  options.centerPath = await getCenterPath(options.centerName)
+  const caKeyFile = `${options.centerPath}/${config.caKeyName}`
+
+  if (options.alg === 'rsa') {
+    if (keyBits && typeof keyBits === 'number') {
+      if (keyBits < 2048) {
+        options.keyBits = 2048
+      }
+      if (keyBits > 8192) {
+        options.keyBits = 8192
+      }
+    }
+    else {
+      options.keyBits = 2048
+    }
+  }
+
+  for (const prop of reqSubjectFields) {
+    if ( ! options[prop]) {
+      options[prop] = ''
+    }
+  }
+
+  return options
+}
+
 
 
 function genIssueSubj(options: IssueOptions): string {
