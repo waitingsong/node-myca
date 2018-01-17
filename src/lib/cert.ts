@@ -37,17 +37,17 @@ export async function genCert(options: CertOptions): Promise<IssueCertRet> {
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
   const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey
-  const file = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
+  const keyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
 
   // console.log(`centerPath: ${issueOpts.centerPath}`)
   // console.log('key::', key)
   // console.log('pub:', pubKey)
-  console.log('unsecure key:', privateUnsecureKey)
+  // console.log('unsecure key:', privateUnsecureKey)
   console.log(issueOpts)
-  if (await isFileExists(file)) {
-    await unlinkAsync(file) // unlink ca.key
+  if (await isFileExists(keyFile)) {
+    await unlinkAsync(keyFile) // unlink ca.key
   }
-  await createFile(file, privateKey, { mode: 0o600 })
+  await createFile(keyFile, privateKey, { mode: 0o600 })
   const cert = await reqCert(issueOpts) // ca cert
   const ret = { ...initialCertRet, pubKey, privateKey, privateUnsecureKey, cert }
 
@@ -308,5 +308,20 @@ export async function unlinkCaCrt(centerName: string): Promise<void> {
 
   if (await isFileExists(file)) {
     return unlinkAsync(file)
+  }
+}
+
+
+// unlink ca.key
+export async function unlinkCaKey(centerName: string): Promise<void> {
+  const centerPath = await getCenterPath(centerName)
+
+  if ( ! centerPath) {
+    return Promise.reject(`centerPath empty for centerName: "${centerName}"`)
+  }
+  const file = `${centerPath}/${config.caKeyName}` // ca.key
+
+  if (await isFileExists(file)) {
+    await unlinkAsync(file) // unlink ca.key
   }
 }
