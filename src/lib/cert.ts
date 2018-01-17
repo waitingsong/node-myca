@@ -12,7 +12,7 @@ import {
   config,
   initialCertOpts,
   initialCertRet,
-  initialPrivateKeyOptions,
+  initialPrivateKeyOpts,
   reqSubjectFields } from './config'
 import {
   CertOpts,
@@ -24,7 +24,7 @@ import {
 
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOpts, ...options })
-  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOptions, ...issueOpts }
+  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
   const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey

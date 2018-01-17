@@ -23,7 +23,7 @@ export const config: Config = {
   confTpl: 'tpl.conf',
 }
 
-export const initialPrivateKeyOptions: PrivateKeyOpts = {
+export const initialPrivateKeyOpts: PrivateKeyOpts = {
   serial: 0,
   centerName: 'default',
   alg: 'rsa',
