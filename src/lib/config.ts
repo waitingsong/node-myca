@@ -1,4 +1,4 @@
-import { CaOpts, CertOpts, Config, PrivateKeyOptions } from './model'
+import { CaOpts, CertOpts, Config, PrivateKeyOpts } from './model'
 
 
 export const config: Config = {
@@ -23,7 +23,7 @@ export const config: Config = {
   confTpl: 'tpl.conf',
 }
 
-export const initialPrivateKeyOptions: PrivateKeyOptions = {
+export const initialPrivateKeyOptions: PrivateKeyOpts = {
   serial: 0,
   centerName: 'default',
   alg: 'rsa',

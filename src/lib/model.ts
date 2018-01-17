@@ -54,7 +54,7 @@ export interface Config {
 }
 
 export type Alg = 'rsa' | 'ec'    // algorithm
-export interface PrivateKeyOptions {
+export interface PrivateKeyOpts {
   serial: number
   centerName: 'default' | string
   alg: Alg

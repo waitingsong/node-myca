@@ -19,12 +19,12 @@ import {
   Config,
   IssueCertRet,
   IssueOpts,
-  PrivateKeyOptions } from './model'
+  PrivateKeyOpts } from './model'
 
 
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOptions, ...options })
-  const privateKeyOpts = <PrivateKeyOptions> { ...initialPrivateKeyOptions, ...issueOpts }
+  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOptions, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
   const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey
@@ -46,7 +46,7 @@ export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
 }
 
 
-async function genPrivateKey(options: PrivateKeyOptions): Promise<string> {
+async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
   let key = ''
 
   switch (options.alg) {
@@ -65,7 +65,7 @@ async function genPrivateKey(options: PrivateKeyOptions): Promise<string> {
 
 
 // generate rsa private key pem
-function genRSAKey(options: PrivateKeyOptions): Promise<string> {
+function genRSAKey(options: PrivateKeyOpts): Promise<string> {
   let { keyBits, pass } = options
 
   const args = ['genpkey', '-algorithm', 'rsa', '-pkeyopt', `rsa_keygen_bits:${keyBits}`]
@@ -86,7 +86,7 @@ function genRSAKey(options: PrivateKeyOptions): Promise<string> {
 }
 
 
-function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOptions): Promise<string> {
+function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOpts): Promise<string> {
   const openssl = config.openssl
   const { alg, pass } = options
 
@@ -117,7 +117,7 @@ function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOptions)
 }
 
 
-export function decryptPrivateKey(privateKey: string, options: PrivateKeyOptions): Promise<string> {
+export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): Promise<string> {
   const openssl = config.openssl
   const { alg, pass } = options
 
