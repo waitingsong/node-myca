@@ -154,8 +154,9 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
 
 
 async function reqCert(options: IssueOpts): Promise<string> {
-  const issueOpts = await validateIssueOpts(options)
-  const { days, serial, centerPath, pass } = issueOpts
+  await validateIssueOpts(options)
+
+  const { days, serial, centerPath, pass } = options
   const keyFile = `${config.caKeyName}`
   const args = [
     'req', '-batch', '-utf8', '-x509', '-new',
@@ -166,11 +167,11 @@ async function reqCert(options: IssueOpts): Promise<string> {
   const runOpts = { cwd: centerPath }
 
   if (config.isWin32) {
-    await createRandomConfTpl(config, issueOpts)
+    await createRandomConfTpl(config, options)
     args.push('-config', config.randomConfigFile)
   }
   else {
-    const subj = genIssueSubj(issueOpts)
+    const subj = genIssueSubj(options)
 
     subj && args.push('-subj', subj)
   }
@@ -180,19 +181,19 @@ async function reqCert(options: IssueOpts): Promise<string> {
     .then((stdout: string) => {
       if (stdout && stdout.includes('CERTIFICATE')) {
         console.log(stdout)
-        config.isWin32 && unlinkRandomConfTpl(config, issueOpts)
+        config.isWin32 && unlinkRandomConfTpl(config, options)
         return stdout
       }
       throw new Error('openssl return value: ' + stdout)
     })
     .catch(err => {
-      config.isWin32 && unlinkRandomConfTpl(config, issueOpts)
+      config.isWin32 && unlinkRandomConfTpl(config, options)
       throw err
     })
 }
 
 
-async function validateIssueOpts(options: IssueOpts): Promise<IssueOpts > {
+async function validateIssueOpts(options: IssueOpts): Promise<void> {
   const { centerPath, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
@@ -231,8 +232,6 @@ async function validateIssueOpts(options: IssueOpts): Promise<IssueOpts > {
   if (options.days <= 0) {
     throw new Error('value of days must greater than zero')
   }
-
-  return options
 }
 
 
