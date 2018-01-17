@@ -45,7 +45,7 @@ export async function genCert(options: CertOptions): Promise<IssueCertRet> {
   // console.log('unsecure key:', privateUnsecureKey)
   console.log(issueOpts)
   if (await isFileExists(keyFile)) {
-    await unlinkAsync(keyFile) // unlink ca.key
+    return Promise.reject(`keyFile exists: "${keyFile}"`)
   }
   await createFile(keyFile, privateKey, { mode: 0o600 })
   const cert = await reqCert(issueOpts) // ca cert
