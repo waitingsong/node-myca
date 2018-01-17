@@ -50,7 +50,7 @@ export const initialCaOptions: CaOptions = {
 }
 
 export const initialCertOptions: CertOptions = {
-  kind: '',
+  kind: 'server',
   serial: 0,
   centerName: 'default',
   days: 750,    // 2years
