@@ -137,3 +137,12 @@ export interface CertInfo {
   secure?: CertDetail   // available during issue with pass
   unsecure: CertDetail
 }
+
+export interface IssueCertRet {
+  pubKey: string     // pubkey pem
+  privateKey: string  // private key pem
+  privateUnsecureKey: string  // private key pem without pass encrypted
+  pass: string
+  cert: string  // certificate pem
+  crtFile: string // certificate file path
+}

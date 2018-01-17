@@ -1,6 +1,5 @@
 import { execFile } from 'child_process'
 
-
 import {
   checkPass,
   createFile,
@@ -13,45 +12,46 @@ import {
 import {
   config,
   initialCertOptions,
+  initialCertRet,
   initialPrivateKeyOptions,
   reqSubjectFields } from './config'
 import {
   CertOptions,
   Config,
+  IssueCertRet,
   IssueOptions,
   PrivateKeyOptions } from './model'
 
 
-export async function genCert(options: CertOptions): Promise<string> {
+export async function genCert(options: CertOptions): Promise<IssueCertRet> {
   const issueOpts = <IssueOptions> { ...initialCertOptions, ...options }
-  issueOpts.centerPath = await getCenterPath(issueOpts.centerName)
 
+  issueOpts.centerPath = await getCenterPath(issueOpts.centerName)
   if ( ! issueOpts.centerPath) {
     throw new Error(`centerPath: "${issueOpts.centerPath}" not exits for centerName: "${issueOpts.centerName}" \n
       should create center dir by calling createCenter(centerName, path)
     `)
   }
   checkPass(issueOpts.pass)
-
-  console.log(`centerPath: ${issueOpts.centerPath}`)
-
   const privateKeyOpts = <PrivateKeyOptions> { ...initialPrivateKeyOptions, ...issueOpts }
-  const key = await genPrivateKey(privateKeyOpts)
-  console.log('key::', key)
-  const pubKey = await genPubKeyFromPrivateKey(key, privateKeyOpts)
-  console.log('pub:', pubKey)
-  const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(key, privateKeyOpts) : key
+  const privateKey = await genPrivateKey(privateKeyOpts)
+  const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
+  const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey
+  const file = `${issueOpts.centerPath}/${issueOpts.caKeyFileName}` // ca.key
+
+  // console.log(`centerPath: ${issueOpts.centerPath}`)
+  // console.log('key::', key)
+  // console.log('pub:', pubKey)
   console.log('unsecure key:', privateUnsecureKey)
   console.log(issueOpts)
-  const file = `${issueOpts.centerPath}/${issueOpts.caKeyFileName}`
-
   if (await isFileExists(file)) {
     await unlinkAsync(file) // unlink ca.key
   }
-  await createFile(file, key, { mode: 0o600 })
-  const caCrt = await reqCert(issueOpts)
+  await createFile(file, privateKey, { mode: 0o600 })
+  const cert = await reqCert(issueOpts) // ca cert
+  const ret = { ...initialCertRet, pubKey, privateKey, privateUnsecureKey, cert }
 
-  return Promise.resolve(caCrt)
+  return Promise.resolve(ret)
 }
 
 

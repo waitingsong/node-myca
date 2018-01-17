@@ -78,3 +78,12 @@ export const reqSubjectFields = [
   'C',
   'emailAddress',
 ]
+
+export const initialCertRet = {
+  pubKey: '',     // pubkey pem
+  privateKey: '',  // private key pem
+  privateUnsecureKey: '',  // private key pem
+  pass: '',
+  cert: '',  // certificate pem
+  crtFile: '', // certificate file path
+}

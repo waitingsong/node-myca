@@ -144,7 +144,7 @@ export async function genCaCert(issueOpts: CaOptions): Promise<void> {
   if (await isFileExists(file)) {
     return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
   }
-  const caCrt = await genCert(opts)
+  const certRet = await genCert(opts)
 
-  await saveCaCrt(config, opts, caCrt)
+  await saveCaCrt(config, opts, certRet.cert)
 }
