@@ -58,8 +58,8 @@ export interface PrivateKeyOpts {
   serial: number
   centerName: 'default' | string
   alg: Alg
-  pass?: string
-  keyBits?: number // for alg==rsa
+  pass: string
+  keyBits: number // for alg==rsa
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
 }
 
