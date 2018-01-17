@@ -24,6 +24,8 @@ import {
 
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOpts, ...options })
+
+  validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
