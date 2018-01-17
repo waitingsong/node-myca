@@ -85,6 +85,7 @@ export interface CaOptions {
 
 // passed by customer
 export interface CertOptions {
+  kind: 'ca' | 'server' | 'client'
   serial?: number
   centerName?: 'default' | string  // key name of log dir
   days: number
@@ -103,8 +104,9 @@ export interface CertOptions {
   emailAddress?: string
 }
 
-// innter usage
+// inner usage
 export interface IssueOptions {
+  kind: 'ca' | 'server' | 'client'
   centerName: 'default' | string  // key name of center dir
   centerPath: string  // default as config.defaultCenterPath
   days: number

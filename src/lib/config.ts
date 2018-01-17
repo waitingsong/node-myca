@@ -32,6 +32,7 @@ export const initialPrivateKeyOptions: PrivateKeyOptions = {
   ecParamgenCurve: 'P-256', // for alg==ec
 }
 export const initialCaOptions: CaOptions = {
+  kind: 'ca',
   centerName: 'default',
   days: 10950,  // 30years
   alg: 'rsa',
@@ -49,6 +50,7 @@ export const initialCaOptions: CaOptions = {
 }
 
 export const initialCertOptions: CertOptions = {
+  kind: '',
   serial: 0,
   centerName: 'default',
   days: 750,    // 2years
