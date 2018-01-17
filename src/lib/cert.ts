@@ -236,7 +236,7 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
   if ( ! await isFileExists(caKeyFile)) {
     throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
   }
-  if ( ! options.C  || options.C.length !== 2) {
+  if ( ! options.C || options.C.length !== 2) {
     throw new Error('value of C (Country Name) must be 2 letters')
   }
   if ( ! options.CN) {
