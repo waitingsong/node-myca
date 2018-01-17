@@ -23,7 +23,7 @@ import {
   PrivateKeyOptions } from './model'
 
 
-export async function genCert(options: CertOptions): Promise<IssueCertRet> {
+export async function genCaCert(options: CertOptions): Promise<IssueCertRet> {
   const issueOpts = <IssueOptions> { ...initialCertOptions, ...options }
 
   issueOpts.centerPath = await getCenterPath(issueOpts.centerName)

@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
 import { normalize } from 'path'
 
-import { genCert, saveCaCrt } from './cert'
+import { genCaCert, saveCaCrt } from './cert'
 import {
   createDir,
   createFile,
@@ -144,7 +144,7 @@ export async function initCaCert(issueOpts: CaOptions): Promise<void> {
   if (await isFileExists(file)) {
     return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
   }
-  const certRet = await genCert(opts)
+  const certRet = await genCaCert(opts)
 
   await saveCaCrt(config, opts, certRet.cert)
 }
