@@ -10,7 +10,7 @@ import {
   isFileExists,
   updateCenterList } from './common'
 import { config, initialCaOptions } from './config'
-import { CaOptions, CertOpts } from './model'
+import { CaOpts, CertOpts } from './model'
 
 config.isWin32 = process.platform === 'win32' ? true : false
 config.isWin32 && (config.randomConfigFile = Math.random() + '.conf' )
@@ -129,7 +129,7 @@ export function getOpensslVer(openssl: string): Promise<string> {
   })
 }
 
-export async function initCaCert(issueOpts: CaOptions): Promise<void> {
+export async function initCaCert(issueOpts: CaOpts): Promise<void> {
   const opts = <CertOpts> { ...initialCaOptions, ...issueOpts }
 
   if ( ! opts.centerName) {

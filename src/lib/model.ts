@@ -64,7 +64,7 @@ export interface PrivateKeyOptions {
 }
 
 // passed by customer
-export interface CaOptions {
+export interface CaOpts {
   centerName?: 'default' | string  // key name of log dir
   days: number
   alg?: Alg

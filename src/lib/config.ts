@@ -1,4 +1,4 @@
-import { CaOptions, CertOpts, Config, PrivateKeyOptions } from './model'
+import { CaOpts, CertOpts, Config, PrivateKeyOptions } from './model'
 
 
 export const config: Config = {
@@ -31,7 +31,7 @@ export const initialPrivateKeyOptions: PrivateKeyOptions = {
   keyBits: 2048, // for alg==rsa
   ecParamgenCurve: 'P-256', // for alg==ec
 }
-export const initialCaOptions: CaOptions = {
+export const initialCaOptions: CaOpts = {
   kind: 'ca',
   centerName: 'default',
   days: 10950,  // 30years
