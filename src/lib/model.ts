@@ -89,7 +89,7 @@ export interface CertOpts {
   serial?: number
   centerName?: 'default' | string  // key name of log dir
   days: number
-  alg: Alg
+  alg?: Alg
   pass?: string // if not empty at least 4 chars
   keyBits?: number // for rsa
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
