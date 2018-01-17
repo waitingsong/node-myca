@@ -113,22 +113,3 @@ export async function updateCenterList(key: string, path: string): Promise<void>
 
   writeFileAsync(file, JSON.stringify(centerList))
 }
-
-// pass phrase muse string|number and length 4 to 1023 or blank string
-export function checkPass(pass: any): void {
-  if (typeof pass === 'number') {
-    pass = pass + ''
-  }
-  if (typeof pass !== 'string') {
-    throw new Error('pass phrase must be string')
-  }
-  if (pass === '') {
-    return
-  }
-  if (pass.length < 4) {
-    throw new Error('length of pass phrase must greater than 3')
-  }
-  if (pass.length > 1023) {
-    throw new Error('length of pass phrase must less than 1024')
-  }
-}

@@ -1,7 +1,6 @@
 import { execFile } from 'child_process'
 
 import {
-  checkPass,
   createFile,
   getCenterPath,
   isFileExists,
@@ -26,7 +25,6 @@ import {
 export async function genCaCert(options: CertOptions): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOptions> { ...initialCertOptions, ...options })
 
-  checkPass(issueOpts.pass)
   const privateKeyOpts = <PrivateKeyOptions> { ...initialPrivateKeyOptions, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
