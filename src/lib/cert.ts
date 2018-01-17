@@ -19,32 +19,40 @@ import {
   Config,
   IssueCertRet,
   IssueOpts,
+  KeysRet,
   PrivateKeyOpts } from './model'
 
 
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOpts, ...options })
 
+  issueOpts.kind = 'ca'
   validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
+  const keysRet = await genKeys(privateKeyOpts)
+  const caKeyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
+
+  console.log(issueOpts)
+  if (await isFileExists(caKeyFile)) {
+    return Promise.reject(`cakeyFile exists: "${caKeyFile}"`)
+  }
+  await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
+  const cert = await reqCert(issueOpts) // ca cert
+  const ret: IssueCertRet = { ...initialCertRet, ...keysRet, cert }
+
+  return Promise.resolve(ret)
+}
+
+export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> {
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
   const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey
-  const keyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
-
   // console.log(`centerPath: ${issueOpts.centerPath}`)
   // console.log('key::', key)
   // console.log('pub:', pubKey)
   // console.log('unsecure key:', privateUnsecureKey)
-  console.log(issueOpts)
-  if (await isFileExists(keyFile)) {
-    return Promise.reject(`keyFile exists: "${keyFile}"`)
-  }
-  await createFile(keyFile, privateKey, { mode: 0o600 })
-  const cert = await reqCert(issueOpts) // ca cert
-  const ret = { ...initialCertRet, pubKey, privateKey, privateUnsecureKey, cert }
 
-  return Promise.resolve(ret)
+  return { pubKey, privateKey, privateUnsecureKey, pass: privateKeyOpts.pass }
 }
 
 
