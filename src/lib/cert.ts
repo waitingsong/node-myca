@@ -10,7 +10,7 @@ import {
   writeFileAsync } from './common'
 import {
   config,
-  initialCertOptions,
+  initialCertOpts,
   initialCertRet,
   initialPrivateKeyOptions,
   reqSubjectFields } from './config'
@@ -23,7 +23,7 @@ import {
 
 
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
-  const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOptions, ...options })
+  const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOpts, ...options })
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOptions, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)

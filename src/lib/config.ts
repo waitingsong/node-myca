@@ -49,7 +49,7 @@ export const initialCaOptions: CaOpts = {
   emailAddress: '',
 }
 
-export const initialCertOptions: CertOpts = {
+export const initialCertOpts: CertOpts = {
   kind: 'server',
   serial: 0,
   centerName: 'default',
