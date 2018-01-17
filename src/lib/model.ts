@@ -138,11 +138,14 @@ export interface CertInfo {
   unsecure: CertDetail
 }
 
-export interface IssueCertRet {
+export interface KeysRet {
   pubKey: string     // pubkey pem
   privateKey: string  // private key pem
   privateUnsecureKey: string  // private key pem without pass encrypted
   pass: string
+}
+
+export interface IssueCertRet extends KeysRet {
   cert: string  // certificate pem
   crtFile: string // certificate file path
 }
