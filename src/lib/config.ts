@@ -39,7 +39,6 @@ export const initialCaOptions: CaOptions = {
   keyBits: 4096,  // for alg==rsa
   ecParamgenCurve: 'P-256',
   hash: 'sha384',
-  caKeyFileName: 'ca.key',
   CN: '',
   OU: '',
   O: '',
@@ -58,7 +57,6 @@ export const initialCertOptions: CertOptions = {
   keyBits: 2048,
   ecParamgenCurve: 'P-256', // for alg==ec
   hash: 'sha256',
-  caKeyFileName: 'ca.key',
   // DNs
   CN: '',
   OU: '',

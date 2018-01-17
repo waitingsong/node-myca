@@ -101,7 +101,6 @@ export interface CertOptions {
   ST?: string   // State or Province Name
   L?: string    // Locality Name (eg, city)
   emailAddress?: string
-  caKeyFileName?: 'ca.key' | string,
 }
 
 // innter usage
@@ -115,7 +114,6 @@ export interface IssueOptions {
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
   hash: 'sha256' | 'sha384'
   serial: number
-  caKeyFileName: 'ca.key' | string
   CN: string    // Common Name
   OU: string    // Organizational Unit Name
   O?: string    // Organization Name

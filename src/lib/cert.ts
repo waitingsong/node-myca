@@ -37,7 +37,7 @@ export async function genCert(options: CertOptions): Promise<IssueCertRet> {
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
   const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey
-  const file = `${issueOpts.centerPath}/${issueOpts.caKeyFileName}` // ca.key
+  const file = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
 
   // console.log(`centerPath: ${issueOpts.centerPath}`)
   // console.log('key::', key)
@@ -164,8 +164,8 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOptions
 
 async function reqCert(options: IssueOptions): Promise<string> {
   const issueOpts = await validateIssueOpts(options)
-  const { days, serial, caKeyFileName, centerPath, pass } = issueOpts
-  const keyFile = `${caKeyFileName}`
+  const { days, serial, centerPath, pass } = issueOpts
+  const keyFile = `${config.caKeyName}`
   const args = [
     'req', '-batch', '-utf8', '-x509', '-new',
     '-days', days + '',
@@ -202,8 +202,8 @@ async function reqCert(options: IssueOptions): Promise<string> {
 
 
 async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > {
-  const { caKeyFileName, centerPath, keyBits, pass } = options
-  const caKeyFile = `${centerPath}/${caKeyFileName}`
+  const { centerPath, keyBits, pass } = options
+  const caKeyFile = `${centerPath}/${config.caKeyName}`
 
   if (options.alg === 'rsa') {
     if (keyBits && typeof keyBits === 'number') {
@@ -230,9 +230,6 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
     }
   }
 
-  if (/\.\./.test(caKeyFileName)) {
-    throw new Error(`caKeyFileName invalid. file: "${caKeyFileName}" contains ".."`)
-  }
   if ( ! await isFileExists(caKeyFile)) {
     throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
   }
