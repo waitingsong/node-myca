@@ -277,12 +277,13 @@ async function createRandomConfTpl(config: Config, issueOpts: IssueOptions): Pro
   }
 
   for (const prop of reqSubjectFields) {
-    if (typeof issueOpts[prop] !== 'undefined' && issueOpts[prop]) {
-      const value = issueOpts[prop]
-      const regx = new RegExp(`%${prop}%`)
+    let value = ''
+    const regx = new RegExp(`%${prop}%`)
 
-      tpl = tpl.replace(regx, (value || ''))
+    if (typeof issueOpts[prop] !== 'undefined' && issueOpts[prop]) {
+      value = issueOpts[prop]
     }
+    tpl = tpl.replace(regx, value)
   }
   tpl = tpl.replace(/%hash%/g, issueOpts.hash)  // global
 
