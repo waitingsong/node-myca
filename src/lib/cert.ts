@@ -15,16 +15,15 @@ import {
   initialPrivateKeyOptions,
   reqSubjectFields } from './config'
 import {
-  CertOptions,
+  CertOpts,
   Config,
   IssueCertRet,
   IssueOptions,
   PrivateKeyOptions } from './model'
 
 
-export async function genCaCert(options: CertOptions): Promise<IssueCertRet> {
+export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOptions> { ...initialCertOptions, ...options })
-
   const privateKeyOpts = <PrivateKeyOptions> { ...initialPrivateKeyOptions, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
@@ -314,7 +313,7 @@ function unlinkRandomConfTpl(config: Config, issueOpts: IssueOptions): void {
 }
 
 
-export async function saveCaCrt(config: Config, issueOpts: CertOptions, data: string): Promise<void> {
+export async function saveCaCrt(config: Config, issueOpts: CertOpts, data: string): Promise<void> {
   const centerPath = await getCenterPath(issueOpts.centerName)
   const file = `${centerPath}/${config.caCrtName}`
 

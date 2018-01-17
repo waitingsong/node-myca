@@ -1,4 +1,4 @@
-import { CaOptions, CertOptions, Config, PrivateKeyOptions } from './model'
+import { CaOptions, CertOpts, Config, PrivateKeyOptions } from './model'
 
 
 export const config: Config = {
@@ -49,7 +49,7 @@ export const initialCaOptions: CaOptions = {
   emailAddress: '',
 }
 
-export const initialCertOptions: CertOptions = {
+export const initialCertOptions: CertOpts = {
   kind: 'server',
   serial: 0,
   centerName: 'default',

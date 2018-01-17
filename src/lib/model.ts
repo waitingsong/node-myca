@@ -84,7 +84,7 @@ export interface CaOptions {
 }
 
 // passed by customer
-export interface CertOptions {
+export interface CertOpts {
   kind: 'ca' | 'server' | 'client'
   serial?: number
   centerName?: 'default' | string  // key name of log dir
