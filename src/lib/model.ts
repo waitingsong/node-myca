@@ -105,7 +105,7 @@ export interface CertOpts {
 }
 
 // inner usage
-export interface IssueOptions {
+export interface IssueOpts {
   kind: 'ca' | 'server' | 'client'
   centerName: 'default' | string  // key name of center dir
   centerPath: string  // default as config.defaultCenterPath

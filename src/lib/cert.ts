@@ -18,12 +18,12 @@ import {
   CertOpts,
   Config,
   IssueCertRet,
-  IssueOptions,
+  IssueOpts,
   PrivateKeyOptions } from './model'
 
 
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
-  const issueOpts = await processIssueOpts(<IssueOptions> { ...initialCertOptions, ...options })
+  const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOptions, ...options })
   const privateKeyOpts = <PrivateKeyOptions> { ...initialPrivateKeyOptions, ...issueOpts }
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
@@ -153,7 +153,7 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOptions
 }
 
 
-async function reqCert(options: IssueOptions): Promise<string> {
+async function reqCert(options: IssueOpts): Promise<string> {
   const issueOpts = await validateIssueOpts(options)
   const { days, serial, centerPath, pass } = issueOpts
   const keyFile = `${config.caKeyName}`
@@ -192,7 +192,7 @@ async function reqCert(options: IssueOptions): Promise<string> {
 }
 
 
-async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > {
+async function validateIssueOpts(options: IssueOpts): Promise<IssueOpts > {
   const { centerPath, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
@@ -236,7 +236,7 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
 }
 
 
-async function processIssueOpts(options: IssueOptions): Promise<IssueOptions > {
+async function processIssueOpts(options: IssueOpts): Promise<IssueOpts > {
   const { keyBits, pass } = options
 
   options.centerPath = await getCenterPath(options.centerName)
@@ -270,7 +270,7 @@ async function processIssueOpts(options: IssueOptions): Promise<IssueOptions > {
 
 
 
-function genIssueSubj(options: IssueOptions): string {
+function genIssueSubj(options: IssueOpts): string {
   const arr: string[] = []
 
   for (let prop of reqSubjectFields) {
@@ -284,7 +284,7 @@ function genIssueSubj(options: IssueOptions): string {
 }
 
 
-async function createRandomConfTpl(config: Config, issueOpts: IssueOptions): Promise<void> {
+async function createRandomConfTpl(config: Config, issueOpts: IssueOpts): Promise<void> {
   const rfile = `${issueOpts.centerPath}/${config.randomConfigFile}`
   const path = __dirname + `/${config.confTpl}`
   let tpl = (await readFileAsync(path)).toString()
@@ -308,7 +308,7 @@ async function createRandomConfTpl(config: Config, issueOpts: IssueOptions): Pro
 }
 
 
-function unlinkRandomConfTpl(config: Config, issueOpts: IssueOptions): void {
+function unlinkRandomConfTpl(config: Config, issueOpts: IssueOpts): void {
   unlinkAsync(`${issueOpts.centerPath}/${config.randomConfigFile}`)
 }
 
