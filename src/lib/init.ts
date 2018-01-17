@@ -129,7 +129,7 @@ export function getOpensslVer(openssl: string): Promise<string> {
   })
 }
 
-export async function genCaCert(issueOpts: CaOptions): Promise<void> {
+export async function initCaCert(issueOpts: CaOptions): Promise<void> {
   const opts = <CertOptions> { ...initialCaOptions, ...issueOpts }
 
   if ( ! opts.centerName) {
