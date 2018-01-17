@@ -240,7 +240,7 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
 
 
 async function processIssueOpts(options: IssueOptions): Promise<IssueOptions > {
-  const { keyBits } = options
+  const { keyBits, pass } = options
 
   options.centerPath = await getCenterPath(options.centerName)
 
@@ -256,6 +256,10 @@ async function processIssueOpts(options: IssueOptions): Promise<IssueOptions > {
     else {
       options.keyBits = 2048
     }
+  }
+
+  if (typeof pass === 'number') {
+    options.pass += ''
   }
 
   for (const prop of reqSubjectFields) {
