@@ -196,7 +196,7 @@ async function reqCert(options: IssueOptions): Promise<string> {
 
 
 async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > {
-  const { centerPath, keyBits, pass } = options
+  const { centerPath, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
   if ( ! centerPath) {
@@ -240,10 +240,9 @@ async function validateIssueOpts(options: IssueOptions): Promise<IssueOptions > 
 
 
 async function processIssueOpts(options: IssueOptions): Promise<IssueOptions > {
-  const { keyBits, pass } = options
+  const { keyBits } = options
 
   options.centerPath = await getCenterPath(options.centerName)
-  const caKeyFile = `${options.centerPath}/${config.caKeyName}`
 
   if (options.alg === 'rsa') {
     if (keyBits && typeof keyBits === 'number') {
