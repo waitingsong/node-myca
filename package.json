@@ -36,6 +36,7 @@
     "secp384r1",
     "RSA",
     "self signed",
+    "SAN",
     "SSL",
     "TLS",
     "x509"
