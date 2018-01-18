@@ -1,5 +1,7 @@
 import { execFile } from 'child_process'
+import { normalize } from 'path'
 
+import { nextSerial } from './center'
 import {
   createFile,
   getCenterPath,
@@ -23,13 +25,14 @@ import {
   PrivateKeyOpts } from './model'
 
 
+// generate certificate of self-signed CA
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
   validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
-  const keysRet = await genKeys(privateKeyOpts)
+  const keysRet: KeysRet = await genKeys(privateKeyOpts)
   const caKeyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
 
   console.log(issueOpts)
@@ -37,11 +40,12 @@ export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
     return Promise.reject(`cakeyFile exists: "${caKeyFile}"`)
   }
   await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
-  const cert = await reqCert(issueOpts) // ca cert
+  const cert = await reqCaCert(issueOpts) // ca cert
   const ret: IssueCertRet = { ...initialCertRet, ...keysRet, cert }
 
   return Promise.resolve(ret)
 }
+
 
 export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> {
   const privateKey = await genPrivateKey(privateKeyOpts)
@@ -163,7 +167,8 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
 }
 
 
-async function reqCert(options: IssueOpts): Promise<string> {
+// return cert
+async function reqCaCert(options: IssueOpts): Promise<string> {
   await validateIssueOpts(options)
 
   const { days, serial, centerPath, pass } = options
@@ -176,11 +181,11 @@ async function reqCert(options: IssueOpts): Promise<string> {
   ]
   const runOpts = { cwd: centerPath }
 
-  if (config.isWin32) {
+  if (config.isWin32) { // use config file
     await createRandomConfTpl(config, options)
     args.push('-config', config.randomConfigFile)
   }
-  else {
+  else {  // pass args by -subj
     const subj = genIssueSubj(options)
 
     subj && args.push('-subj', subj)
@@ -201,6 +206,8 @@ async function reqCert(options: IssueOpts): Promise<string> {
       throw err
     })
 }
+
+
 
 
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
