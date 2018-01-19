@@ -316,7 +316,7 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
     throw new Error('length of pass must not greater than 1023 chars if not empty')
   }
 
-  if ( ! await isFileExists(caKeyFile)) {
+  if (options.kind !== 'ca' && ! await isFileExists(caKeyFile)) {
     throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
   }
   if ( ! options.C || options.C.length !== 2) {
@@ -444,8 +444,13 @@ export async function unlinkCaKey(centerName: string): Promise<void> {
   }
   const file = `${centerPath}/${config.caKeyName}` // ca.key
 
-  if (await isFileExists(file)) {
-    await unlinkAsync(file) // unlink ca.key
+  try {
+    if (await isFileExists(file)) {
+      await unlinkAsync(file) // unlink ca.key
+    }
+  }
+  catch (ex) {
+    return
   }
 }
 
