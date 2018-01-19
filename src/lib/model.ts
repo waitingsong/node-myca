@@ -74,7 +74,7 @@ export interface CaOpts {
   hash?: 'sha256' | 'sha384'
 
   CN: string    // Common Name
-  OU: string    // Organizational Unit Name
+  OU?: string    // Organizational Unit Name
   O?: string    // Organization Name
   C?: string    // Country Name (2 letter code)
   ST?: string   // State or Province Name
@@ -109,7 +109,7 @@ export interface CertOpts {
   hash?: 'sha256' | 'sha384'
 
   CN: string    // Common Name
-  OU: string    // Organizational Unit Name
+  OU?: string    // Organizational Unit Name
   O?: string    // Organization Name
   C?: string    // Country Name (2 letter code)
   ST?: string   // State or Province Name
@@ -129,7 +129,7 @@ export interface IssueOpts extends SignOpts {
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
   hash: 'sha256' | 'sha384'
   CN: string    // Common Name
-  OU: string    // Organizational Unit Name
+  OU?: string    // Organizational Unit Name
   O?: string    // Organization Name
   C?: string    // Country Name (2 letter code)
   ST?: string   // State or Province Name

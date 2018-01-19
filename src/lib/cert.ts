@@ -325,9 +325,9 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   if ( ! options.CN) {
     throw new Error('value of CN (Common Name) invalid')
   }
-  if ( ! options.OU) {
-    throw new Error('value of OU (Organizational Unit Name) invalid')
-  }
+  // if ( ! options.OU) {
+  //   throw new Error('value of OU (Organizational Unit Name) invalid')
+  // }
   if (typeof options.days !== 'number') {
     throw new Error('value of days must typeof number')
   }
