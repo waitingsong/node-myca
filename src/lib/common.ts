@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { mkdir, readFile, stat, unlink, writeFile } from 'fs'
+import { close, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
 import { normalize } from 'path'
 import { promisify } from 'util'
 
@@ -8,8 +8,11 @@ import { CenterList, ExecFileOptions, WriteFileOptions } from './model'
 
 export const mkdirAsync = promisify(mkdir)
 export const readFileAsync = promisify(readFile)
+export const writeAsync = promisify(write)
 export const writeFileAsync = promisify(writeFile)
 export const unlinkAsync = promisify(unlink)
+export const openAsync = promisify(open)
+export const closeAsync = promisify(close)
 
 export function runOpenssl(args: string[] = [], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -22,13 +25,16 @@ export function runOpenssl(args: string[] = [], options?: ExecFileOptions): Prom
   })
 }
 
+
 export function isDirExists(path: string): Promise<boolean> {
   return isDirFileExists(path, 'DIR')
 }
 
+
 export function isFileExists(path: string): Promise<boolean> {
   return isDirFileExists(path, 'FILE')
 }
+
 
 function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
   return new Promise(resolve => {
@@ -41,11 +47,13 @@ function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
   })
 }
 
+
 export async function createDir(path: string): Promise<void> {
   if (!await isDirExists(path)) {
     await mkdirAsync(path, 0o755)
   }
 }
+
 
 export async function createFile(path: string, data: any, options?: WriteFileOptions): Promise<void> {
   if (!await isFileExists(path)) {
@@ -59,6 +67,7 @@ export async function createFile(path: string, data: any, options?: WriteFileOpt
     }
   }
 }
+
 
 export async function getCenterPath(centerName: string | void): Promise<string> {
   if ( ! centerName) {
@@ -74,6 +83,7 @@ export async function getCenterPath(centerName: string | void): Promise<string> 
   }
   return Promise.resolve('')
 }
+
 
 export async function loadCenterList(): Promise<CenterList> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
@@ -92,6 +102,7 @@ export async function loadCenterList(): Promise<CenterList> {
   }
   throw new Error(`Content from loading file: ${file} is blank or invalid.`)
 }
+
 
 export async function updateCenterList(key: string, path: string): Promise<void> {
   if (!key || !path) {
