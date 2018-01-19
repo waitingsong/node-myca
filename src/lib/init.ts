@@ -102,10 +102,11 @@ async function createInitialFiles(path: string, files: string[]): Promise<void> 
 }
 
 async function initDbFiles(path: string): Promise<void> {
-  const dir = `${path}/${config.dbDir}`
+  const db = `${path}/${config.dbDir}`
 
-  await createFile(`${dir}/serial`, '', { mode: 0o644 })
-  await createFile(`${dir}/index`, '', { mode: 0o644 })
+  await createFile(`${db}/serial`, '01', { mode: 0o644 })
+  await createFile(`${db}/index`, '', { mode: 0o644 })
+  await createFile(`${db}/index.attr`, 'unique_subject = no', { mode: 0o644 })
 }
 
 
