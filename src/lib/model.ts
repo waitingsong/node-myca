@@ -49,13 +49,13 @@ export interface Config {
   isOpensslCmdValid: boolean
 
   isWin32: boolean
-  randomConfigFile: string  // dynamic assign for win32
+  configName: string  // dynamic assign for win32
   confTpl: string // config template for win32
 }
 
 export type Alg = 'rsa' | 'ec'    // algorithm
 export interface PrivateKeyOpts {
-  serial: number
+  // serial: string
   centerName: 'default' | string
   alg: Alg
   pass: string
@@ -83,14 +83,27 @@ export interface CaOpts {
   [prop: string]: any
 }
 
+// sign csr
+export interface SignOpts {
+  centerPath: string  // default as config.defaultCenterPath
+  days: number
+  hash: 'sha256' | 'sha384'
+  caCrtFile: string
+  caKeyFile: string
+  caKeyPass: string
+  csrFile: string
+  configFile?: string // openssl config file . default centerPath/.config
+}
+
 // passed by customer
 export interface CertOpts {
   kind: 'ca' | 'server' | 'client'
-  serial?: number
+  // serial?: string
   centerName?: 'default' | string  // key name of log dir
   days: number
   alg?: Alg
-  pass?: string // if not empty at least 4 chars
+  pass: string // at least 4 chars
+  caKeyPass: string
   keyBits?: number // for rsa
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
   hash?: 'sha256' | 'sha384'
@@ -105,17 +118,16 @@ export interface CertOpts {
 }
 
 // inner usage
-export interface IssueOpts {
+export interface IssueOpts extends SignOpts {
   kind: 'ca' | 'server' | 'client'
+  serial: string  // hex
   centerName: 'default' | string  // key name of center dir
-  centerPath: string  // default as config.defaultCenterPath
   days: number
   alg: Alg
   pass?: string
   keyBits: number // for rsa
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
   hash: 'sha256' | 'sha384'
-  serial: number
   CN: string    // Common Name
   OU: string    // Organizational Unit Name
   O?: string    // Organization Name
@@ -143,9 +155,13 @@ export interface KeysRet {
   privateKey: string  // private key pem
   privateUnsecureKey: string  // private key pem without pass encrypted
   pass: string
+  privateKeyFile: string
+  privateUnsecureKeyFile: string
 }
 
 export interface IssueCertRet extends KeysRet {
+  csr: string
+  csrFile: string
   cert: string  // certificate pem
   crtFile: string // certificate file path
 }

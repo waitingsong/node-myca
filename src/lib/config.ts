@@ -1,4 +1,4 @@
-import { CaOpts, CertOpts, Config, IssueCertRet, PrivateKeyOpts } from './model'
+import { CaOpts, CertOpts, Config, IssueCertRet, IssueOpts, PrivateKeyOpts, SignOpts } from './model'
 
 
 export const config: Config = {
@@ -19,12 +19,12 @@ export const config: Config = {
   isOpensslCmdValid: false,
 
   isWin32: false,
-  randomConfigFile: '',
+  configName: '.config',
   confTpl: 'tpl.conf',
 }
 
 export const initialPrivateKeyOpts: PrivateKeyOpts = {
-  serial: 0,
+  // serial: 0,
   centerName: 'default',
   alg: 'rsa',
   pass: '',
@@ -49,16 +49,27 @@ export const initialCaOpts: CaOpts = {
   emailAddress: '',
 }
 
-export const initialCertOpts: CertOpts = {
+// sign csr
+export const initialSignOpts: SignOpts = {
+  centerPath: '',
+  days: 750,  // 2year
+  hash: 'sha256',
+  caCrtFile: '',
+  caKeyFile: '',
+  caKeyPass: '',
+  csrFile: '',
+  configFile: '',
+}
+
+export const initialCertOpts: IssueOpts = {
   kind: 'server',
-  serial: 0,
+  serial: '', // hex
   centerName: 'default',
-  days: 750,    // 2years
+  centerPath: '',
   alg: 'rsa',
   pass: '',
   keyBits: 2048,
   ecParamgenCurve: 'P-256', // for alg==ec
-  hash: 'sha256',
   // DNs
   CN: '',
   OU: '',
@@ -67,6 +78,8 @@ export const initialCertOpts: CertOpts = {
   ST: '',
   L: '',
   emailAddress: '',
+
+  ...initialSignOpts,
 }
 
 export const reqSubjectFields = [
@@ -79,7 +92,7 @@ export const reqSubjectFields = [
   'emailAddress',
 ]
 
-export const initialCertRet: IssueCertRet  = {
+export const initialCertRet: IssueCertRet = {
   pubKey: '',     // pubkey pem
   privateKey: '',  // private key pem
   privateUnsecureKey: '',  // private key pem

@@ -1,10 +1,12 @@
 import { execFile } from 'child_process'
+import { tmpdir } from 'os'
 import { normalize } from 'path'
 
 import { nextSerial } from './center'
 import {
   createFile,
   getCenterPath,
+  isDirExists,
   isFileExists,
   readFileAsync,
   runOpenssl,
@@ -15,6 +17,7 @@ import {
   initialCertOpts,
   initialCertRet,
   initialPrivateKeyOpts,
+  initialSignOpts,
   reqSubjectFields } from './config'
 import {
   CertOpts,
@@ -22,12 +25,13 @@ import {
   IssueCertRet,
   IssueOpts,
   KeysRet,
-  PrivateKeyOpts } from './model'
+  PrivateKeyOpts,
+  SignOpts } from './model'
 
 
 // generate certificate of self-signed CA
 export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
-  const issueOpts = await processIssueOpts(<IssueOpts> { ...initialCertOpts, ...options })
+  const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
   validateIssueOpts(issueOpts)
@@ -35,13 +39,56 @@ export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const keysRet: KeysRet = await genKeys(privateKeyOpts)
   const caKeyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
 
-  console.log(issueOpts)
+  // console.log(issueOpts)
   if (await isFileExists(caKeyFile)) {
-    return Promise.reject(`cakeyFile exists: "${caKeyFile}"`)
+    return Promise.reject(`caKeyFile exists: "${caKeyFile}"`)
   }
   await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
   const cert = await reqCaCert(issueOpts) // ca cert
   const ret: IssueCertRet = { ...initialCertRet, ...keysRet, cert }
+
+  return Promise.resolve(ret)
+}
+
+
+// issue certificate of server or client by ca.key
+export async function genCert(options: CertOpts): Promise<IssueCertRet> {
+  const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
+  const centerPath = issueOpts.centerPath
+
+  if (issueOpts.kind === 'ca') {
+    return Promise.reject('value of kind can not be "ca", generate CA cert via genCaCert()')
+  }
+  validateIssueOpts(issueOpts)
+  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
+  const caKeyFile = normalize(`${centerPath}/${config.caKeyName}`) // ca.key
+  const caCrtFile = `${centerPath}/${config.caCrtName}` // ca.crt
+  let keysRet: KeysRet = await genKeys(privateKeyOpts)
+
+  if ( ! await isFileExists(caKeyFile)) {
+    return Promise.reject(`caKeyFile not exists: "${caKeyFile}"`)
+  }
+  issueOpts.serial = await nextSerial(issueOpts.centerName, config)
+  keysRet = await savePrivateKeys(config, issueOpts, keysRet)
+  const csr = await reqServerCert(config, issueOpts, keysRet) // csr string
+  const csrFile = `${centerPath}/server/${issueOpts.serial}.csr`
+  const ret: IssueCertRet = { ...initialCertRet, ...keysRet, csr, csrFile }
+
+  await createFile(csrFile, csr, { mode: 0o600 })
+  ret.crtFile = normalize(`${centerPath}/server/${issueOpts.serial}.crt`)
+
+  const signOpts: SignOpts = {
+    ...initialSignOpts,
+    centerPath,
+    caCrtFile,
+    caKeyFile,
+    caKeyPass: issueOpts.caKeyPass,
+    csrFile,
+    configFile: issueOpts.configFile,
+  }
+
+  ret.cert = await sign(signOpts)
+  await createFile(ret.crtFile, ret.cert, { mode: 0o644 })
 
   return Promise.resolve(ret)
 }
@@ -56,7 +103,11 @@ export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> 
   // console.log('pub:', pubKey)
   // console.log('unsecure key:', privateUnsecureKey)
 
-  return { pubKey, privateKey, privateUnsecureKey, pass: privateKeyOpts.pass }
+  return { pubKey, privateKey, privateUnsecureKey,
+    pass: privateKeyOpts.pass,
+    privateKeyFile: '',
+    privateUnsecureKeyFile: '',
+  }
 }
 
 
@@ -176,14 +227,14 @@ async function reqCaCert(options: IssueOpts): Promise<string> {
   const args = [
     'req', '-batch', '-utf8', '-x509', '-new',
     '-days', days + '',
-    '-set_serial', serial + '',
     '-key', keyFile,
   ]
   const runOpts = { cwd: centerPath }
+  let rtpl = ''
 
   if (config.isWin32) { // use config file
-    await createRandomConfTpl(config, options)
-    args.push('-config', config.randomConfigFile)
+    rtpl = await createRandomConfTpl(config, options)
+    args.push('-config', rtpl)
   }
   else {  // pass args by -subj
     const subj = genIssueSubj(options)
@@ -191,23 +242,59 @@ async function reqCaCert(options: IssueOpts): Promise<string> {
     subj && args.push('-subj', subj)
   }
   pass && args.push('-passin', `pass:${pass}`)
+  // console.log('issueOpts:', options)
+  // console.log('args:', args)
 
   return runOpenssl(args, runOpts)
     .then((stdout: string) => {
       if (stdout && stdout.includes('CERTIFICATE')) {
-        console.log(stdout)
-        config.isWin32 && unlinkRandomConfTpl(config, options)
+        // console.log(stdout)
+        rtpl && unlinkRandomConfTpl(rtpl)
         return stdout
       }
       throw new Error('openssl return value: ' + stdout)
     })
     .catch(err => {
-      config.isWin32 && unlinkRandomConfTpl(config, options)
+      rtpl && unlinkRandomConfTpl(rtpl)
       throw err
     })
 }
 
 
+// return csr
+async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRet): Promise<string> {
+  await validateIssueOpts(options)
+
+  const { openssl } = config
+  const { days, serial, centerPath, pass } = options
+  const privateUnsecureKeyFile = keysRet.privateUnsecureKeyFile
+  const args = [
+    'req', '-batch', '-utf8', '-new',
+    '-days', '30',
+    '-key', privateUnsecureKeyFile,
+  ]
+  const runOpts = { cwd: centerPath }
+  const rtpl = await createRandomConfTpl(config, options)
+
+  args.push('-config', rtpl)
+  // console.log('issueOpts:', options)
+  // console.log('keysRet:', keysRet)
+  // console.log('args', args)
+
+  return runOpenssl(args, runOpts)
+    .then((stdout: string) => {
+      if (stdout && stdout.includes('REQUEST')) {
+        // console.log(stdout)
+        unlinkRandomConfTpl(rtpl)
+        return stdout
+      }
+      throw new Error('openssl return value: ' + stdout)
+    })
+    .catch(err => {
+      unlinkRandomConfTpl(rtpl)
+      throw err
+    })
+}
 
 
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
@@ -219,16 +306,14 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
       should create center dir by calling createCenter(centerName, path)
     `)
   }
-  if (pass) {
-    if (typeof pass !== 'string') {
-      throw new Error('pass must be typeof string')
-    }
-    if (pass.length < 4) {
-      throw new Error('length of pass must at least 4 chars if not empty')
-    }
-    if (pass.length > 1023) {
-      throw new Error('length of pass must not greater than 1023 chars if not empty')
-    }
+  if (typeof pass !== 'string') {
+    throw new Error('pass must be typeof string')
+  }
+  if (pass.length < 4) {
+    throw new Error('length of pass must at least 4 chars if not empty')
+  }
+  if (pass.length > 1023) {
+    throw new Error('length of pass must not greater than 1023 chars if not empty')
   }
 
   if ( ! await isFileExists(caKeyFile)) {
@@ -252,10 +337,11 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
 }
 
 
-async function processIssueOpts(options: IssueOpts): Promise<IssueOpts > {
+async function processIssueOpts(config: Config, options: IssueOpts): Promise<IssueOpts > {
   const { keyBits, pass } = options
 
   options.centerPath = await getCenterPath(options.centerName)
+  options.configFile || (options.configFile = `${options.centerPath}/${config.configName}`)
 
   if (options.alg === 'rsa') {
     if (keyBits && typeof keyBits === 'number') {
@@ -300,10 +386,11 @@ function genIssueSubj(options: IssueOpts): string {
 }
 
 
-async function createRandomConfTpl(config: Config, issueOpts: IssueOpts): Promise<void> {
-  const rfile = `${issueOpts.centerPath}/${config.randomConfigFile}`
-  const path = __dirname + `/${config.confTpl}`
-  let tpl = (await readFileAsync(path)).toString()
+// return random file path
+async function createRandomConfTpl(config: Config, issueOpts: IssueOpts): Promise<string> {
+  const tmp = tmpdir()
+  const rfile = `${tmp}/openssl-` + Math.random() + '.conf'
+  let tpl = (await readFileAsync(__dirname + `/${config.confTpl}`)).toString()
 
   if ( ! tpl) {
     throw new Error('loaded openssl config tpl is empty')
@@ -320,12 +407,14 @@ async function createRandomConfTpl(config: Config, issueOpts: IssueOpts): Promis
   }
   tpl = tpl.replace(/%hash%/g, issueOpts.hash)  // global
 
-  return createFile(rfile, tpl)
+  return createFile(rfile, tpl).then(() => {
+    return rfile
+  })
 }
 
 
-function unlinkRandomConfTpl(config: Config, issueOpts: IssueOpts): void {
-  unlinkAsync(`${issueOpts.centerPath}/${config.randomConfigFile}`)
+async function unlinkRandomConfTpl(file: string): Promise<void> {
+  await isFileExists(file) && unlinkAsync(file)
 }
 
 
@@ -359,3 +448,80 @@ export async function unlinkCaKey(centerName: string): Promise<void> {
     await unlinkAsync(file) // unlink ca.key
   }
 }
+
+// save private keys to server/
+async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: KeysRet): Promise<KeysRet> {
+  const { centerPath, serial } = issueOpts
+  const { privateKey, privateUnsecureKey } = keysRet
+
+  keysRet.privateKeyFile = `${centerPath}/server/${serial}.key`
+  keysRet.privateUnsecureKeyFile = `${keysRet.privateKeyFile}.unsecure`
+  await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o644 })
+  await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
+
+  if ( ! await isFileExists(keysRet.privateKeyFile)) {
+    throw new Error(`save private key file failed. file: "${keysRet.privateKeyFile}"`)
+  }
+  return keysRet
+}
+
+// sign csr with ca.key, return crt
+export async function sign(signOpts: SignOpts): Promise<string> {
+  const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath } = signOpts
+  const args = <string[]> [
+    'ca', '-batch',
+    '-config', configFile,
+    '-days', days + '',
+    '-cert', caCrtFile,
+    '-keyfile', caKeyFile,
+    '-in', csrFile,
+    '-passin', `pass:${caKeyPass}`,
+  ]
+
+  await validateSignOpts(signOpts)
+  // console.log('signOpts:', signOpts)
+  // console.log('args:', args)
+
+  return runOpenssl(args, { cwd: centerPath })
+    .then((stdout: string) => {
+      if (stdout && stdout.includes('CERTIFICATE')) {
+        console.log(stdout)
+        return stdout
+      }
+      throw new Error('openssl sign csr return value: ' + stdout)
+    })
+}
+
+
+async function validateSignOpts(signOpts: SignOpts): Promise<void> {
+  const { centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
+
+  if ( ! await isDirExists(centerPath)) {
+    return Promise.reject(`folder of param centerPath of signOpts not exists: "${centerPath}"`)
+  }
+  if ( ! +days) {
+    return Promise.reject(`value of param days of signOpts inavlid: "${days}"`)
+  }
+  if ( ! hash) {
+    return Promise.reject(`value of param hash of signOpts inavlid: "${hash}"`)
+  }
+  if ( ! await isFileExists(caCrtFile)) {
+    return Promise.reject(`file of param caCrtFile of signOpts not exists: "${caCrtFile}"`)
+  }
+  if ( ! await isFileExists(caKeyFile)) {
+    return Promise.reject(`file of param caKeyFile of signOpts not exists: "${caKeyFile}"`)
+  }
+  if ( ! await isFileExists(csrFile)) {
+    return Promise.reject(`file of param csrFile of signOpts not exists: "${csrFile}"`)
+  }
+  if ( ! configFile) {
+    return Promise.reject(`value of param configFile of signOpts empty: "${configFile }"`)
+  }
+  if ( ! await isFileExists(configFile)) {
+    return Promise.reject(`file of param configFile  of signOpts not exists: "${configFile }"`)
+  }
+  if ( ! caKeyPass) {
+    return Promise.reject(`value of param caKeyPass of signOpts inavlid: "${caKeyPass}"`)
+  }
+}
+
