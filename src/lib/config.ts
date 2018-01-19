@@ -1,4 +1,4 @@
-import { CaOpts, CertOpts, Config, PrivateKeyOpts } from './model'
+import { CaOpts, CertOpts, Config, IssueCertRet, PrivateKeyOpts } from './model'
 
 
 export const config: Config = {
@@ -79,11 +79,15 @@ export const reqSubjectFields = [
   'emailAddress',
 ]
 
-export const initialCertRet = {
+export const initialCertRet: IssueCertRet  = {
   pubKey: '',     // pubkey pem
   privateKey: '',  // private key pem
   privateUnsecureKey: '',  // private key pem
   pass: '',
+  privateKeyFile: '',
+  privateUnsecureKeyFile: '',
+  csr: '',
+  csrFile: '',
   cert: '',  // certificate pem
   crtFile: '', // certificate file path
 }
