@@ -4,11 +4,10 @@ import {
   copyFileAsync,
   createDir,
   createFile,
-  getCenterPath,
   isDirExists,
   readFileAsync } from './common'
 import { config } from './config'
-import { Config } from './model'
+import { CenterList, Config } from './model'
 
 
 // return new serial HEX string
@@ -138,3 +137,40 @@ export async function updateCenterList(key: string, path: string): Promise<void>
 
   writeFileAsync(file, JSON.stringify(centerList))
 }
+
+
+async function loadCenterList(): Promise<CenterList> {
+  const file = `${config.defaultCenterPath}/${config.centerListName}`
+  const buf = await readFileAsync(file)
+  const str = buf.toString()
+
+  if (typeof str === 'string' && str) {
+    const centerList: CenterList = JSON.parse(str)
+
+    if (centerList && centerList.default) {
+      return centerList
+    }
+    else {
+      throw new Error('centerList invalid or contains not key of default')
+    }
+  }
+  throw new Error(`Content from loading file: ${file} is blank or invalid.`)
+}
+
+
+export async function getCenterPath(centerName: string | void): Promise<string> {
+  if ( ! centerName) {
+    return Promise.resolve('')
+  }
+  if (centerName === 'default') {
+    return Promise.resolve(config.defaultCenterPath)
+  }
+  const centerList = await loadCenterList()
+
+  if (typeof centerList === 'object' && centerList) {
+    return Promise.resolve(centerList[centerName])
+  }
+  return Promise.resolve('')
+}
+
+

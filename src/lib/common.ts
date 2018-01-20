@@ -3,7 +3,7 @@ import { close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile 
 import { promisify } from 'util'
 
 import { config } from './config'
-import { CenterList, ExecFileOptions, WriteFileOptions } from './model'
+import { ExecFileOptions, WriteFileOptions } from './model'
 
 export const mkdirAsync = promisify(mkdir)
 export const readFileAsync = promisify(readFile)
@@ -67,42 +67,6 @@ export async function createFile(path: string, data: any, options?: WriteFileOpt
     }
   }
 }
-
-
-export async function getCenterPath(centerName: string | void): Promise<string> {
-  if ( ! centerName) {
-    return Promise.resolve('')
-  }
-  if (centerName === 'default') {
-    return Promise.resolve(config.defaultCenterPath)
-  }
-  const centerList = await loadCenterList()
-
-  if (typeof centerList === 'object' && centerList) {
-    return Promise.resolve(centerList[centerName])
-  }
-  return Promise.resolve('')
-}
-
-
-export async function loadCenterList(): Promise<CenterList> {
-  const file = `${config.defaultCenterPath}/${config.centerListName}`
-  const buf = await readFileAsync(file)
-  const str = buf.toString()
-
-  if (typeof str === 'string' && str) {
-    const centerList: CenterList = JSON.parse(str)
-
-    if (centerList && centerList.default) {
-      return centerList
-    }
-    else {
-      throw new Error('centerList invalid or contains not key of default')
-    }
-  }
-  throw new Error(`Content from loading file: ${file} is blank or invalid.`)
-}
-
 
 
 // validate openssl cli

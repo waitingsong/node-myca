@@ -2,10 +2,9 @@ import { execFile } from 'child_process'
 import { tmpdir } from 'os'
 import { normalize } from 'path'
 
-import { isCenterInited, nextSerial } from './center'
+import { getCenterPath, isCenterInited, nextSerial } from './center'
 import {
   createFile,
-  getCenterPath,
   isDirExists,
   isFileExists,
   readFileAsync,
