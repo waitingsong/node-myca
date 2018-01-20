@@ -1,5 +1,8 @@
+import { join } from 'path'
+
 import {
   closeAsync,
+  copyFileAsync,
   getCenterPath,
   openAsync,
   readFileAsync,
@@ -23,4 +26,10 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
     throw new Error('retrive nextSerial failed or invalid. value: ' + nextDec)
   }
   return nextHex
+}
+
+
+// copy .config to center
+export async function initOpensslConfig(configName: string, centerPath: string) {
+  return copyFileAsync(join(__dirname, configName), join(centerPath, configName) )
 }

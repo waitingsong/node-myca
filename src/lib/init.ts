@@ -1,6 +1,7 @@
 import { exec } from 'child_process'
 import { normalize } from 'path'
 
+import { initOpensslConfig } from './center'
 import { genCaCert, saveCaCrt } from './cert'
 import {
   createDir,
@@ -88,6 +89,7 @@ export async function createCenter(centerName: string, path: string): Promise<vo
   }
   await initDbFiles(path)
   await updateCenterList(centerName, path)
+  await initOpensslConfig(config.configName, path)
 }
 
 
