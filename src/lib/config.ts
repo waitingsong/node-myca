@@ -1,4 +1,4 @@
-import { CaOpts, CertOpts, Config, IssueCertRet, IssueOpts, PrivateKeyOpts, SignOpts } from './model'
+import { CaOpts, Config, IssueCertRet, IssueOpts, PrivateKeyOpts, SignOpts } from './model'
 
 
 export const config: Config = {

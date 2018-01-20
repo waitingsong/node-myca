@@ -6,10 +6,9 @@ import {
   createFile,
   getCenterPath,
   isDirExists,
-  readFileAsync,
-  writeAsync } from './common'
-import { config, initialCaOpts } from './config'
-import { CaOpts, CertOpts, Config } from './model'
+  readFileAsync } from './common'
+import { config } from './config'
+import { Config } from './model'
 
 
 // return new serial HEX string

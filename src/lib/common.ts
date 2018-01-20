@@ -1,6 +1,5 @@
 import { exec, execFile } from 'child_process'
 import { close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
-import { normalize } from 'path'
 import { promisify } from 'util'
 
 import { config } from './config'

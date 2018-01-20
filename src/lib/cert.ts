@@ -2,7 +2,7 @@ import { execFile } from 'child_process'
 import { tmpdir } from 'os'
 import { normalize } from 'path'
 
-import { isCenterInited, nextSerial  } from './center'
+import { isCenterInited, nextSerial } from './center'
 import {
   createFile,
   getCenterPath,
@@ -245,7 +245,7 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
 async function reqCaCert(options: IssueOpts): Promise<string> {
   await validateIssueOpts(options)
 
-  const { days, serial, centerPath, pass } = options
+  const { days, centerPath, pass } = options
   const keyFile = `${config.caKeyName}`
   const args = [
     'req', '-batch', '-utf8', '-x509', '-new',
@@ -288,8 +288,7 @@ async function reqCaCert(options: IssueOpts): Promise<string> {
 async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRet): Promise<string> {
   await validateIssueOpts(options)
 
-  const { openssl } = config
-  const { days, serial, centerPath, pass } = options
+  const { centerPath } = options
   const privateUnsecureKeyFile = keysRet.privateUnsecureKeyFile
   const args = [
     'req', '-batch', '-utf8', '-new',
@@ -496,7 +495,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
 // sign csr with ca.key, return crt
 export async function sign(signOpts: SignOpts): Promise<string> {
   const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath } = signOpts
-  const args = <string[]> [
+  const args = [
     'ca', '-batch',
     '-config', configFile,
     '-days', days + '',
