@@ -69,6 +69,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
   console.log(`CenterPath name: ${centerName}, path: ${path}`)
 }
 
+
 export async function isCenterInited(centerName: string): Promise<boolean> {
   const centerPath = await getCenterPath(centerName)
 
@@ -80,6 +81,7 @@ export async function isCenterInited(centerName: string): Promise<boolean> {
   }
   return false
 }
+
 
 // create center dir to store output certifacates
 export async function createCenter(centerName: string, path: string): Promise<void> {
@@ -182,5 +184,3 @@ export async function getCenterPath(centerName: string | void): Promise<string> 
   }
   return Promise.resolve('')
 }
-
-
