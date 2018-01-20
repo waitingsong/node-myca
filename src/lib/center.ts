@@ -123,7 +123,7 @@ export async function updateCenterList(key: string, path: string): Promise<void>
     throw new Error('params key or path is invalid')
   }
   const centerList = await loadCenterList()
-  const file = `${config.defaultCenterPath}/${config.centerListName}`
+  const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
 
   path = normalize(path)
   if (key === 'default') {
