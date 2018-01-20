@@ -490,7 +490,6 @@ export async function sign(signOpts: SignOpts): Promise<string> {
   return runOpenssl(args, { cwd: centerPath })
     .then((stdout: string) => {
       if (stdout && stdout.includes('CERTIFICATE')) {
-        console.log(stdout)
         return stdout
       }
       throw new Error('openssl sign csr return value: ' + stdout)
