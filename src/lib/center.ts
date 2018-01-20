@@ -1,4 +1,4 @@
-import { join } from 'path'
+import { join, normalize } from 'path'
 
 import {
   copyFileAsync,
