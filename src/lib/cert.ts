@@ -494,7 +494,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
 // sign csr with ca.key, return crt
 export async function sign(signOpts: SignOpts): Promise<string> {
   const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath } = signOpts
-  const args = [
+  const args = <string[]> [
     'ca', '-batch',
     '-config', configFile,
     '-days', days + '',
