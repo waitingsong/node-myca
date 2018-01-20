@@ -5,6 +5,7 @@ import {
   createDir,
   createFile,
   isDirExists,
+  isFileExists,
   readFileAsync,
   writeFileAsync } from './common'
 import { config } from './config'
@@ -125,6 +126,10 @@ export async function updateCenterList(key: string, path: string): Promise<void>
   const centerList = await loadCenterList()
   const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
 
+  if ( ! centerList) {
+    throw new Error(`file not exists: "${file}"`)
+  }
+
   path = normalize(path)
   if (key === 'default') {
     if (centerList.default) {
@@ -140,8 +145,12 @@ export async function updateCenterList(key: string, path: string): Promise<void>
 }
 
 
-async function loadCenterList(): Promise<CenterList> {
+async function loadCenterList(): Promise<CenterList | void> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
+
+  if ( ! await isFileExists(file)) {
+    return
+  }
   const buf = await readFileAsync(file)
   const str = buf.toString()
 
