@@ -105,27 +105,6 @@ export async function loadCenterList(): Promise<CenterList> {
 }
 
 
-export async function updateCenterList(key: string, path: string): Promise<void> {
-  if (!key || !path) {
-    throw new Error('params key or path is invalid')
-  }
-  const centerList = await loadCenterList()
-  const file = `${config.defaultCenterPath}/${config.centerListName}`
-
-  path = normalize(path)
-  if (key === 'default') {
-    if (centerList.default) {
-      return
-    }
-  }
-  else if (centerList[key]) {
-    throw new Error(`center list exists already, can not create more. key: "${key}", path: "${path}"`)
-  }
-  centerList[key] = path
-
-  writeFileAsync(file, JSON.stringify(centerList))
-}
-
 
 // validate openssl cli
 export function getOpensslVer(openssl: string): Promise<string> {

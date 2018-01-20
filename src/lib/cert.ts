@@ -2,7 +2,7 @@ import { execFile } from 'child_process'
 import { tmpdir } from 'os'
 import { normalize } from 'path'
 
-import { nextSerial } from './center'
+import { isCenterInited, nextSerial  } from './center'
 import {
   createFile,
   getCenterPath,
@@ -14,12 +14,14 @@ import {
   writeFileAsync } from './common'
 import {
   config,
+  initialCaOpts,
   initialCertOpts,
   initialCertRet,
   initialPrivateKeyOpts,
   initialSignOpts,
   reqSubjectFields } from './config'
 import {
+  CaOpts,
   CertOpts,
   Config,
   IssueCertRet,
@@ -29,8 +31,29 @@ import {
   SignOpts } from './model'
 
 
+export async function initCaCert(issueOpts: CaOpts): Promise<void> {
+  const opts = <CertOpts> { ...initialCaOpts, ...issueOpts }
+
+  if ( ! opts.centerName) {
+    return Promise.reject('centerName empty')
+  }
+  if ( ! await isCenterInited(opts.centerName)) {
+    return Promise.reject(`center: ${opts.centerName} not initialized yes`)
+  }
+  const centerPath = await getCenterPath(opts.centerName)
+  const file = normalize(`${centerPath}/${config.caCrtName}`)
+
+  if (await isFileExists(file)) {
+    return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
+  }
+  const certRet = await genCaCert(opts)
+
+  await saveCaCrt(config, opts, certRet.cert)
+}
+
+
 // generate certificate of self-signed CA
-export async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
+async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
