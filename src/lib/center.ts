@@ -119,7 +119,7 @@ async function initDbFiles(path: string): Promise<void> {
 }
 
 
-export async function updateCenterList(key: string, path: string): Promise<void> {
+async function updateCenterList(key: string, path: string): Promise<void> {
   if (!key || !path) {
     throw new Error('params key or path is invalid')
   }
