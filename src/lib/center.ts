@@ -5,7 +5,8 @@ import {
   createDir,
   createFile,
   isDirExists,
-  readFileAsync } from './common'
+  readFileAsync,
+  writeFileAsync } from './common'
 import { config } from './config'
 import { CenterList, Config } from './model'
 
