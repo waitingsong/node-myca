@@ -7,6 +7,7 @@ import {
   createDir,
   createFile,
   getCenterPath,
+  getOpensslVer,
   isDirExists,
   isFileExists,
   updateCenterList } from './common'
@@ -110,26 +111,6 @@ async function initDbFiles(path: string): Promise<void> {
   await createFile(`${db}/index.attr`, 'unique_subject = no', { mode: 0o644 })
 }
 
-
-// validate openssl cli
-export function getOpensslVer(openssl: string): Promise<string> {
-  if ( ! openssl) {
-    throw new Error('value of param openssl empty')
-  }
-  const cmd = `${openssl} version`
-
-  return new Promise((resolve, reject) => {
-    exec(cmd, (err, stdout) => {
-      if (err) {
-        throw err
-      }
-      if (stdout && stdout.indexOf('OpenSSL') >= 0) {
-        return resolve(stdout.split(' ')[1])
-      }
-      reject('openssl cli error:' + stdout)
-    })
-  })
-}
 
 export async function initCaCert(issueOpts: CaOpts): Promise<void> {
   const opts = <CertOpts> { ...initialCaOpts, ...issueOpts }

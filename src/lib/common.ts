@@ -1,4 +1,4 @@
-import { execFile } from 'child_process'
+import { exec, execFile } from 'child_process'
 import { close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
 import { normalize } from 'path'
 import { promisify } from 'util'
@@ -124,4 +124,25 @@ export async function updateCenterList(key: string, path: string): Promise<void>
   centerList[key] = path
 
   writeFileAsync(file, JSON.stringify(centerList))
+}
+
+
+// validate openssl cli
+export function getOpensslVer(openssl: string): Promise<string> {
+  if ( ! openssl) {
+    throw new Error('value of param openssl empty')
+  }
+  const cmd = `${openssl} version`
+
+  return new Promise((resolve, reject) => {
+    exec(cmd, (err, stdout) => {
+      if (err) {
+        throw err
+      }
+      if (stdout && stdout.indexOf('OpenSSL') >= 0) {
+        return resolve(stdout.split(' ')[1])
+      }
+      reject('openssl cli error:' + stdout)
+    })
+  })
 }
