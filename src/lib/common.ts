@@ -1,5 +1,6 @@
 import { exec, execFile } from 'child_process'
 import { close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
+import { normalize, resolve, sep } from 'path'
 import { promisify } from 'util'
 
 import { config } from './config'
@@ -48,9 +49,24 @@ function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
 }
 
 
+// create directories recursively
 export async function createDir(path: string): Promise<void> {
+  path = normalize(path)
   if (!await isDirExists(path)) {
-    await mkdirAsync(path, 0o755)
+    await path.split(sep).reduce(async (parentDir, childDir) => {
+      const curDir = resolve(await parentDir, childDir)
+
+      if ( ! await isDirExists(curDir)) {
+        try {
+          await mkdirAsync(curDir, 0o755)
+        }
+        catch (ex) {
+          throw ex
+        }
+      }
+
+      return curDir
+    }, Promise.resolve(sep))
   }
 }
 
