@@ -77,7 +77,7 @@ myca.initDefaultCenter().catch(console.error)
        C: 'CN',   // Country Name (2 letter code)
      })
    })
-   .catch(err => console.error(err))
+   .catch(console.error)
 ```
 
 - 使用指定的中心签发一张 RSA 服务器证书

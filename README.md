@@ -77,7 +77,7 @@ myca.initDefaultCenter().catch(console.error)
        C: 'CN',   // Country Name (2 letter code)
      })
    })
-   .catch(err => console.error(err))
+   .catch(console.error)
 ```
 
 - Issue a RSA serve certificate under specified center
