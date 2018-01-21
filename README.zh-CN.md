@@ -51,6 +51,7 @@ myca.initDefaultCenter().catch(console.error)
    })
    .then((ret) => {
      console.log(ret.cert)
+     console.log(ret.crtFile)
      console.log(ret.privateUnsecureKey)
    })
    .catch(console.error)
