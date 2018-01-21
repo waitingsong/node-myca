@@ -1,9 +1,9 @@
 /// <reference types="node" />
 /// <reference types="mocha" />
 
+import { tmpdir } from 'os'
 import { basename, normalize } from 'path'
 import * as assert from 'power-assert'
-
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
@@ -24,8 +24,9 @@ describe(filename, () => {
   })
 
   it('Should initDefaultCenter() works', async () => {
+    const tmp = tmpdir()
     const random = Math.random()
-    const randomPath = `${config.userHome}/myca-test-${random}`
+    const randomPath = `${tmp}/myca-test-${random}`
 
     config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
 
