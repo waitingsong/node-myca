@@ -142,9 +142,11 @@ async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
       break
 
     case 'ec':
-      // key = await genECKey(options)
+      key = await genECKey(options)
       break
 
+    default:
+      throw new Error('value of param invalid')
   }
 
   return key
@@ -153,8 +155,7 @@ async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
 
 // generate rsa private key pem
 function genRSAKey(options: PrivateKeyOpts): Promise<string> {
-  let { keyBits, pass } = options
-
+  const { keyBits, pass } = options
   const args = ['genpkey', '-algorithm', 'rsa', '-pkeyopt', `rsa_keygen_bits:${keyBits}`]
 
   if (pass) {
@@ -168,7 +169,28 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
     if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
       return stdout
     }
-    return ''
+    throw new Error(`generate private key failed. stdout: "${stdout}"`)
+  })
+}
+
+
+// generate ec private key pem
+function genECKey(options: PrivateKeyOpts): Promise<string> {
+  const { ecParamgenCurve, pass } = options
+  const args = ['genpkey', '-algorithm', 'ec', '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`]
+
+  if (pass) {
+    if (/\s/.test(pass)) {
+      return Promise.reject('pass phrase contains blank or invisible char during generate private key')
+    }
+    args.push('-aes256', '-pass', `pass:${pass}`)
+  }
+
+  return runOpenssl(args).then(stdout => {
+    if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
+      return stdout
+    }
+    throw new Error(`generate private key failed. stdout: "${stdout}"`)
   })
 }
 
