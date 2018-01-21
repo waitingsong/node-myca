@@ -65,16 +65,17 @@ myca.initDefaultCenter().catch(console.error)
 ```js
  import * as myca from 'myca'
 
+ // 中心名centerName: ec, 路径: /opt/center-ec/
  myca.initCenter('ec', '/opt/center-ec')
    .then(() => {
      return myca.initCaCert({
        centerName: 'ec',
        alg: 'ec',
-       days: 10950,  // 30years
+       days: 10950,
        pass: 'mycapass',
-       CN: 'My Root CA',    // Common Name
-       OU: 'waitingsong.com',   // Organizational Unit Name
-       C: 'CN',   // Country Name (2 letter code)
+       CN: 'My Root CA',
+       OU: 'waitingsong.com',
+       C: 'CN',
      })
    })
    .catch(console.error)
@@ -88,16 +89,11 @@ myca.initDefaultCenter().catch(console.error)
    .genCert({
      centerName: 'ec',  // <--- 指定中心名: ec
      caKeyPass: 'mycapass',
-     kind: 'server',   // server cert
+     kind: 'server',
      days: 730,
-     pass: 'fooo',   // at least 4 letters
-     CN: 'www.waitingsong.com',    // Common Name
-     OU: '',   // Organizational Unit Name
-     O: '',   // Organization Name
-     L: '',    // Locality Name (eg, city)
-     ST: '',   // State or Province Name
-     C: 'CN',   // Country Name (2 letter code)
-     emailAddress: '',
+     pass: 'fooo',
+     CN: 'www.waitingsong.com',
+     C: 'CN',
    })
    .then((ret) => {
      console.log(ret.cert)
