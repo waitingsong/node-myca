@@ -24,11 +24,11 @@ myca.initDefaultCenter().catch(console.error)
      pass: 'mycapass',
      CN: 'My Root CA',    // Common Name
      OU: 'waitingsong.com',   // Organizational Unit Name
-     // O: '',   // Organization Name (eg, company)
-     // L: '',    // Locality Name (eg, city)
-     // ST: '',   // State or Province Name
+     O: '',   // Organization Name (eg, company)
+     L: '',    // Locality Name (eg, city)
+     ST: '',   // State or Province Name
      C: 'CN',   // Country Name (2 letter code)
-     // emailAddress: '',
+     emailAddress: '',
    })
    .catch(console.error)
 ```
@@ -42,12 +42,12 @@ myca.initDefaultCenter().catch(console.error)
      days: 730,
      pass: 'fooo',   // at least 4 letters
      CN: 'www.waitingsong.com',    // Common Name
-     // OU: '',   // Organizational Unit Name
-     // O: '',   // Organization Name
-     // L: '',    // Locality Name (eg, city)
-     // ST: '',   // State or Province Name
+     OU: '',   // Organizational Unit Name
+     O: '',   // Organization Name
+     L: '',    // Locality Name (eg, city)
+     ST: '',   // State or Province Name
      C: 'CN',   // Country Name (2 letter code)
-     // emailAddress: '',
+     emailAddress: '',
    })
    .then((ret) => {
      console.log(ret.cert)
