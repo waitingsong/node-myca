@@ -7,7 +7,7 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { isDirExists, unlinkAsync } from '../src/lib/common'
+import { isDirExists } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
