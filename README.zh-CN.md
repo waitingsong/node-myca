@@ -13,6 +13,8 @@ npm install --save myca
 ## 使用
 - 初始化默认中心
 ```js
+import * as myca from 'myca'
+
 myca.initDefaultCenter().catch(console.error)
 ```
 
@@ -25,12 +27,8 @@ myca.initDefaultCenter().catch(console.error)
      days: 10950,  // 30years
      pass: 'mycapass',
      CN: 'My Root CA',    // Common Name
-     OU: 'waitingsong.com',   // Organizational Unit Name
-     O: '',   // Organization Name (eg, company)
-     L: '',    // Locality Name (eg, city)
-     ST: '',   // State or Province Name
+     O: 'My Company',   // Organization Name (eg, company)
      C: 'CN',   // Country Name (2 letter code)
-     emailAddress: '',
    })
    .catch(console.error)
 ```
@@ -74,7 +72,7 @@ myca.initDefaultCenter().catch(console.error)
        days: 10950,
        pass: 'mycapass',
        CN: 'My Root CA',
-       OU: 'waitingsong.com',
+       O: 'My Company',
        C: 'CN',
      })
    })
