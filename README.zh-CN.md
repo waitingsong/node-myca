@@ -61,7 +61,7 @@ myca.initDefaultCenter().catch(console.error)
    .catch(console.error)
 ```
 
-- 创建额外的中心，并且自签发 EC 算法的CA证书 (默认 P-256)
+- 创建额外的中心，并且自签发 EC 算法的 CA 证书 (默认 P-256)
 ```js
  import * as myca from 'myca'
 
