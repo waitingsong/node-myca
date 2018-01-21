@@ -16,6 +16,7 @@
     "src/**/*"
   ],
   "exclude": [
+    "asset/",
     "dist/",
     "test/",
     "node_modules",

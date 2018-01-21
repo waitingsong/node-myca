@@ -1,6 +1,6 @@
 import { execFile } from 'child_process'
 import { tmpdir } from 'os'
-import { normalize } from 'path'
+import { join, normalize } from 'path'
 
 import { getCenterPath, isCenterInited, nextSerial } from './center'
 import {
@@ -411,7 +411,7 @@ function genIssueSubj(options: IssueOpts): string {
 async function createRandomConfTpl(config: Config, issueOpts: IssueOpts): Promise<string> {
   const tmp = tmpdir()
   const rfile = `${tmp}/openssl-` + Math.random() + '.conf'
-  let tpl = (await readFileAsync(__dirname + `/${config.confTpl}`)).toString()
+  let tpl = (await readFileAsync(join(__dirname, '../../asset', `/${config.confTpl}`))).toString()
 
   if ( ! tpl) {
     throw new Error('loaded openssl config tpl is empty')

@@ -19,8 +19,8 @@ export const config: Config = {
   isOpensslCmdValid: false,
 
   isWin32: false,
-  configName: '.config',
-  confTpl: 'tpl.conf',
+  configName: '.config',  // under asset/
+  confTpl: 'tpl.conf',  // under asset/
 }
 
 export const initialPrivateKeyOpts: PrivateKeyOpts = {
