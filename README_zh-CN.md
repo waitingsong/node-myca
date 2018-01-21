@@ -1,22 +1,22 @@
 # myca
-Create my CA center, generate a self signed x509 certificate, issue server certificate from node.js via openssl. Multiple center supported.
+使用 openssl 和 node.js 创建自有 CA 中心（自签发CA证书或者上级CA签发的中级CA证书），签发自签名数字证书。支持创建多个 CA 中心
 
 [![Version](https://img.shields.io/npm/v/myca.svg)](https://www.npmjs.com/package/myca)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 
-## Installing
+## 安装
 ```bash
 npm install --save myca
 ```
 
-## Usage
-- initialize default center
+## 使用
+- 初始化默认中心
 ```js
 myca.initDefaultCenter().catch(console.error)
 ```
 
-- initialize CA cert of default center
+- 初始化默认中心的 CA 自签发证书
 ```js
  myca
    .initCaCert({
@@ -35,7 +35,7 @@ myca.initDefaultCenter().catch(console.error)
    })
 ```
 
-- issue a serve certificate
+- 签发一张服务器证书
 ```js
  myca
    .genCert({
