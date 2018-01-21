@@ -12,8 +12,9 @@
     "jslint": "eslint --fix dist/**/*.js",
     "lint": "tslint -p tslint.json -e **/*.d.ts -t stylish src/**/*.ts test/**/*.ts",
     "prepublishOnly": "npm run build",
-    "test": "npm run test:local",
-    "test:local": "mocha --config test/mocha.appveyor.opts"
+    "test": "npm run test:travis",
+    "test:appveyor": "mocha --config test/mocha.appveyor.opts",
+    "test:travis": "mocha --config test/mocha.travis.opts"
   },
   "keywords": [
     "CA",
