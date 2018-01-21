@@ -30,9 +30,7 @@ myca.initDefaultCenter().catch(console.error)
      C: 'CN',   // Country Name (2 letter code)
      // emailAddress: '',
    })
-   .catch((err) => {
-      console.error(err)
-   })
+   .catch(console.error)
 ```
 
 - issue a serve certificate
@@ -55,9 +53,7 @@ myca.initDefaultCenter().catch(console.error)
      console.log(ret.cert)
      console.log(ret.privateUnsecureKey)
    })
-   .catch(err => {
-     console.error(err)
-   })
+   .catch(console.error)
 ```
 
 
