@@ -3,6 +3,7 @@ Create my CA center, generate a self signed x509 certificate, issue server certi
 
 [![Version](https://img.shields.io/npm/v/myca.svg)](https://www.npmjs.com/package/myca)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/waitingsong/node-myca.svg?branch=master)](https://travis-ci.org/waitingsong/node-myca)
 
 
 ## Installing
