@@ -18,6 +18,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - 初始化默认中心的 CA 自签发证书
 ```js
+ import * as myca from 'myca'
+
  myca
    .initCaCert({
      days: 10950,  // 30years
@@ -33,8 +35,10 @@ myca.initDefaultCenter().catch(console.error)
    .catch(console.error)
 ```
 
-- 签发一张服务器证书
+- 签发一张 RSA 服务器证书
 ```js
+ import * as myca from 'myca'
+
  myca
    .genCert({
      caKeyPass: 'mycapass',
@@ -57,6 +61,51 @@ myca.initDefaultCenter().catch(console.error)
    .catch(console.error)
 ```
 
+- 创建额外的中心，并且自签发 EC 算法的CA证书 (默认 P-256)
+```js
+ import * as myca from 'myca'
+
+ myca.initCenter('ec', '/opt/center-ec')
+   .then(() => {
+     return myca.initCaCert({
+       centerName: 'ec',
+       alg: 'ec',
+       days: 10950,  // 30years
+       pass: 'mycapass',
+       CN: 'My Root CA',    // Common Name
+       OU: 'waitingsong.com',   // Organizational Unit Name
+       C: 'CN',   // Country Name (2 letter code)
+     })
+   })
+   .catch(err => console.error(err))
+```
+
+- 使用指定的中心签发一张 RSA 服务器证书
+```js
+ import * as myca from 'myca'
+
+ myca
+   .genCert({
+     centerName: 'ec',  // <--- 指定中心名: ec
+     caKeyPass: 'mycapass',
+     kind: 'server',   // server cert
+     days: 730,
+     pass: 'fooo',   // at least 4 letters
+     CN: 'www.waitingsong.com',    // Common Name
+     OU: '',   // Organizational Unit Name
+     O: '',   // Organization Name
+     L: '',    // Locality Name (eg, city)
+     ST: '',   // State or Province Name
+     C: 'CN',   // Country Name (2 letter code)
+     emailAddress: '',
+   })
+   .then((ret) => {
+     console.log(ret.cert)
+     console.log(ret.crtFile)
+     console.log(ret.privateUnsecureKey)
+   })
+   .catch(console.error)
+```
 
 
 ## License
