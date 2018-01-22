@@ -66,7 +66,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
 
   await createDir(path) // create default ca dir under userHome
   await createCenter(centerName, path)  // create default cneter dir under userHome
-  console.log(`CenterPath name: ${centerName}, path: ${path}`)
+  // console.log(`CenterPath name: ${centerName}, path: ${path}`)
 }
 
 
