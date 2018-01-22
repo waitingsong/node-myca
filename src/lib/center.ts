@@ -135,6 +135,9 @@ async function createInitialFiles(path: string, files: string[]): Promise<void> 
 async function initDbFiles(path: string): Promise<void> {
   const db = `${path}/${config.dbDir}`
 
+  if ( ! path) {
+    throw new Error('value of path empty')
+  }
   await createFile(`${db}/serial`, '01', { mode: 0o644 })
   await createFile(`${db}/index`, '', { mode: 0o644 })
   await createFile(`${db}/index.attr`, 'unique_subject = no', { mode: 0o644 })
