@@ -8,8 +8,8 @@ import {
   isFileExists,
   readFileAsync,
   writeFileAsync } from './common'
-import { config } from './config'
-import { CenterList, Config } from './model'
+import { config, initialDbFiles } from './config'
+import { CenterList, Config, InitialFile } from './model'
 
 
 // return new serial HEX string
@@ -104,7 +104,7 @@ async function createCenter(centerName: string, path: string): Promise<void> {
       await createDir(dir)
     }
   }
-  await initDbFiles(path)
+  await initDbFiles(path, initialDbFiles)
   await updateCenterList(centerName, path)
   await initOpensslConfig(config.configName, path)
 }
@@ -132,15 +132,25 @@ async function createInitialFiles(path: string, files: string[]): Promise<void> 
   }
 }
 
-async function initDbFiles(path: string): Promise<void> {
+async function initDbFiles(path: string, files: InitialFile[]): Promise<void> {
   const db = `${path}/${config.dbDir}`
 
   if ( ! path) {
-    throw new Error('value of path empty')
+    throw new Error('value of path empty initDbFiles()')
   }
-  await createFile(`${db}/serial`, '01', { mode: 0o644 })
-  await createFile(`${db}/index`, '', { mode: 0o644 })
-  await createFile(`${db}/index.attr`, 'unique_subject = no', { mode: 0o644 })
+  if ( ! files || ! Array.isArray(files) || ! files.length) {
+    throw new Error('value of param files empty initDbFiles()')
+  }
+
+  for (const file of files) {
+    if ( ! file.name) {
+      throw new Error('file name empty within initDbFiles()')
+    }
+    if (typeof file.defaultValue === 'undefined') {
+      throw new Error('file defaultValue empty')
+    }
+    await createFile(`${db}/${file.name}`, file.defaultValue, (file.mode ? { mode: file.mode } : {}))
+  }
 }
 
 

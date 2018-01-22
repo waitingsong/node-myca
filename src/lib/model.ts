@@ -165,3 +165,9 @@ export interface IssueCertRet extends KeysRet {
   cert: string  // certificate pem
   crtFile: string // certificate file path
 }
+
+export interface InitialFile {
+  name: string
+  defaultValue: string | number
+  mode?: number
+}

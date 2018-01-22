@@ -1,4 +1,5 @@
-import { CaOpts, Config, IssueCertRet, IssueOpts, PrivateKeyOpts, SignOpts } from './model'
+
+import { CaOpts, Config, InitialFile, IssueCertRet, IssueOpts, PrivateKeyOpts, SignOpts } from './model'
 
 
 export const config: Config = {
@@ -104,3 +105,21 @@ export const initialCertRet: IssueCertRet = {
   cert: '',  // certificate pem
   crtFile: '', // certificate file path
 }
+
+export const initialDbFiles: InitialFile[] = [
+  {
+    name: 'serial',
+    defaultValue: '01',
+    mode: 0o644,
+  },
+  {
+    name: 'index',
+    defaultValue: '',
+    mode: 0o644,
+  },
+  {
+    name: 'index.attr',
+    defaultValue: 'unique_subject = no',
+    mode: 0o644,
+  },
+]
