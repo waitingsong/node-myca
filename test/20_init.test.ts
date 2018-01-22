@@ -127,4 +127,17 @@ describe(filename, () => {
   })
 
 
+  it('Should getCenterPath() works', async () => {
+    try {
+      const centerPath = await myca.getCenterPath('default')
+
+      centerPath || assert(false, 'getCenterPath("default") should return not empty result, but EMPTY')
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
+
 })
