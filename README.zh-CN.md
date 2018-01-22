@@ -16,14 +16,16 @@ npm install --save myca
 ## 使用
 - 初始化默认中心
 ```js
-import * as myca from 'myca'
+// import * as myca from 'myca'  // TypeScript
+const myca = require('myca')
 
 myca.initDefaultCenter().catch(console.error)
 ```
 
 - 初始化默认中心的 CA 自签发证书
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  myca
    .initCaCert({
@@ -38,7 +40,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - 签发一张 RSA 服务器证书
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  myca
    .genCert({
@@ -64,7 +67,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - 创建额外的中心，并且自签发 EC 算法的 CA 证书 (默认 P-256)
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  // 中心名centerName: ec, 路径: /opt/center-ec/
  myca.initCenter('ec', '/opt/center-ec')
@@ -84,7 +88,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - 使用指定的中心签发一张 RSA 服务器证书
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  myca
    .genCert({

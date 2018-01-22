@@ -15,14 +15,16 @@ npm install --save myca
 ## Usage
 - Initialize default center
 ```js
-import * as myca from 'myca'
+// import * as myca from 'myca'  // TypeScript
+const myca = require('myca')
 
 myca.initDefaultCenter().catch(console.error)
 ```
 
 - Initialize CA cert of default center
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  myca
    .initCaCert({
@@ -37,7 +39,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - Issue a RSA serve certificate
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  myca
    .genCert({
@@ -63,7 +66,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - Initialize more center and create self-signed EC CA certificate (default P-256)
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  // centerName: ec, folder: /opt/center-ec/
  myca.initCenter('ec', '/opt/center-ec')
@@ -83,7 +87,8 @@ myca.initDefaultCenter().catch(console.error)
 
 - Issue a RSA serve certificate under specified center
 ```js
- import * as myca from 'myca'
+ // import * as myca from 'myca'
+ const myca = require('myca')
 
  myca
    .genCert({
