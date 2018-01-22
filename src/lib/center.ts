@@ -149,6 +149,9 @@ async function initDbFiles(path: string, files: InitialFile[]): Promise<void> {
     if (typeof file.defaultValue === 'undefined') {
       throw new Error('file defaultValue empty')
     }
+    if (typeof file.defaultValue !== 'string' && typeof file.defaultValue !== 'number') {
+      throw new Error('file defaultValue invalid, must be typeof string or number')
+    }
     await createFile(`${db}/${file.name}`, file.defaultValue, (file.mode ? { mode: file.mode } : {}))
   }
 }
