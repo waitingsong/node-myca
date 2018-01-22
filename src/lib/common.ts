@@ -1,6 +1,6 @@
 import { exec, execFile } from 'child_process'
 import { close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
-import { normalize, resolve, sep } from 'path'
+import { dirname, normalize, resolve, sep } from 'path'
 import { promisify } from 'util'
 
 import { config } from './config'
@@ -83,15 +83,24 @@ export async function createDir(path: string): Promise<void> {
 }
 
 
-export async function createFile(path: string, data: any, options?: WriteFileOptions): Promise<void> {
-  if (!await isFileExists(path)) {
+export async function createFile(file: string, data: any, options?: WriteFileOptions): Promise<void> {
+  const path = dirname(file)
+
+  if ( ! path) {
+    throw new Error('path empty')
+  }
+  if ( ! await isDirExists(path)) {
+    await createDir(path)
+  }
+
+  if (!await isFileExists(file)) {
     if (typeof data === 'object') {
-      await writeFileAsync(path, JSON.stringify(data))
+      await writeFileAsync(file, JSON.stringify(data))
     }
     else {
       const opts: WriteFileOptions = options ? options : { mode: 0o640 }
 
-      await writeFileAsync(path, data, opts)
+      await writeFileAsync(file, data, opts)
     }
   }
 }
