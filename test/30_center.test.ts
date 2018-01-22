@@ -2,7 +2,7 @@
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
-import { basename, normalize } from 'path'
+import { basename, join, normalize } from 'path'
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
@@ -58,7 +58,6 @@ describe(filename, () => {
     }
   })
 
-
   it('Should getCenterPath() works with invalid param', async () => {
     const random = Math.random()
     try {
@@ -69,6 +68,52 @@ describe(filename, () => {
     catch (ex) {
       assert(true)
     }
+  })
+
+
+  it('Should createCenter() works', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+
+    try {
+      await myca.createCenter(centerName, centerPath)
+    }
+    catch (ex) {
+      return asset(false, ex)
+    }
+
+    if (! await isDirExists(centerPath)) {
+      return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
+  it('Should createCenter() works', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+    const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
+
+    try {
+      await myca.createCenter(centerName, centerPath)
+    }
+    catch (ex) {
+      return asset(false, ex)
+    }
+
+    for (const name of folders) {
+      const dir = join(centerPath, name)
+
+      if (! await isDirExists(dir)) {
+        return assert(false, `spcified center folder not exists, path: "${dir}"`)
+      }
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
   })
 
 
