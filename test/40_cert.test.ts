@@ -40,11 +40,26 @@ describe(filename, () => {
       OU: 'waitingsong.com',
       C: 'CN',
     }
+
     try {
       await myca.initCaCert(opts)
     }
     catch (ex) {
       return assert(false, ex)
+    }
+  })
+
+  it('Should initCaCert() works with invalid param', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+    }
+
+    try {
+      await myca.initCaCert(opts)
+      assert(false, 'initCaCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
     }
   })
 
