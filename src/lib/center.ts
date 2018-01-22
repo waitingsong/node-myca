@@ -71,6 +71,9 @@ export async function initCenter(centerName: string, path: string): Promise<void
 
 
 export async function isCenterInited(centerName: string): Promise<boolean> {
+  if ( ! centerName) {
+    throw new Error('value of path param invalid')
+  }
   const centerPath = await getCenterPath(centerName)
 
   if ( ! centerPath) {
