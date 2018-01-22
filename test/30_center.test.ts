@@ -9,7 +9,7 @@ import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
 import { isDirExists, isFileExists } from '../src/lib/common'
-import { config } from '../src/lib/config'
+import { config, initialDbFiles } from '../src/lib/config'
 
 
 const filename = basename(__filename)
@@ -256,6 +256,39 @@ describe(filename, () => {
 
     rmdir(randomPath, (err) => err && console.error(err))
   })
+
+
+  it('Should initDbFiles() works', async () => {
+    const random = Math.random()
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const fnName = 'initDbFiles'
+    const fn = <(path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
+    const db = `${randomPath}/${config.dbDir}`
+    const files = initialDbFiles
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      await fn(randomPath, files)
+    }
+    catch (ex) {
+      rmdir(randomPath, (err) => err && console.error(err))
+      return assert(false, ex)
+    }
+    for (const file of files) {
+      const path = `${db}/${file.name}`
+
+      if ( ! await isFileExists(path)) {
+        assert(false, `file not exists. path: "${path}"`)
+      }
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
 
 
 })
