@@ -104,6 +104,7 @@ export async function createCenter(centerName: string, path: string): Promise<vo
 
 
 async function createInitialFiles(path: string, files: string[]): Promise<void> {
+  path = normalize(path)
   for (let i = 0, len = files.length; i < len; i++) {
     const file = `${path}/${files[i]}`
     const data = { default: path }
