@@ -111,10 +111,18 @@ export async function createCenter(centerName: string, path: string): Promise<vo
 
 
 async function createInitialFiles(path: string, files: string[]): Promise<void> {
+  if ( ! path) {
+    throw new Error('value of path empty')
+  }
   path = normalize(path)
   for (let i = 0, len = files.length; i < len; i++) {
-    const file = `${path}/${files[i]}`
+    const name = files[i]
+    const file = `${path}/${name}`
     const data = { default: path }
+
+    if ( ! name) {
+      throw new Error('value of files item empty')
+    }
 
     await createFile(file, data)
   }
