@@ -90,6 +90,10 @@ export async function isCenterInited(centerName: string): Promise<boolean> {
 export async function createCenter(centerName: string, path: string): Promise<void> {
   const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
+  if ( ! centerName) {
+    throw new Error('value of centerName invalid')
+  }
+
   if ( ! await isCenterInited(centerName)) {
     await createDir(path)
   }
