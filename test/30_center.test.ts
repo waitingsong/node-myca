@@ -116,5 +116,56 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+  it('Should createCenter() works with invalid param', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+    const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
+
+    try {
+      await myca.createCenter('', centerPath)
+      assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    for (const name of folders) {
+      const dir = join(centerPath, name)
+
+      if (await isDirExists(dir)) {
+        return assert(false, `spcified center folder should NOT exists, path: "${dir}"`)
+      }
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
+  it('Should createCenter() works with invalid param', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+    const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
+
+    try {
+      await myca.createCenter(centerName, '')
+      assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    for (const name of folders) {
+      const dir = join(centerPath, name)
+
+      if (await isDirExists(dir)) {
+        return assert(false, `spcified center folder should NOT exists, path: "${dir}"`)
+      }
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
 
 })
