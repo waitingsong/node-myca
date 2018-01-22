@@ -80,6 +80,15 @@ describe(filename, () => {
       await myca.isCenterInited(centerName),
       `isCenterInited(${centerName}) says folder not exits. path: "${centerPath}"`)
 
+    // create again
+    try {
+      await myca.initCenter(centerName, centerPath)
+      assert(false, 'initCenter() should throw error for already created folder, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
