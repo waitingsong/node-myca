@@ -548,7 +548,10 @@ async function validateSignOpts(signOpts: SignOpts): Promise<void> {
   if ( ! await isDirExists(centerPath)) {
     return Promise.reject(`folder of param centerPath of signOpts not exists: "${centerPath}"`)
   }
-  if ( ! +days) {
+  if (typeof +days !== 'number') {
+    return Promise.reject(`value of param days of signOpts inavlid: "${days}"`)
+  }
+  if (+days <= 0) {
     return Promise.reject(`value of param days of signOpts inavlid: "${days}"`)
   }
   if ( ! hash) {
