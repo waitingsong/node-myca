@@ -513,6 +513,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
   return keysRet
 }
 
+
 // sign csr with ca.key, return crt
 export async function sign(signOpts: SignOpts): Promise<string> {
   const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath } = signOpts
