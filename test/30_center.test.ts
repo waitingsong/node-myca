@@ -46,7 +46,7 @@ describe(filename, () => {
     }
 
     const random = Math.random()
-    const centerName = `center-${random}`
+    const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
 
@@ -76,7 +76,7 @@ describe(filename, () => {
 
   it('Should createCenter() works', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
+    const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
 
@@ -96,7 +96,7 @@ describe(filename, () => {
 
   it('Should createCenter() works', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
+    const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
@@ -121,7 +121,7 @@ describe(filename, () => {
 
   it('Should createCenter() works with invalid param', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
+    const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
@@ -147,7 +147,7 @@ describe(filename, () => {
 
   it('Should createCenter() works with invalid param', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
+    const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
@@ -174,7 +174,7 @@ describe(filename, () => {
 
   it('Should createInitialFiles() works', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
+    const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'createInitialFiles'
     const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
