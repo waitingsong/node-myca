@@ -13,8 +13,8 @@ import { config } from '../src/lib/config'
 const filename = basename(__filename)
 const tmpDir = tmpdir()
 const random = Math.random()
-const randomPath = `${tmpDir}/myca-test-${random}`
-// console.log(randomPath)
+const pathPrefix = 'myca-test-center'
+const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
 config.isWin32 = process.platform === 'win32' ? true : false
 config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
@@ -61,8 +61,8 @@ describe(filename, () => {
 
   it('Should initCenter() works', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
 
     try {
@@ -95,8 +95,8 @@ describe(filename, () => {
 
   it('Should initCenter() works with invalid param', async () => {
     const random = Math.random()
-    const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
 
     try {
