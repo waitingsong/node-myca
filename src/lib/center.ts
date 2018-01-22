@@ -115,6 +115,10 @@ async function createInitialFiles(path: string, files: string[]): Promise<void> 
     throw new Error('value of path empty')
   }
   path = normalize(path)
+  if ( ! await isDirExists(path)) {
+    await createDir(path)
+  }
+
   for (let i = 0, len = files.length; i < len; i++) {
     const name = files[i]
     const file = `${path}/${name}`
