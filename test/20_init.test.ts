@@ -83,7 +83,7 @@ describe(filename, () => {
     // create again
     try {
       await myca.initCenter(centerName, centerPath)
-      assert(false, 'initCenter() should throw error for already created folder, but NOT')
+      return assert(false, 'initCenter() should throw error for already created folder, but NOT')
     }
     catch (ex) {
       assert(true)
@@ -92,6 +92,39 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+
+  it('Should initCenter() works with invalid param', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+
+    try {
+      await myca.initCenter('default', centerPath)  // 'default' not allowed
+      return assert(false, 'initCenter("default") should throw error for value default not allowed, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    try {
+      await myca.initCenter('', centerPath)
+      return assert(false, 'initCenter() should throw error for invalid param of centerName, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    if (await isDirExists(centerPath)) {
+      return assert(false, `spcified center folder should not exists, but did exists, path: "${centerPath}"`)
+    }
+
+    assert(
+      ! await myca.isCenterInited(centerName),
+      `isCenterInited(${centerName}) says folder exits, but should NOT. path: "${centerPath}"`)
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
 
 
 })
