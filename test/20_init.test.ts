@@ -127,44 +127,4 @@ describe(filename, () => {
   })
 
 
-  it('Should getCenterPath() works', async () => {
-    try {
-      const centerPath = await myca.getCenterPath('default')
-
-      centerPath || assert(false, 'getCenterPath("default") should return not empty result, but EMPTY')
-    }
-    catch (ex) {
-      return assert(false, ex)
-    }
-
-    const random = Math.random()
-    const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
-    const centerPath = `${randomPath}/${config.centerDirName}`
-
-    await myca.initCenter(centerName, centerPath)
-    try {
-      const centerPath = await myca.getCenterPath(centerName)
-
-      centerPath || assert(false, `getCenterPath('${centerName}') should return not empty result, but EMPTY`)
-    }
-    catch (ex) {
-      return assert(false, ex)
-    }
-  })
-
-
-  it('Should getCenterPath() works with invalid param', async () => {
-    const random = Math.random()
-    try {
-      const centerPath = await myca.getCenterPath(random)
-
-      centerPath && assert(false, 'getCenterPath() should return empty result with invalid centerName, but NOT')
-    }
-    catch (ex) {
-      assert(true)
-    }
-  })
-
-
 })
