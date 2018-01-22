@@ -13,7 +13,8 @@ import { getOpensslVer } from './lib/common'
 import { config } from './lib/config'
 
 
-config.isWin32 = process.platform === 'win32' ? true : false
+/* istanbul ignore next */
+config.isWin32 = process.platform === 'win32' ? true : false    /* istanbul ignore next */
 config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
 config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
 config.openssl = normalize(config.openssl)
