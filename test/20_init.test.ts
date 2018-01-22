@@ -136,6 +136,21 @@ describe(filename, () => {
     catch (ex) {
       return assert(false, ex)
     }
+
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+
+    await myca.initCenter(centerName, centerPath)
+    try {
+      const centerPath = await myca.getCenterPath(centerName)
+
+      centerPath || assert(false, `getCenterPath('${centerName}') should return not empty result, but EMPTY`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
   })
 
 
