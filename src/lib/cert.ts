@@ -42,6 +42,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<void> {
   const centerPath = await getCenterPath(opts.centerName)
   const file = normalize(`${centerPath}/${config.caCrtName}`)
 
+  /* istanbul ignore next */
   if (await isFileExists(file)) {
     return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
   }
