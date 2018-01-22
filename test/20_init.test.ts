@@ -11,25 +11,27 @@ import { isDirExists } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
+const tmpDir = tmpdir()
+const random = Math.random()
+const randomPath = `${tmpDir}/myca-test-${random}`
+// console.log(randomPath)
 
 config.isWin32 = process.platform === 'win32' ? true : false
 config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
-config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
+// config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
+config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
 config.openssl = normalize(config.openssl)
 
 
 describe(filename, () => {
-  beforeEach(() => {
-    config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`)
+  // beforeEach(() => {
+  //   config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`)
+  // })
+  after(() => {
+    rmdir(randomPath, (err) => err && console.error(err))
   })
 
   it('Should initDefaultCenter() works', async () => {
-    const tmp = tmpdir()
-    const random = Math.random()
-    const randomPath = `${tmp}/myca-test-${random}`
-
-    config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
-
     try {
       await myca.initDefaultCenter()
     }
@@ -45,9 +47,6 @@ describe(filename, () => {
       await myca.isCenterInited('default'),
       `isCenterInited('default') says folder not exits. path: "${config.defaultCenterPath}"`)
 
-    rmdir(randomPath, (err) => {
-      err && console.error(err)
-    })
   })
 
 
@@ -58,6 +57,32 @@ describe(filename, () => {
 
     assert(dirExists ? isDefaultCenterInited : !isDefaultCenterInited)
   })
+
+
+  it('Should initCenter() works', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+
+    try {
+      await myca.initCenter(centerName, centerPath)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+
+    if (! await isDirExists(centerPath)) {
+      return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
+    }
+
+    assert(
+      await myca.isCenterInited(centerName),
+      `isCenterInited(${centerName}) says folder not exits. path: "${centerPath}"`)
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
 
 
 })
