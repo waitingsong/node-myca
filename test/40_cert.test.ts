@@ -26,6 +26,14 @@ config.openssl = normalize(config.openssl)
 
 
 describe(filename, () => {
+  beforeEach(async () => {
+    try {
+      await myca.initDefaultCenter()
+    }
+    catch (ex) {
+      return
+    }
+  })
   after(() => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
@@ -202,7 +210,6 @@ describe(filename, () => {
       assert(true)
     }
   })
-
 
 
 })
