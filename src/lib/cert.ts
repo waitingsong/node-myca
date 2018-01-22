@@ -540,6 +540,7 @@ export async function sign(signOpts: SignOpts): Promise<string> {
 }
 
 
+/* istanbul ignore next */
 async function validateSignOpts(signOpts: SignOpts): Promise<void> {
   const { centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
 
