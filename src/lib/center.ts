@@ -42,8 +42,9 @@ export async function initDefaultCenter(): Promise<void> {
   const centerName = 'default'
   const initialFiles: string[] = [config.centerListName]
 
-  if (await isCenterInited(centerName)) {
-    return Promise.reject('default center initialized already')
+  const centerPath = await isCenterInited(centerName)
+  if (centerPath) {
+    return Promise.reject(`default center initialized already. path: "${centerPath}"`)
   }
 
   await createDir(config.defaultCenterPath) // create default ca dir under userHome
@@ -60,8 +61,9 @@ export async function initCenter(centerName: string, path: string): Promise<void
   if ( ! await isCenterInited('default')) {
     return Promise.reject('default center must be initialized first')
   }
-  if (await isCenterInited(centerName)) {
-    return Promise.reject(`center of "${centerName}" initialized already.`)
+  const centerPath = await isCenterInited(centerName)
+  if (centerPath) {
+    return Promise.reject(`center of "${centerName}" initialized already. path: "${centerPath}"`)
   }
 
   await createDir(path) // create default ca dir under userHome
@@ -70,7 +72,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
 }
 
 
-export async function isCenterInited(centerName: string): Promise<boolean> {
+export async function isCenterInited(centerName: string): Promise<string | false> {
   if ( ! centerName) {
     throw new Error('value of path param invalid')
   }
@@ -80,7 +82,7 @@ export async function isCenterInited(centerName: string): Promise<boolean> {
     return false
   }
   if (await isDirExists(centerPath)) {
-    return true
+    return centerPath
   }
   return false
 }
