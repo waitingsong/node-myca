@@ -38,6 +38,9 @@ export function isFileExists(path: string): Promise<boolean> {
 
 
 function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
+  if ( ! path) {
+    return Promise.resolve(false)
+  }
   return new Promise(resolve => {
     stat(path, (err, stats) => {
       if (err) {
