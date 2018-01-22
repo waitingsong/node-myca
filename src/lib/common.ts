@@ -51,6 +51,9 @@ function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
 
 // create directories recursively
 export async function createDir(path: string): Promise<void> {
+  if ( ! path) {
+    throw new Error('value of path param invalid')
+  }
   path = normalize(path)
   if (!await isDirExists(path)) {
     await path.split(sep).reduce(async (parentDir, childDir) => {
