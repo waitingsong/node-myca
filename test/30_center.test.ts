@@ -226,5 +226,36 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+  it('Should createInitialFiles() works with invalid param', async () => {
+    const random = Math.random()
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const fnName = 'createInitialFiles'
+    const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
+    const files = ['file1', '']
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      await fn('', files)
+      return assert(false, 'createInitialFiles() should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    try {
+      await fn(randomPath, files)
+      return assert(false, 'createInitialFiles() should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
 
 })
