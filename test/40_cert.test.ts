@@ -221,7 +221,27 @@ describe(filename, () => {
       C: 'CN',
     }
 
-    opts.alg = <'rsa'> 'fake'
+    opts.alg = <'rsa'> ''
+    try {
+      await myca.initCaCert(opts)
+      assert(false, 'initCaCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
+  it('Should initCaCert() works with invalid hash', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      days: 10950,
+      pass: 'mycapass',
+      CN: 'My Root CA',
+      OU: 'waitingsong.com',
+      C: 'CN',
+    }
+
+    opts.hash = <'sha256'> 'fake'
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
