@@ -34,7 +34,7 @@ describe(filename, () => {
       return
     }
   })
-  after(() => {
+  afterEach(() => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
