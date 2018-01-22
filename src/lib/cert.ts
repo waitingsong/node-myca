@@ -353,7 +353,7 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
     throw new Error('pass must be typeof string')
   }
   if (pass.length < 4) {
-    throw new Error('length of pass must at least 4 chars if not empty')
+    throw new Error('length of pass must at least 4')
   }
   if (pass.length > 1023) {
     throw new Error('length of pass must not greater than 1023 chars if not empty')
