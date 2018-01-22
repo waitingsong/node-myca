@@ -87,7 +87,7 @@ export async function isCenterInited(centerName: string): Promise<boolean> {
 
 
 // create center dir to store output certifacates
-export async function createCenter(centerName: string, path: string): Promise<void> {
+async function createCenter(centerName: string, path: string): Promise<void> {
   const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
   if ( ! centerName) {

@@ -346,7 +346,7 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
 
   if ( ! centerPath) {
     throw new Error(`centerPath: "${centerPath}" not exits for centerName: "${options.centerName}" \n
-      should create center dir by calling createCenter(centerName, path)
+      should create center dir by calling initCenter(centerName, path)
     `)
   }
   if (typeof pass !== 'string') {

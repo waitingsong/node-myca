@@ -79,12 +79,18 @@ describe(filename, () => {
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
+    const fnName = 'createCenter'
+    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
 
     try {
-      await myca.createCenter(centerName, centerPath)
+      await fn(centerName, centerPath)
     }
     catch (ex) {
-      return asset(false, ex)
+      return assert(false, ex)
     }
 
     if (! await isDirExists(centerPath)) {
@@ -100,12 +106,18 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
+    const fnName = 'createCenter'
+    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
 
     try {
-      await myca.createCenter(centerName, centerPath)
+      await fn(centerName, centerPath)
     }
     catch (ex) {
-      return asset(false, ex)
+      return assert(false, ex)
     }
 
     for (const name of folders) {
@@ -124,10 +136,16 @@ describe(filename, () => {
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
+    const fnName = 'createCenter'
+    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
     try {
-      await myca.createCenter('', centerPath)
+      await fn('', centerPath)
       assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
     }
     catch (ex) {
@@ -150,10 +168,16 @@ describe(filename, () => {
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
+    const fnName = 'createCenter'
+    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
     try {
-      await myca.createCenter(centerName, '')
+      await fn(centerName, '')
       assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
     }
     catch (ex) {
