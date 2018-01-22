@@ -83,5 +83,24 @@ describe(filename, () => {
     }
   })
 
+  it('Should initCaCert() works with blank pass', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      days: 10950,
+      pass: 'mycapass',
+      CN: 'My Root CA',
+      OU: 'waitingsong.com',
+      C: 'CN',
+    }
+
+    opts.pass = ''
+    try {
+      await myca.initCaCert(opts)
+      assert(false, 'initCaCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
 
 })
