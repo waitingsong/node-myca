@@ -4,17 +4,20 @@
 import { tmpdir } from 'os'
 import { basename, join, normalize } from 'path'
 import * as assert from 'power-assert'
+import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { isDirExists } from '../src/lib/common'
+import { isDirExists, isFileExists } from '../src/lib/common'
 import { config } from '../src/lib/config'
+
 
 const filename = basename(__filename)
 const tmpDir = tmpdir()
 const random = Math.random()
-const randomPath = `${tmpDir}/myca-test-${random}`
-// console.log(randomPath)
+const pathPrefix = 'myca-test-center'
+const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+const mods = rewire('../src/lib/center')
 
 config.isWin32 = process.platform === 'win32' ? true : false
 config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
@@ -44,7 +47,7 @@ describe(filename, () => {
 
     const random = Math.random()
     const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
 
     await myca.initCenter(centerName, centerPath)
@@ -74,7 +77,7 @@ describe(filename, () => {
   it('Should createCenter() works', async () => {
     const random = Math.random()
     const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
 
     try {
@@ -94,7 +97,7 @@ describe(filename, () => {
   it('Should createCenter() works', async () => {
     const random = Math.random()
     const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
@@ -119,7 +122,7 @@ describe(filename, () => {
   it('Should createCenter() works with invalid param', async () => {
     const random = Math.random()
     const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
@@ -145,7 +148,7 @@ describe(filename, () => {
   it('Should createCenter() works with invalid param', async () => {
     const random = Math.random()
     const centerName = `center-${random}`
-    const randomPath = `${tmpDir}/myca-test-center-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
@@ -167,5 +170,37 @@ describe(filename, () => {
 
     rmdir(randomPath, (err) => err && console.error(err))
   })
+
+
+  it('Should createInitialFiles() works', async () => {
+    const random = Math.random()
+    const centerName = `center-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const fnName = 'createInitialFiles'
+    const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
+    const files = ['file1', 'file2']
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      await fn(randomPath, files)
+    }
+    catch (ex) {
+      rmdir(randomPath, (err) => err && console.error(err))
+      return assert(false, ex)
+    }
+    for (const name of files) {
+      const file = `${randomPath}/${name}`
+
+      if ( ! await isFileExists(file)) {
+        assert(false, `file not exists. path: "${file}"`)
+      }
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
 
 })
