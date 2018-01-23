@@ -2,7 +2,7 @@
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
-import { basename, join, normalize } from 'path'
+import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
@@ -131,7 +131,7 @@ describe(filename, () => {
 
   it('Should createCenter() works with invalid param', async () => {
     const random = Math.random()
-    const centerName = `${pathPrefix}-${random}`
+    // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const fnName = 'createCenter'
@@ -196,7 +196,7 @@ describe(filename, () => {
 
   it('Should createInitialFiles() works', async () => {
     const random = Math.random()
-    const centerName = `${pathPrefix}-${random}`
+    // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'createInitialFiles'
     const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
@@ -226,7 +226,7 @@ describe(filename, () => {
 
   it('Should createInitialFiles() works with invalid param', async () => {
     const random = Math.random()
-    const centerName = `${pathPrefix}-${random}`
+    // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'createInitialFiles'
     const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
@@ -258,7 +258,7 @@ describe(filename, () => {
 
   it('Should initDbFiles() works', async () => {
     const random = Math.random()
-    const centerName = `${pathPrefix}-${random}`
+    // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'initDbFiles'
     const fn = <(path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
@@ -289,11 +289,11 @@ describe(filename, () => {
 
   it('Should initDbFiles() works with invalid param', async () => {
     const random = Math.random()
-    const centerName = `${pathPrefix}-${random}`
+    // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'initDbFiles'
     const fn = <(path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
-    const db = `${randomPath}/${config.dbDir}`
+    // const db = `${randomPath}/${config.dbDir}`
     let files: my.InitialFile[] = [
       { name: '', defaultValue: '' },
     ]

@@ -2,7 +2,7 @@
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
-import { basename, join, normalize } from 'path'
+import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 

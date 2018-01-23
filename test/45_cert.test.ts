@@ -2,13 +2,12 @@
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
-import { basename, join, normalize } from 'path'
+import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { isDirExists, isFileExists } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
@@ -16,7 +15,6 @@ const filename = basename(__filename)
 const tmpDir = tmpdir()
 const random = Math.random()
 const pathPrefix = 'myca-test-center'
-const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 const mods = rewire('../src/lib/cert')
 
 describe(filename, () => {
