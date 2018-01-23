@@ -8,6 +8,7 @@ cache:
     - node_modules
 
 before_install:
+  - openssl ecparam -list_curves
   - npm install
 
 
