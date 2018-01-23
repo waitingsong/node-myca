@@ -221,5 +221,25 @@ describe(filename, () => {
     }
   })
 
+  it('Should genCert() works with invalid alg', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      days: 10950,
+      pass: 'mycapass',
+      CN: 'My Root CA',
+      OU: 'waitingsong.com',
+      C: 'CN',
+    }
+
+    opts.alg = <'rsa'> ''
+    try {
+      await myca.genCert(opts)
+      assert(false, 'genCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
 })
