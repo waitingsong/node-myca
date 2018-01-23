@@ -16,12 +16,8 @@ const random = Math.random()
 const pathPrefix = 'myca-test-center'
 const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
-config.isWin32 = process.platform === 'win32' ? true : false
-config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
 // config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
 config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
-config.openssl = normalize(config.openssl)
-
 
 describe(filename, () => {
   after(() => {

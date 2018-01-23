@@ -17,12 +17,6 @@ const tmpDir = tmpdir()
 const pathPrefix = 'myca-test-center'
 const mods = rewire('../src/lib/center')
 
-config.isWin32 = process.platform === 'win32' ? true : false
-config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
-// config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
-config.openssl = normalize(config.openssl)
-
-
 describe(filename, () => {
   beforeEach(async () => {
     const random = Math.random()
