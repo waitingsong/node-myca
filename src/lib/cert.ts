@@ -57,7 +57,7 @@ async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
-  validateIssueOpts(issueOpts)
+  await validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
   const keysRet: KeysRet = await genKeys(privateKeyOpts)
   const caKeyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
@@ -82,7 +82,7 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
   if (issueOpts.kind === 'ca') {
     return Promise.reject('value of kind can not be "ca", generate CA cert via genCaCert()')
   }
-  validateIssueOpts(issueOpts)
+  await validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
   const caKeyFile = normalize(`${centerPath}/${config.caKeyName}`) // ca.key
   const caCrtFile = `${centerPath}/${config.caCrtName}` // ca.crt
