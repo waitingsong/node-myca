@@ -35,8 +35,8 @@ export const initialPrivateKeyOpts: PrivateKeyOpts = {
 export const initialCaOpts: CaOpts = {
   kind: 'ca',
   centerName: 'default',
-  days: 10950,  // 30years
   alg: 'rsa',
+  days: 10950,  // 30years
   pass: '',
   keyBits: 4096,  // for alg==rsa
   ecParamgenCurve: 'P-256',

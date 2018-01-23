@@ -66,8 +66,8 @@ export interface PrivateKeyOpts {
 // passed by customer
 export interface CaOpts {
   centerName?: 'default' | string  // key name of log dir
-  days: number
   alg?: Alg
+  days: number
   pass: string  // at least 4 chars
   keyBits?: number // for rsa
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
@@ -100,8 +100,8 @@ export interface CertOpts {
   kind: 'ca' | 'server' | 'client'
   // serial?: string
   centerName?: 'default' | string  // key name of log dir
-  days: number
   alg?: Alg
+  days: number
   pass: string // at least 4 chars
   caKeyPass: string
   keyBits?: number // for rsa
@@ -122,8 +122,8 @@ export interface IssueOpts extends SignOpts {
   kind: 'ca' | 'server' | 'client'
   serial: string  // hex
   centerName: 'default' | string  // key name of center dir
-  days: number
   alg: Alg
+  days: number
   pass?: string
   keyBits: number // for rsa
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
