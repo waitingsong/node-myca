@@ -158,9 +158,11 @@ async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
 // generate rsa private key pem
 function genRSAKey(options: PrivateKeyOpts): Promise<string> {
   const { keyBits, pass } = options
-  const args = ['genpkey', '-algorithm', 'rsa', '-pkeyopt', `rsa_keygen_bits:${keyBits}`]
-
-  args.push('-aes256', '-pass', `pass:${pass}`)
+  const args = [
+    'genpkey', '-algorithm', 'rsa',
+    '-aes256', '-pass', `pass:${pass}`,
+    '-pkeyopt', `rsa_keygen_bits:${keyBits}`,
+  ]
 
   return runOpenssl(args).then(stdout => {
     /* istanbul ignore next */
@@ -175,9 +177,11 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
 // generate ec private key pem
 function genECKey(options: PrivateKeyOpts): Promise<string> {
   const { ecParamgenCurve, pass } = options
-  const args = ['genpkey', '-algorithm', 'ec', '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`]
-
-  args.push('-aes256', '-pass', `pass:${pass}`)
+  const args = [
+    'genpkey', '-algorithm', 'ec',
+    '-aes256', '-pass', `pass:${pass}`,
+    '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`,
+  ]
 
   return runOpenssl(args).then(stdout => {
     /* istanbul ignore next */
