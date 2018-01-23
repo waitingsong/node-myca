@@ -79,6 +79,7 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
   const centerPath = issueOpts.centerPath
 
+  /* istanbul ignore next */
   if (issueOpts.kind === 'ca') {
     return Promise.reject('value of kind can not be "ca", generate CA cert via genCaCert()')
   }
@@ -167,6 +168,7 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
   }
 
   return runOpenssl(args).then(stdout => {
+    /* istanbul ignore next */
     if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
       return stdout
     }
@@ -188,6 +190,7 @@ function genECKey(options: PrivateKeyOpts): Promise<string> {
   }
 
   return runOpenssl(args).then(stdout => {
+    /* istanbul ignore next */
     if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
       return stdout
     }
@@ -207,6 +210,7 @@ function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOpts): P
       args.push('-passin', `pass:${pass}`)
     }
 
+    /* istanbul ignore next */
     const child = execFile(openssl, args, (err, stdout, stderr) => {
       if (err) {
         return reject(err)
@@ -244,6 +248,7 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
     if (pass && privateKey.indexOf('ENCRYPTED') > 0) {
       args.push('-passin', `pass:${pass}`)
     }
+    /* istanbul ignore next */
     const child = execFile(openssl, args, (err, stdout, stderr) => {
       if (err) {
         return reject(err)
@@ -290,6 +295,7 @@ async function reqCaCert(options: IssueOpts): Promise<string> {
   // console.log('issueOpts:', options)
   // console.log('args:', args)
 
+  /* istanbul ignore next */
   return runOpenssl(args, runOpts)
     .then((stdout: string) => {
       if (stdout && stdout.includes('CERTIFICATE')) {
@@ -325,6 +331,7 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
   // console.log('keysRet:', keysRet)
   // console.log('args', args)
 
+  /* istanbul ignore next */
   return runOpenssl(args, runOpts)
     .then((stdout: string) => {
       if (stdout && stdout.includes('REQUEST')) {
