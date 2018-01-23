@@ -31,7 +31,7 @@ import {
 
 
 export async function initCaCert(issueOpts: CaOpts): Promise<void> {
-  const opts = <CertOpts> { ...initialCaOpts, ...issueOpts }
+  const opts = <CaOpts> { ...initialCaOpts, ...issueOpts }
 
   if ( ! opts.centerName) {
     return Promise.reject('centerName empty')
@@ -53,7 +53,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<void> {
 
 
 // generate certificate of self-signed CA
-async function genCaCert(options: CertOpts): Promise<IssueCertRet> {
+async function genCaCert(options: CaOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
@@ -462,7 +462,7 @@ async function unlinkRandomConfTpl(file: string): Promise<void> {
 }
 
 
-export async function saveCaCrt(config: Config, issueOpts: CertOpts, data: string): Promise<void> {
+export async function saveCaCrt(config: Config, issueOpts: CaOpts, data: string): Promise<void> {
   const centerPath = await getCenterPath(issueOpts.centerName)
   const file = `${centerPath}/${config.caCrtName}`
 
