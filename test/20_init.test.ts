@@ -2,7 +2,7 @@
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
-import { basename, normalize } from 'path'
+import { basename, join, normalize } from 'path'
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
@@ -24,11 +24,8 @@ config.openssl = normalize(config.openssl)
 
 
 describe(filename, () => {
-  // beforeEach(() => {
-  //   config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`)
-  // })
   after(() => {
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
   it('Should initDefaultCenter() works', async () => {
@@ -45,8 +42,10 @@ describe(filename, () => {
 
     assert(
       await myca.isCenterInited('default'),
-      `isCenterInited('default') says folder not exits. path: "${config.defaultCenterPath}"`)
+      `isCenterInited('default') says folder not exits. path: "${config.defaultCenterPath}"`
+    )
 
+    // rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
