@@ -4,7 +4,7 @@
 import { tmpdir } from 'os'
 import { basename, join } from 'path'
 import * as assert from 'power-assert'
-import rewire = require('rewire')
+// import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
@@ -13,9 +13,8 @@ import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 const filename = basename(__filename)
 const tmpDir = tmpdir()
-const random = Math.random()
 const pathPrefix = 'myca-test-center'
-const mods = rewire('../src/lib/cert')
+// const mods = rewire('../src/lib/cert')
 
 describe(filename, () => {
   beforeEach(async () => {
