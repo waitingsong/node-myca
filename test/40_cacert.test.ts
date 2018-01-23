@@ -13,6 +13,8 @@ import { config, initialCaOpts } from '../src/lib/config'
 
 
 const filename = basename(__filename)
+const tmpDir = tmpdir()
+const pathPrefix = 'myca-test-center'
 const mods = rewire('../src/lib/cert')
 
 config.isWin32 = process.platform === 'win32' ? true : false
@@ -22,23 +24,14 @@ config.openssl = normalize(config.openssl)
 
 describe(filename, () => {
   beforeEach(async () => {
-    const tmpDir = tmpdir()
     const random = Math.random()
-    const pathPrefix = 'myca-test-center'
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
     config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
-    try {
-      await myca.initDefaultCenter()
-    }
-    catch (ex) {
-      return
-    }
+    await myca.initDefaultCenter()
   })
   afterEach(() => {
-    const randomPath = join(config.defaultCenterPath, '../')
-
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
