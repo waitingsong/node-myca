@@ -135,6 +135,35 @@ describe(filename, () => {
     }
   })
 
+  it('Should genCert() works with invalid C', async () => {
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
+      days: 10950,
+      pass: 'mycapass',
+      CN: 'My Root CA',
+      OU: 'waitingsong.com',
+      C: 'CN',    // must 2 letters
+    }
+
+    opts.C = 'C'
+    try {
+      await myca.genCert(opts)
+      assert(false, 'genCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    opts.C = 'CHS'
+    try {
+      await myca.genCert(opts)
+      assert(false, 'genCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
   it('Should genCert() works with blank C', async () => {
     const opts: myca.CertOpts = {
       ...initialCertOpts,
