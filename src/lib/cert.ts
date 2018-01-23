@@ -176,6 +176,9 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
 
 // generate ec private key pem
 function genECKey(options: PrivateKeyOpts): Promise<string> {
+  if (config.opensslVer < '1.0.2') { 
+    throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + config.opensslVer)
+  }
   const { ecParamgenCurve, pass } = options
   const args = [
     'genpkey', '-algorithm', 'ec',
