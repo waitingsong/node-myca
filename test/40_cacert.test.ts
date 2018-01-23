@@ -35,6 +35,8 @@ describe(filename, () => {
       ...initialCaOpts,
       days: 10950,
       pass: 'mycapass',
+      keyBits: 2048,  // for speed
+      hash: 'sha256',
       CN: 'My Root CA',
       OU: 'waitingsong.com',
       C: 'CN',
