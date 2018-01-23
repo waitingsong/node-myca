@@ -14,24 +14,25 @@ import { config, initialDbFiles } from '../src/lib/config'
 
 const filename = basename(__filename)
 const tmpDir = tmpdir()
-const random = Math.random()
 const pathPrefix = 'myca-test-center'
-const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 const mods = rewire('../src/lib/center')
 
 config.isWin32 = process.platform === 'win32' ? true : false
 config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
 // config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
-config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
 config.openssl = normalize(config.openssl)
 
 
 describe(filename, () => {
-  // beforeEach(() => {
-  //   config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`)
-  // })
-  after(() => {
-    rmdir(randomPath, (err) => err && console.error(err))
+  beforeEach(async () => {
+    const random = Math.random()
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+
+    config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
+    await myca.initDefaultCenter()
+  })
+  afterEach(() => {
+    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
@@ -59,10 +60,13 @@ describe(filename, () => {
     catch (ex) {
       return assert(false, ex)
     }
+
+    rmdir(randomPath, (err) => err && console.error(err))
   })
 
   it('Should getCenterPath() works with invalid param', async () => {
     const random = Math.random()
+
     try {
       const centerPath = await myca.getCenterPath(random)
 
