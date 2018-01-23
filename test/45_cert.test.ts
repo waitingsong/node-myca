@@ -67,5 +67,19 @@ describe(filename, () => {
     }
   })
 
+  it('Should genCert() works with invalid param', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+    }
+
+    try {
+      await myca.genCert(opts)
+      assert(false, 'genCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
 })
