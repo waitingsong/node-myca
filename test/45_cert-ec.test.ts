@@ -8,6 +8,7 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
+import { getOpensslVer } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
@@ -17,7 +18,11 @@ const pathPrefix = 'myca-test-center'
 // const mods = rewire('../src/lib/cert')
 
 describe(filename, () => {
+  before(async () => {
+    config.opensslVer = await getOpensslVer(config.openssl)
+  })
   beforeEach(async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const random = Math.random()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const opts: myca.CaOpts = {
@@ -35,11 +40,13 @@ describe(filename, () => {
     await myca.initCaCert(opts)
   })
   afterEach(() => {
+    if (config.opensslVer < '1.0.2') { return }
     rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
   it('Should genCert() works', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       centerName: 'default',
       caKeyPass: 'mycapass',
@@ -71,6 +78,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid param', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
     }
@@ -85,6 +93,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank centerName', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -106,6 +115,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with fake centerName', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -127,6 +137,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank pass', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -148,6 +159,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid C', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -178,6 +190,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank C', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -199,6 +212,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank CN', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -220,6 +234,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with zero days', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -241,6 +256,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with negative days', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -262,6 +278,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid alg', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
@@ -283,6 +300,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid hash', async () => {
+    if (config.opensslVer < '1.0.2') { return }
     const opts: myca.CertOpts = {
       ...initialCertOpts,
       alg: 'ec',
