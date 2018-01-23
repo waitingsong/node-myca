@@ -37,7 +37,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<void> {
     return Promise.reject('centerName empty')
   }
   if ( ! await isCenterInited(opts.centerName)) {
-    return Promise.reject(`center: ${opts.centerName} not initialized yes`)
+    return Promise.reject(`center: ${opts.centerName} not initialized yet`)
   }
   const centerPath = await getCenterPath(opts.centerName)
   const file = normalize(`${centerPath}/${config.caCrtName}`)
