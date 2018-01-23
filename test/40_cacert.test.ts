@@ -244,4 +244,38 @@ describe(filename, () => {
     }
   })
 
+  // -------------------------
+
+  it('Should genCaCert() works', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      days: 10950,
+      pass: 'mycapass',
+      keyBits: 2048,
+      hash: 'sha256',
+      CN: 'My Root CA',
+      C: 'CN',
+    }
+    const fnName = 'genCaCert'
+    const fn = <(options: myca.CaOpts) => Promise<myca.IssueCertRet>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const ret = await fn(opts)
+
+      assert(ret, 'result empty')
+      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
+      assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
+      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
 })
