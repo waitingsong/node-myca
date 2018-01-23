@@ -68,8 +68,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid param', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
     }
 
     try {
@@ -82,8 +82,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank centerName', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -102,8 +102,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with fake centerName', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -122,8 +122,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank pass', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -142,8 +142,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank C', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -162,8 +162,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank CN', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -182,8 +182,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with zero days', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -202,8 +202,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with negative days', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -222,8 +222,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid alg', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
@@ -242,8 +242,8 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid hash', async () => {
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
       CN: 'My Root CA',
