@@ -19,12 +19,6 @@ const pathPrefix = 'myca-test-center'
 const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 const mods = rewire('../src/lib/cert')
 
-console.log('----------', config.isWin32)
-config.isWin32 = process.platform === 'win32' ? true : false
-config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
-config.openssl = normalize(config.openssl)
-
-
 describe(filename, () => {
   beforeEach(async () => {
     const random = Math.random()
