@@ -53,6 +53,17 @@ describe(filename, () => {
 
     try {
       const ret: myca.IssueCertRet = await myca.genCert(opts)
+
+      assert(ret, 'result empty')
+      assert(ret.csrFile, 'value of result.csrFile empty')
+      assert(ret.csr && ret.csr.includes('REQUEST'), 'value of result.csr invalid')
+      assert(ret.crtFile, 'value of result.certFile empty')
+      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
+      assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
+      assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
+      assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
+      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
     }
     catch (ex) {
       return assert(false, ex)
