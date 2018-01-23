@@ -160,12 +160,7 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
   const { keyBits, pass } = options
   const args = ['genpkey', '-algorithm', 'rsa', '-pkeyopt', `rsa_keygen_bits:${keyBits}`]
 
-  if (pass) {
-    if (/\s/.test(pass)) {
-      return Promise.reject('pass phrase contains blank or invisible char during generate private key')
-    }
-    args.push('-aes256', '-pass', `pass:${pass}`)
-  }
+  args.push('-aes256', '-pass', `pass:${pass}`)
 
   return runOpenssl(args).then(stdout => {
     /* istanbul ignore next */
@@ -182,12 +177,7 @@ function genECKey(options: PrivateKeyOpts): Promise<string> {
   const { ecParamgenCurve, pass } = options
   const args = ['genpkey', '-algorithm', 'ec', '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`]
 
-  if (pass) {
-    if (/\s/.test(pass)) {
-      return Promise.reject('pass phrase contains blank or invisible char during generate private key')
-    }
-    args.push('-aes256', '-pass', `pass:${pass}`)
-  }
+  args.push('-aes256', '-pass', `pass:${pass}`)
 
   return runOpenssl(args).then(stdout => {
     /* istanbul ignore next */
@@ -365,6 +355,9 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   }
   if (pass.length > 1023) {
     throw new Error('length of pass must not greater than 1023 chars if not empty')
+  }
+  if (/\s/.test(pass)) {
+    throw new Error('pass phrase contains blank or invisible char')
   }
 
   if (options.kind !== 'ca' && ! await isFileExists(caKeyFile)) {
