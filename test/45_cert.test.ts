@@ -340,6 +340,15 @@ describe(filename, () => {
     }
   })
 
+  // at last run
+  it('Should unlinkCaKey() works', async () => {
+    try {
+      await unlinkCaKey('default')
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
 
 
 })
