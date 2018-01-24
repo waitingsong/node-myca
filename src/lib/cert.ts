@@ -176,9 +176,6 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
 
 // generate ec private key pem
 function genECKey(options: PrivateKeyOpts): Promise<string> {
-  if (config.opensslVer < '1.0.2') { 
-    throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + config.opensslVer)
-  }
   const { ecParamgenCurve, pass } = options
   const args = [
     'genpkey', '-algorithm', 'ec',
@@ -346,9 +343,12 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
 
 
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
-  const { centerPath, pass } = options
+  const { alg, centerPath, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
+  if (alg === 'ec' && config.opensslVer && config.opensslVer < '1.0.2') {
+    throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + config.opensslVer)
+  }
   if ( ! centerPath) {
     throw new Error(`centerPath: "${centerPath}" not exits for centerName: "${options.centerName}" \n
       should create center dir by calling initCenter(centerName, path)
