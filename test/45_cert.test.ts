@@ -8,6 +8,7 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
+import { decryptPrivateKey } from '../src/lib/cert'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
@@ -314,5 +315,18 @@ describe(filename, () => {
       assert(true)
     }
   })
+
+  // --------------
+
+  it('Should decryptPrivateKey() works with invalid privateKey', async () => {
+    try {
+      await decryptPrivateKey('fake', <myca.PrivateKeyOpts> {})
+      assert(false, 'decryptPrivateKey() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
 })
