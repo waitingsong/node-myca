@@ -155,12 +155,21 @@ describe(filename, () => {
     }
   })
 
-  it('Should isDirExists() works within invalid path', async () => {
+  it('Should isDirExists() works with invalid path', async () => {
     const random = Math.random()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
     try {
       assert( ! await isDirExists(randomPath), `path should NOT exists: "${randomPath}"`)
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
+  it('Should isDirExists() works with blank path', async () => {
+    try {
+      assert( ! await isDirExists(''), 'empty path should NOT exists')
     }
     catch (ex) {
       assert(false, ex)
