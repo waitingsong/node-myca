@@ -116,7 +116,7 @@ export function getOpensslVer(openssl: string): Promise<string> {
   return new Promise((resolve, reject) => {
     exec(cmd, (err, stdout) => {
       if (err) {
-        throw err
+        return reject(err)
       }
       if (stdout && stdout.indexOf('OpenSSL') >= 0) {
         return resolve(stdout.split(' ')[1])
