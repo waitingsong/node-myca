@@ -330,6 +330,18 @@ describe(filename, () => {
 
   // --------------
 
+  it('Should unlinkCaCrt() works', async () => {
+    try {
+      await unlinkCaCrt('default')
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
+
+  // --------------
+
   it('Should unlinkCaKey() works with invalid centerName', async () => {
     try {
       await unlinkCaKey(Math.random() + '')
