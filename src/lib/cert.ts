@@ -164,8 +164,8 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
     '-pkeyopt', `rsa_keygen_bits:${keyBits}`,
   ]
 
+  /* istanbul ignore next */
   return runOpenssl(args).then(stdout => {
-    /* istanbul ignore next */
     if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
       return stdout
     }
@@ -183,8 +183,8 @@ function genECKey(options: PrivateKeyOpts): Promise<string> {
     '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`,
   ]
 
+  /* istanbul ignore next */
   return runOpenssl(args).then(stdout => {
-    /* istanbul ignore next */
     if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
       return stdout
     }
