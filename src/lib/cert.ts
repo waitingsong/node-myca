@@ -89,9 +89,6 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
   const caCrtFile = `${centerPath}/${config.caCrtName}` // ca.crt
   let keysRet: KeysRet = await genKeys(privateKeyOpts)
 
-  if ( ! await isFileExists(caKeyFile)) {
-    return Promise.reject(`caKeyFile not exists: "${caKeyFile}"`)
-  }
   issueOpts.serial = await nextSerial(issueOpts.centerName, config)
   keysRet = await savePrivateKeys(config, issueOpts, keysRet)
   const csr = await reqServerCert(config, issueOpts, keysRet) // csr string
