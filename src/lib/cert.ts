@@ -67,7 +67,7 @@ async function genCaCert(options: CaOpts): Promise<IssueCertRet> {
     return Promise.reject(`caKeyFile exists: "${caKeyFile}"`)
   }
   await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
-  const cert = await reqCaCert(issueOpts) // ca cert
+  const cert = await reqCaCert(config, issueOpts) // ca cert
   const ret: IssueCertRet = { ...initialCertRet, ...keysRet, cert }
 
   return Promise.resolve(ret)
@@ -263,7 +263,7 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
 
 
 // return cert
-async function reqCaCert(options: IssueOpts): Promise<string> {
+async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
   await validateIssueOpts(options)
 
   const { days, centerPath, pass } = options
