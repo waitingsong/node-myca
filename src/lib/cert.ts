@@ -505,14 +505,9 @@ export async function unlinkCaKey(centerName: string): Promise<void> {
   }
   const file = `${centerPath}/${config.caKeyName}` // ca.key
 
-  try {
-    /* istanbul ignore next */
-    if (await isFileExists(file)) {
-      await unlinkAsync(file) // unlink ca.key
-    }
-  }
-  catch (ex) {
-    return
+  /* istanbul ignore next */
+  if (await isFileExists(file)) {
+    await unlinkAsync(file) // unlink ca.key
   }
 }
 
