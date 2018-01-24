@@ -38,17 +38,16 @@ export function isFileExists(path: string): Promise<boolean> {
 
 
 function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
-  if ( ! path) {
-    return Promise.resolve(false)
-  }
-  return new Promise(resolve => {
-    stat(path, (err, stats) => {
-      if (err) {
-        return resolve(false)
-      }
-      return resolve(type === 'DIR' ? stats.isDirectory() : stats.isFile())
+  return path
+    ? new Promise(resolve => {
+      stat(path, (err, stats) => {
+        if (err) {
+          return resolve(false)
+        }
+        return resolve(type === 'DIR' ? stats.isDirectory() : stats.isFile())
+      })
     })
-  })
+    : Promise.resolve(false)
 }
 
 
@@ -57,22 +56,25 @@ export async function createDir(path: string): Promise<void> {
   if ( ! path) {
     throw new Error('value of path param invalid')
   }
-  path = normalize(path)
-  if (!await isDirExists(path)) {
-    await path.split(sep).reduce(async (parentDir, childDir) => {
-      const curDir = resolve(await parentDir, childDir)
+  else {
+    path = normalize(path)
+    if (!await isDirExists(path)) {
+      await path.split(sep).reduce(async (parentDir, childDir) => {
+        const curDir = resolve(await parentDir, childDir)
 
-      if ( ! await isDirExists(curDir)) {
-        try {
-          await mkdirAsync(curDir, 0o755)
+        if (! await isDirExists(curDir)) {
+          try {
+            await mkdirAsync(curDir, 0o755)
+          }
+          catch (ex) {
+            throw ex
+          }
         }
-        catch (ex) {
-          throw ex
-        }
-      }
 
-      return curDir
-    }, Promise.resolve(sep))
+        return curDir
+      }, Promise.resolve(sep))
+    }
+
   }
 }
 
