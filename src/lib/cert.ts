@@ -198,6 +198,7 @@ function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOpts): P
   return new Promise((resolve, reject) => {
     const args = [alg, '-pubout']
 
+    /* istanbul ignore next */
     if (pass && privateKey.indexOf('ENCRYPTED') > 0) {
       args.push('-passin', `pass:${pass}`)
     }
