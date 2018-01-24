@@ -547,6 +547,7 @@ export async function sign(signOpts: SignOpts): Promise<string> {
   // console.log('signOpts:', signOpts)
   // console.log('args:', args)
 
+  /* istanbul ignore next */
   return runOpenssl(args, { cwd: centerPath })
     .then((stdout: string) => {
       if (stdout && stdout.includes('CERTIFICATE')) {
