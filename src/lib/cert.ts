@@ -489,6 +489,7 @@ export async function unlinkCaCrt(centerName: string): Promise<void> {
   const centerPath = await getCenterPath(centerName)
   const file = `${centerPath}/${config.caCrtName}`
 
+  /* istanbul ignore next */
   if (await isFileExists(file)) {
     return unlinkAsync(file)
   }
