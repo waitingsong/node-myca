@@ -8,6 +8,7 @@ tslint.json
 .eslintrc.json
 .travis.yml
 appveyor.yml
+.coveralls.yml
 *.swp
 *.bak
 demo/
