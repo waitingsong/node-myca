@@ -292,4 +292,27 @@ describe(filename, () => {
     }
   })
 
+  it('Should genCert() works with missing caKeyFile', async () => {
+    const opts: myca.CertOpts = {
+      ...initialCertOpts,
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+    }
+    const random = Math.random()
+    config.caKeyName = `fake-ca-${random}.key`
+
+    try {
+      await myca.genCert(opts)
+      assert(false, 'genCert() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 })
