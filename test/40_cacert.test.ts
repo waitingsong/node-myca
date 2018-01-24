@@ -8,6 +8,7 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
+import { createFile } from '../src/lib/common'
 import { config, initialCaOpts } from '../src/lib/config'
 
 
@@ -273,6 +274,45 @@ describe(filename, () => {
     }
     catch (ex) {
       return assert(false, ex)
+    }
+  })
+
+  it('Should genCaCert() works with fake existing caKeyFile', async () => {
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      days: 10950,
+      pass: 'mycapass',
+      keyBits: 2048,
+      hash: 'sha256',
+      CN: 'My Root CA',
+      C: 'CN',
+    }
+    const random = Math.random()
+    const caKeyName = `fake-ca-${random}.key`
+    const caKeyFile = `${config.defaultCenterPath}/${caKeyName}`  // fake
+    const p: myca.Config = {
+      ...config,
+      caKeyName,
+    }
+    const fnName = 'genCaCert'
+    const fn = <(config: myca.Config, options: myca.CaOpts) => Promise<myca.IssueCertRet>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      await createFile(caKeyFile, '')
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+
+    try {
+      assert(await fn(p, opts), 'should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
     }
   })
 
