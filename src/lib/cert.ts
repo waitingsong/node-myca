@@ -229,10 +229,13 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
   const { alg, pass } = options
 
   if ( ! privateKey.includes('ENCRYPTED')) {
+    /* istanbul ignore next */
     if (privateKey.includes('PRIVATE')) {  // unsecure private key
       return Promise.resolve(privateKey)
     }
-    throw new Error('param key not valid **encrypted** private key')
+    else {
+      throw new Error('param key not valid **encrypted** private key')
+    }
   }
 
   return new Promise((resolve, reject) => {
