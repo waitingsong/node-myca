@@ -332,7 +332,7 @@ describe(filename, () => {
 
   it('Should unlinkCaKey() works with invalid centerName', async () => {
     try {
-      await unlinkCaKey(Math.random())
+      await unlinkCaKey(Math.random() + '')
       assert(false, 'unlinkCaKey() should throw err, but NOT')
     }
     catch (ex) {
