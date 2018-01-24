@@ -146,4 +146,15 @@ describe(filename, () => {
   })
 
 
+  it('Should isDirExists() works', async () => {
+    try {
+      assert(await isDirExists(tmpDir), `path should exists: "${tmpDir}"`)
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
+
+
 })
