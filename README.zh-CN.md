@@ -1,5 +1,5 @@
 # myca
-使用 openssl 和 node.js 创建自有 CA 中心（自签发CA证书或者上级CA签发的中级CA证书），签发自签名数字证书。支持创建多个 CA 中心
+使用 openssl 和 node.js 创建自有 CA 中心（自签发CA证书或者上级CA签发的中级CA证书），签发自签名数字证书。支持创建多个 CA 中心。支持 RSA，EC（P-256, P-384）算法。
 
 [![Version](https://img.shields.io/npm/v/myca.svg)](https://www.npmjs.com/package/myca)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -109,6 +109,26 @@ myca.initDefaultCenter().catch(console.error)
    .catch(console.error)
 ```
 
+- 签发 SANs 多域名服务器证书
+```js
+ // import * as myca from 'myca'
+ const myca = require('myca')
+
+ myca
+   .genCert({
+     caKeyPass: 'mycapass',
+     kind: 'server',
+     days: 730,
+     pass: 'fooo',
+     CN: 'www.waitingsong.com',
+     C: 'CN',
+     SAN: ['foo.waitingsong.com', 'bar.waitingsong.com'],
+   })
+   .then((ret) => {
+     console.log(ret.cert)
+   })
+   .catch(console.error)
+```
 
 ## License
 [MIT](LICENSE)

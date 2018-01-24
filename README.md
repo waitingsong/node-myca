@@ -1,5 +1,5 @@
 # myca
-Create my CA center, generate a self signed x509 certificate, issue server certificate from node.js via openssl. Multiple center supported.
+Create my CA center, generate a self signed x509 certificate, issue server certificate from node.js via openssl. Multiple center supported. RSA, EC(P-256, P-384) supported.
 
 [![Version](https://img.shields.io/npm/v/myca.svg)](https://www.npmjs.com/package/myca)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -104,6 +104,27 @@ myca.initDefaultCenter().catch(console.error)
      console.log(ret.cert)
      console.log(ret.crtFile)
      console.log(ret.privateUnsecureKey)
+   })
+   .catch(console.error)
+```
+
+- Issue a serve certificate with SANs
+```js
+ // import * as myca from 'myca'
+ const myca = require('myca')
+
+ myca
+   .genCert({
+     caKeyPass: 'mycapass',
+     kind: 'server',
+     days: 730,
+     pass: 'fooo',
+     CN: 'www.waitingsong.com',
+     C: 'CN',
+     SAN: ['foo.waitingsong.com', 'bar.waitingsong.com'],
+   })
+   .then((ret) => {
+     console.log(ret.cert)
    })
    .catch(console.error)
 ```
