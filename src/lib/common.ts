@@ -82,6 +82,7 @@ export async function createDir(path: string): Promise<void> {
 export async function createFile(file: string, data: any, options?: WriteFileOptions): Promise<void> {
   const path = dirname(file)
 
+  /* istanbul ignore else */
   if ( ! path) {
     throw new Error('path empty')
   }
@@ -104,6 +105,7 @@ export async function createFile(file: string, data: any, options?: WriteFileOpt
 
 // validate openssl cli
 export function getOpensslVer(openssl: string): Promise<string> {
+  /* istanbul ignore else */
   if ( ! openssl) {
     throw new Error('value of param openssl empty')
   }
