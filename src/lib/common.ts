@@ -28,18 +28,12 @@ export function runOpenssl(args: string[] = [], options?: ExecFileOptions): Prom
 
 
 export function isDirExists(path: string): Promise<boolean> {
-  if ( ! path) {
-    return Promise.resolve(false)
-  }
-  return isDirFileExists(path, 'DIR')
+  return path ? isDirFileExists(path, 'DIR') : Promise.resolve(false)
 }
 
 
 export function isFileExists(path: string): Promise<boolean> {
-  if ( ! path) {
-    return Promise.resolve(false)
-  }
-  return isDirFileExists(path, 'FILE')
+  return path ? isDirFileExists(path, 'FILE') : Promise.resolve(false)
 }
 
 
