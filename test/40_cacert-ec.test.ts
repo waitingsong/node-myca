@@ -21,7 +21,7 @@ const mods = rewire('../src/lib/cert')
 describe(filename, () => {
   before(async () => {
     config.opensslVer = await getOpensslVer(config.openssl)
-    if (config.opensslVer < '1.0.2') { 
+    if (config.opensslVer < '1.0.2') {
       console.info('openssl version < "1.0.2" not support ec cert generation, current is: ' + config.opensslVer)
     }
   })
