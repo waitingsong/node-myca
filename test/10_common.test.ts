@@ -7,7 +7,7 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createDir, isDirExists } from '../src/lib/common'
+import { createDir, createFile, isDirExists, isFileExists, readFileAsync } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
@@ -42,6 +42,64 @@ describe(filename, () => {
     catch (ex) {
       assert(true)
     }
+  })
+
+
+  it('Should createFile() works', async () => {
+    const random = Math.random()
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const file = `${randomPath}/test`
+
+    try {
+      await createFile(file, random)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+
+    if ( ! await isFileExists(file)) {
+      return assert(false, `file not exists, path: "${file}"`)
+    }
+
+    try {
+      const ret = (await readFileAsync(file)).toString('utf8')
+      assert(ret === String(random), `content not equal. write:"${random}", read: "${ret}"`)
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
+  it('Should createFile() works with object data', async () => {
+    const random = Math.random()
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const file = `${randomPath}/test`
+    const json = { key: random }
+    const str = JSON.stringify(json)
+
+    try {
+      await createFile(file, json)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+
+    if ( ! await isFileExists(file)) {
+      return assert(false, `file not exists, path: "${file}"`)
+    }
+
+    try {
+      const ret = (await readFileAsync(file)).toString('utf8')
+
+      assert(ret === str, `content not equal. write:"${str}", read: "${ret}"`)
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
   })
 
 })
