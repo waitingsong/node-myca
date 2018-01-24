@@ -34,5 +34,14 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+  it('Should createDir() works with blank param', async () => {
+    try {
+      await createDir('')
+      return assert(false, 'should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
 
 })
