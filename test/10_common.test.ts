@@ -132,5 +132,18 @@ describe(filename, () => {
     }
   })
 
+  it('Should getOpensslVer() works with invalid cmd', async () => {
+    try {
+      const ver = await getOpensslVer('fake')
+
+      if (ver) {
+        assert(false, 'ver value should empty, but return: ' + ver)
+      }
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
 })
