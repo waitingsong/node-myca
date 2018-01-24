@@ -102,4 +102,14 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+  it('Should createFile() works with blank path', async () => {
+    try {
+      await createFile('', '')
+      return assert(false, 'should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 })
