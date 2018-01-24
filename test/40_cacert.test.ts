@@ -256,14 +256,14 @@ describe(filename, () => {
       C: 'CN',
     }
     const fnName = 'genCaCert'
-    const fn = <(options: myca.CaOpts) => Promise<myca.IssueCertRet>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, options: myca.CaOpts) => Promise<myca.IssueCertRet>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      const ret = await fn(opts)
+      const ret = await fn(config, opts)
 
       assert(ret, 'result empty')
       assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')

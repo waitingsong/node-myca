@@ -46,14 +46,14 @@ export async function initCaCert(issueOpts: CaOpts): Promise<void> {
   if (await isFileExists(file)) {
     return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
   }
-  const certRet = await genCaCert(opts)
+  const certRet = await genCaCert(config, opts)
 
   await saveCaCrt(config, opts, certRet.cert)
 }
 
 
 // generate certificate of self-signed CA
-async function genCaCert(options: CaOpts): Promise<IssueCertRet> {
+async function genCaCert(config: Config, options: CaOpts): Promise<IssueCertRet> {
   const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
