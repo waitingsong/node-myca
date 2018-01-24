@@ -60,6 +60,7 @@ export const initialSignOpts: SignOpts = {
   caKeyPass: '',
   csrFile: '',
   configFile: '',
+  SAN: [],
 }
 
 export const initialCertOpts: IssueOpts = {

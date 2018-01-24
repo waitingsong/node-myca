@@ -93,6 +93,8 @@ export interface SignOpts {
   caKeyPass: string
   csrFile: string
   configFile?: string // openssl config file . default centerPath/.config
+  SAN?: string[]  // subjectAltName
+  [prop: string]: string | number | string[] | undefined
 }
 
 // passed by customer
@@ -115,6 +117,7 @@ export interface CertOpts {
   ST?: string   // State or Province Name
   L?: string    // Locality Name (eg, city)
   emailAddress?: string
+  SAN?: string[]  // subjectAltName
 }
 
 // inner usage
