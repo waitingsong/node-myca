@@ -7,7 +7,13 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createDir, createFile, isDirExists, isFileExists, readFileAsync } from '../src/lib/common'
+import {
+  createDir,
+  createFile,
+  getOpensslVer,
+  isDirExists,
+  isFileExists,
+  readFileAsync } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
@@ -111,5 +117,20 @@ describe(filename, () => {
       assert(true)
     }
   })
+
+
+  it('Should getOpensslVer() works', async () => {
+    try {
+      const ver = await getOpensslVer(config.openssl)
+
+      if ( ! ver) {
+        assert(false, 'ver value empty')
+      }
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
 
 })
