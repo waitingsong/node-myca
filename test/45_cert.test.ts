@@ -8,7 +8,7 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { decryptPrivateKey } from '../src/lib/cert'
+import { decryptPrivateKey, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
@@ -327,6 +327,19 @@ describe(filename, () => {
       assert(true)
     }
   })
+
+  // --------------
+
+  it('Should unlinkCaKey() works with invalid centerName', async () => {
+    try {
+      await unlinkCaKey(Math.random())
+      assert(false, 'unlinkCaKey() should throw err, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
 
 })
