@@ -122,7 +122,7 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
 export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> {
   const privateKey = await genPrivateKey(privateKeyOpts)
   const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
-  const privateUnsecureKey = privateKeyOpts.pass ? await decryptPrivateKey(privateKey, privateKeyOpts) : privateKey
+  const privateUnsecureKey = await decryptPrivateKey(privateKey, privateKeyOpts)
   // console.log(`centerPath: ${issueOpts.centerPath}`)
   // console.log('key::', key)
   // console.log('pub:', pubKey)
