@@ -538,13 +538,22 @@ export async function sign(signOpts: SignOpts): Promise<string> {
   const args = <string[]> [
     'ca', '-batch',
     // '-config', configFile,
-    '-config', rtpl,
+    // '-config', rtpl,
     '-days', days + '',
     '-cert', caCrtFile,
     '-keyfile', caKeyFile,
     '-in', csrFile,
     '-passin', `pass:${caKeyPass}`,
   ]
+
+  if (SAN) {
+    const rtpl = await createRandomConfTpl(config, signOpts)
+
+    args.push('-config', rtpl)
+  }
+  else {
+    args.push('-config', configFile)
+  }
 
   // console.log('signOpts:', signOpts)
   // console.log('args:', args)
