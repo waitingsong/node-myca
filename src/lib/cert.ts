@@ -345,7 +345,7 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
 
 
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
-  const { alg, centerPath, pass } = options
+  const { alg, centerPath, kind, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
   if (alg === 'ec' && config.opensslVer && config.opensslVer < '1.0.2') {
@@ -369,7 +369,10 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
     throw new Error('pass phrase contains blank or invisible char')
   }
 
-  if (options.kind !== 'ca' && ! await isFileExists(caKeyFile)) {
+  if (kind !== 'ca' && kind !== 'server' && kind !== 'client') {
+    throw new Error('value of kind invalid. must be ca|server|client')
+  }
+  if (kind !== 'ca' && ! await isFileExists(caKeyFile)) {
     throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
   }
   if ( ! options.C || options.C.length !== 2) {
