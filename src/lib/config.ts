@@ -52,6 +52,7 @@ export const initialCaOpts: CaOpts = {
 
 // sign csr
 export const initialSignOpts: SignOpts = {
+  kind: 'server',
   centerPath: '',
   days: 750,  // 2year
   hash: 'sha256',
@@ -64,7 +65,6 @@ export const initialSignOpts: SignOpts = {
 }
 
 export const initialCertOpts: IssueOpts = {
-  kind: 'server',
   serial: '', // hex
   centerName: 'default',
   centerPath: '',

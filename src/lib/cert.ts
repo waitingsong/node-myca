@@ -92,11 +92,11 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
   issueOpts.serial = await nextSerial(issueOpts.centerName, config)
   keysRet = await savePrivateKeys(config, issueOpts, keysRet)
   const csr = await reqServerCert(config, issueOpts, keysRet) // csr string
-  const csrFile = `${centerPath}/server/${issueOpts.serial}.csr`
+  const csrFile = `${centerPath}/${issueOpts.kind}/${issueOpts.serial}.csr`
   const ret: IssueCertRet = { ...initialCertRet, ...keysRet, csr, csrFile }
 
   await createFile(csrFile, csr, { mode: 0o600 })
-  ret.crtFile = normalize(`${centerPath}/server/${issueOpts.serial}.crt`)
+  ret.crtFile = normalize(`${centerPath}/${issueOpts.kind}/${issueOpts.serial}.crt`)
 
   const signOpts: SignOpts = {
     ...initialSignOpts,
@@ -516,10 +516,10 @@ export async function unlinkCaKey(centerName: string): Promise<void> {
 
 // save private keys to server/
 async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: KeysRet): Promise<KeysRet> {
-  const { centerPath, serial } = issueOpts
+  const { centerPath, kind, serial } = issueOpts
   const { privateKey, privateUnsecureKey } = keysRet
 
-  keysRet.privateKeyFile = `${centerPath}/server/${serial}.key`
+  keysRet.privateKeyFile = `${centerPath}/${kind}/${serial}.key`
   keysRet.privateUnsecureKeyFile = `${keysRet.privateKeyFile}.unsecure`
   await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o644 })
   await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
@@ -534,8 +534,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
 // sign csr with ca.key, return crt
 export async function sign(signOpts: SignOpts): Promise<string> {
   await validateSignOpts(signOpts)
-  const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath } = signOpts
-  const rtpl = await createRandomConfTpl(config, signOpts)
+  const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath, SAN } = signOpts
   const args = <string[]> [
     'ca', '-batch',
     // '-config', configFile,

@@ -85,6 +85,7 @@ export interface CaOpts {
 
 // sign csr
 export interface SignOpts {
+  kind: 'server' | 'client'
   centerPath: string  // default as config.defaultCenterPath
   days: number
   hash: 'sha256' | 'sha384'
