@@ -4,7 +4,7 @@
 import { tmpdir } from 'os'
 import { basename, join } from 'path'
 import * as assert from 'power-assert'
-// import rewire = require('rewire')
+import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
@@ -16,7 +16,7 @@ import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 const filename = basename(__filename)
 const tmpDir = tmpdir()
 const pathPrefix = 'myca-test-center'
-// const mods = rewire('../src/lib/cert')
+const mods = rewire('../src/lib/cert')
 
 describe(filename, () => {
   beforeEach(async () => {
@@ -37,7 +37,7 @@ describe(filename, () => {
     await myca.initCaCert(opts)
   })
   afterEach(() => {
-//    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
@@ -341,7 +341,7 @@ describe(filename, () => {
   })
 
 
-  it.only('Should genCert() works generate client pfx', async () => {
+  it('Should genCert() works generate client pfx', async () => {
     const opts: myca.CertOpts = {
       centerName: 'default',
       caKeyPass: 'mycapass',
@@ -372,6 +372,44 @@ describe(filename, () => {
     }
   })
 
+  it.only('Should outputClientCert() works', async () => {
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+    }
+    const fnName = 'outputClientCert'
+    const fn = <(options: myca.PfxOpts) => Promise<string>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const ret: myca.IssueCertRet = await myca.genCert(opts)
+      const clientOpts: myca.PfxOpts = {
+        privateKeyFile: ret.privateUnsecureKeyFile,
+        crtFile: ret.crtFile,
+        pfxPass: ret.pass,
+      }
+      let file = await fn(clientOpts)
+
+      assert(file && (await isFileExists(file)), `value of file empty or file not exists. path:"${file}"`)
+
+      // with pass
+      clientOpts.privateKeyFile = ret.privateKeyFile
+      clientOpts.privateKeyPass = ret.pass
+      file = await fn(clientOpts)
+      assert(file && (await isFileExists(file)), `value of file empty or file not exists. path:"${file}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
 
 
 
