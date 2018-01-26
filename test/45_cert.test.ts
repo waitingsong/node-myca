@@ -9,6 +9,7 @@ import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
+import { isFileExists } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
@@ -36,7 +37,7 @@ describe(filename, () => {
     await myca.initCaCert(opts)
   })
   afterEach(() => {
-    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+//    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
@@ -340,8 +341,43 @@ describe(filename, () => {
   })
 
 
+  it.only('Should genCert() works generate client pfx', async () => {
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'client',   // pfx
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+    }
+
+    try {
+      const ret: myca.IssueCertRet = await myca.genCert(opts)
+
+      assert(ret, 'result empty')
+      assert(ret.csrFile, 'value of result.csrFile empty')
+      assert(ret.csr && ret.csr.includes('REQUEST'), 'value of result.csr invalid')
+      assert(ret.crtFile, 'value of result.certFile empty')
+      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
+      assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
+      assert(! ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile should deleted') // deleted
+      assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
+      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(ret.pfxFile && (await isFileExists(ret.pfxFile)), `value of result.pfxFile empty or file not exists. path: "${ret.pfxFile}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
+
+
   // --------------
 
+  // at last!
   it('Should unlinkCaKey() works with invalid centerName', async () => {
     try {
       await unlinkCaKey(Math.random() + '')
