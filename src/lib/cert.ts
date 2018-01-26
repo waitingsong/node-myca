@@ -447,6 +447,7 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
     if (typeof options[prop] !== 'undefined' && ! options[prop]) {
       // @ts-ignore
       options[prop] = ''
+      void(0)
     }
   }
 
@@ -488,6 +489,7 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
     if (typeof signOpts[prop] !== 'undefined' && signOpts[prop]) {
       // @ts-ignore
       value = <string> signOpts[prop]
+      void(0)
     }
     tpl = tpl.replace(regx, value)
   }
