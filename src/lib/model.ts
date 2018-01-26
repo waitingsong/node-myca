@@ -85,7 +85,7 @@ export interface CaOpts {
 
 // sign csr
 export interface SignOpts {
-  kind: 'server' | 'client'
+  kind: 'ca' | 'server' | 'client'
   centerPath: string  // default as config.defaultCenterPath
   days: number
   hash: 'sha256' | 'sha384'
@@ -123,7 +123,6 @@ export interface CertOpts {
 
 // inner usage
 export interface IssueOpts extends SignOpts {
-  kind: 'ca' | 'server' | 'client'
   serial: string  // hex
   centerName: 'default' | string  // key name of center dir
   alg: Alg
