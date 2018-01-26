@@ -436,6 +436,7 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
     }
   }
 
+  /* istanbul ignore next */
   if (typeof pass === 'number') {
     options.pass += ''
   }
