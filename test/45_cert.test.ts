@@ -522,6 +522,29 @@ describe(filename, () => {
     }
   })
 
+  it('Should genIssueSubj() works with Chinese', async () => {
+    const opts = <myca.CertDN> {
+      CN: 'waitingsong中文',
+      C: 'CN',
+    }
+    const fnName = 'genIssueSubj'
+    const fn = <(options: myca.CertDN) => string> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const ret = await fn(opts)
+      const str = `/CN=${opts.CN}/C=${opts.C}`
+
+      assert(ret === str, `result should be "${str}", but got "${ret}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
 
 
   // --------------
