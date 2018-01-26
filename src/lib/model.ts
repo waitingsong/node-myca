@@ -87,7 +87,7 @@ export interface CertDN {
   CN: string    // Common Name
   OU?: string    // Organizational Unit Name
   O?: string    // Organization Name
-  C?: string    // Country Name (2 letter code)
+  C: string    // Country Name (2 letter code)
   ST?: string   // State or Province Name
   L?: string    // Locality Name (eg, city)
   emailAddress?: string
