@@ -366,6 +366,7 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
 }
 
 
+/* istanbul ignore next */
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
   const { alg, centerPath, kind, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
