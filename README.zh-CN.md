@@ -131,6 +131,27 @@ myca.initDefaultCenter().catch(console.error)
    .catch(console.error)
 ```
 
+- 签发一张 RSA p12/pfx 客户端证书
+```js
+ // import * as myca from 'myca'
+ const myca = require('myca')
+
+ myca
+   .genCert({
+     caKeyPass: 'mycapass',
+     kind: 'client',   // pfx cert
+     days: 730,
+     pass: 'fooo',   // at least 4 letters
+     CN: 'www.waitingsong.com',    // Common Name
+     C: 'CN',   // Country Name (2 letter code)
+   })
+   .then((ret) => {
+     console.log(ret.pfxFile)
+   })
+   .catch(console.error)
+```
+
+
 ## License
 [MIT](LICENSE)
 
