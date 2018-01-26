@@ -168,10 +168,18 @@ export interface IssueCertRet extends KeysRet {
   csrFile: string
   cert: string  // certificate pem
   crtFile: string // certificate file path
+  pfxFile?: string  // for client
 }
 
 export interface InitialFile {
   name: string
   defaultValue: string | number
   mode?: number
+}
+
+export interface PfxOpts {
+  privateKeyFile: string
+  privateKeyPass?: string
+  crtFile: string
+  pfxPass: string
 }

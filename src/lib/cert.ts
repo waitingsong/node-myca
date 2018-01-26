@@ -4,6 +4,8 @@ import { join, normalize } from 'path'
 
 import { getCenterPath, isCenterInited, nextSerial } from './center'
 import {
+  chmodAsync,
+  copyFileAsync,
   createFile,
   isDirExists,
   isFileExists,
@@ -26,6 +28,7 @@ import {
   IssueCertRet,
   IssueOpts,
   KeysRet,
+  PfxOpts,
   PrivateKeyOpts,
   SignOpts } from './model'
 
@@ -111,6 +114,23 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
 
   ret.cert = await sign(signOpts)
   await createFile(ret.crtFile, ret.cert, { mode: 0o644 })
+
+  // EXPORT TO PKCS#12 FORMAT
+  if (issueOpts.kind === 'client') {
+    const clientOpts: PfxOpts = {
+      privateKeyFile: ret.privateUnsecureKeyFile,
+      crtFile: ret.crtFile,
+      pfxPass: ret.pass,
+    }
+    const tmp = await outputClientCert(clientOpts)
+
+    ret.pfxFile = join(centerPath, issueOpts.kind, `${issueOpts.serial}.p12`)
+    await copyFileAsync(tmp, ret.pfxFile)
+    await chmodAsync(ret.pfxFile, 0o600)
+    unlinkAsync(ret.privateUnsecureKeyFile)
+    unlinkAsync(tmp)
+    ret.privateUnsecureKeyFile = ''
+  }
 
   return Promise.resolve(ret)
 }
@@ -569,6 +589,37 @@ export async function sign(signOpts: SignOpts): Promise<string> {
 }
 
 
+// generate pfx file, return file path(under user tmp folder)
+export async function outputClientCert(options: PfxOpts): Promise<string> {
+  await validatePfxOpts(signOpts)
+  const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = options
+  const pfxFile = join(tmpdir(), `/tmp-${ Math.random() }.p12`)
+  const args = <string[]> [
+    'pkcs12', '-export', '-aes256',
+    '-in', crtFile,
+    '-inkey', privateKeyFile,
+    '-out', pfxFile,
+  ]
+
+  if (privateKeyPass) {
+    args.push('-passin', `pass:${privateKeyPass}`)
+  }
+  if (privateKeyPass) {
+  }
+  args.push('-passout', (pfxPass ? `pass:${pfxPass}` : 'pass:'))
+
+  /* istanbul ignore next */
+  return runOpenssl(args)
+    .then((stdout: string) => {
+      if ( ! stdout) {
+        return pfxFile
+      }
+      throw new Error('openssl output pkcs12 failed, return value: ' + stdout)
+    })
+
+}
+
+
 /* istanbul ignore next */
 async function validateSignOpts(signOpts: SignOpts): Promise<void> {
   const { SAN, centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
@@ -616,3 +667,31 @@ async function validateSignOpts(signOpts: SignOpts): Promise<void> {
   }
 }
 
+
+/* istanbul ignore next */
+async function validatePfxOpts(pfxOpts: PfxOpts): Promise<void> {
+  const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = pfxOpts
+
+  if ( ! await isFileExists(privateKeyFile)) {
+    throw new Error(`privateKeyFile not exists: "${privateKeyFile}"`)
+  }
+  if ( ! await isFileExists(crtFile)) {
+    throw new Error(`crtFile not exists: "${crtFile}"`)
+  }
+  if (privateKeyPass) { // can be blank
+    if (privateKeyPass.length < 4) {
+      throw new Error('length of privateKeyPass must at least 4 if not empty')
+    }
+    if (/\s/.test(privateKeyPass)) {
+      throw new Error('privateKeyPass phrase contains blank or invisible char')
+    }
+  }
+  if (pfxPass) {  // can be blank
+    if (/\s/.test(pfxPass)) {
+      throw new Error('pfxPass phrase contains blank or invisible char')
+    }
+    if (pfxPass.length < 4) {
+      throw new Error('length of pfxPass must at least 4')
+    }
+  }
+}

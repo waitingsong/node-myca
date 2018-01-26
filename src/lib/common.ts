@@ -1,5 +1,5 @@
 import { exec, execFile } from 'child_process'
-import { close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
+import { chmod, close, copyFile, mkdir, open, readFile, stat, unlink, write, writeFile } from 'fs'
 import { dirname, normalize, resolve, sep } from 'path'
 import { promisify } from 'util'
 
@@ -14,6 +14,7 @@ export const unlinkAsync = promisify(unlink)
 export const openAsync = promisify(open)
 export const closeAsync = promisify(close)
 export const copyFileAsync = promisify(copyFile)
+export const chmodAsync = promisify(chmod)
 
 export function runOpenssl(args: string[] = [], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
