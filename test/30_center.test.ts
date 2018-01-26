@@ -360,9 +360,24 @@ describe(filename, () => {
     const centerPath = await myca.getCenterPath(centerName)
     const serialFile = `${centerPath}/db/serial`
 
-
     try {
       await writeFileAsync(serialFile, 'BARZ')
+      const serial = await myca.nextSerial(centerName, config)
+
+      return assert(false, `should throw error, but NOT. serial:"${serial}"`)
+    }
+    catch (ex) {
+      return assert(true)
+    }
+  })
+
+  it('Should nextSerial() works with reading unsafe integer serial', async () => {
+    const centerName = 'default'
+    const centerPath = await myca.getCenterPath(centerName)
+    const serialFile = `${centerPath}/db/serial`
+
+    try {
+      await writeFileAsync(serialFile, Math.pow(2, 53).toString(16))
       const serial = await myca.nextSerial(centerName, config)
 
       return assert(false, `should throw error, but NOT. serial:"${serial}"`)
