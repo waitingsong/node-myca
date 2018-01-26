@@ -333,5 +333,17 @@ describe(filename, () => {
   })
 
 
+  it('Should nextSerial() works', async () => {
+    try {
+      const serial = await myca.nextSerial('default', config)
+
+      assert(serial === '01', `value of serial should be 01, but got: "${serial}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
 
 })
