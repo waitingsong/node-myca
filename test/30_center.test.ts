@@ -8,7 +8,7 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { isDirExists, isFileExists } from '../src/lib/common'
+import { isDirExists, isFileExists, writeFileAsync } from '../src/lib/common'
 import { config, initialDbFiles } from '../src/lib/config'
 
 
@@ -349,6 +349,23 @@ describe(filename, () => {
       const serial = await myca.nextSerial('', config)
 
       return assert(false, 'should throw error, but NOT')
+    }
+    catch (ex) {
+      return assert(true)
+    }
+  })
+
+  it('Should nextSerial() works with reading invalid serial', async () => {
+    const centerName = 'default'
+    const centerPath = await myca.getCenterPath(centerName)
+    const serialFile = `${centerPath}/db/serial`
+
+
+    try {
+      await writeFileAsync(serialFile, 'BARZ')
+      const serial = await myca.nextSerial(centerName, config)
+
+      return assert(false, `should throw error, but NOT. serial:"${serial}"`)
     }
     catch (ex) {
       return assert(true)
