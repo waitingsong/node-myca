@@ -442,6 +442,36 @@ describe(filename, () => {
   })
 
 
+  it('Should processIssueOpts() works with invalid bigger keyBits', async () => {
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+      keyBits: 8193,
+      alg: 'rsa',
+    }
+    const fnName = 'processIssueOpts'
+    const fn = <(config: myca.Config, options: myca.IssueOpts) => Promise<myca.IssueOpts>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const ret = await fn(config, opts)
+
+      assert(ret.keyBits === 8192, `processed keyBits value should be 2048, but got "${ret.keyBits}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
 
   // --------------
 
