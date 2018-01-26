@@ -566,7 +566,7 @@ export async function sign(signOpts: SignOpts): Promise<string> {
     '-passin', `pass:${caKeyPass}`,
   ]
 
-  if (SAN) {
+  if (SAN || ! configFile) {
     const rtpl = await createRandomConfTpl(config, signOpts)
 
     args.push('-config', rtpl)
