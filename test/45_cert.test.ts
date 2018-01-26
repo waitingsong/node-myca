@@ -372,7 +372,7 @@ describe(filename, () => {
     }
   })
 
-  it.only('Should outputClientCert() works', async () => {
+  it('Should outputClientCert() works', async () => {
     const opts: myca.CertOpts = {
       centerName: 'default',
       caKeyPass: 'mycapass',
