@@ -23,6 +23,7 @@ import {
   reqSubjectFields } from './config'
 import {
   CaOpts,
+  CertDN,
   CertOpts,
   Config,
   IssueCertRet,
@@ -452,10 +453,11 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
 
 
 
-function genIssueSubj(options: IssueOpts): string {
+function genIssueSubj(options: CertDN): string {
   const arr: string[] = []
 
   for (let prop of reqSubjectFields) {
+    // @ts-ignore
     if (typeof options[prop] !== 'undefined' && options[prop]) {
       const value = options[prop]
 
@@ -480,7 +482,9 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
     let value = ''
     const regx = new RegExp(`%${prop}%`)
 
+    // @ts-ignore
     if (typeof signOpts[prop] !== 'undefined' && signOpts[prop]) {
+      // @ts-ignore
       value = <string> signOpts[prop]
     }
     tpl = tpl.replace(regx, value)

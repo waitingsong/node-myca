@@ -83,6 +83,18 @@ export interface CaOpts {
   [prop: string]: any
 }
 
+export interface CertDN {
+  CN: string    // Common Name
+  OU?: string    // Organizational Unit Name
+  O?: string    // Organization Name
+  C?: string    // Country Name (2 letter code)
+  ST?: string   // State or Province Name
+  L?: string    // Locality Name (eg, city)
+  emailAddress?: string
+  SAN?: string[]  // subjectAltName
+  [prop: string]: string | number | string[] | undefined
+}
+
 // sign csr
 export interface SignOpts {
   kind: 'ca' | 'server' | 'client'
@@ -95,11 +107,10 @@ export interface SignOpts {
   csrFile: string
   configFile?: string // openssl config file . default centerPath/.config
   SAN?: string[]  // subjectAltName
-  [prop: string]: string | number | string[] | undefined
 }
 
 // passed by customer
-export interface CertOpts {
+export interface CertOpts extends CertDN {
   kind: 'ca' | 'server' | 'client'
   // serial?: string
   centerName?: 'default' | string  // key name of log dir
@@ -111,18 +122,10 @@ export interface CertOpts {
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
   hash?: 'sha256' | 'sha384'
 
-  CN: string    // Common Name
-  OU?: string    // Organizational Unit Name
-  O?: string    // Organization Name
-  C?: string    // Country Name (2 letter code)
-  ST?: string   // State or Province Name
-  L?: string    // Locality Name (eg, city)
-  emailAddress?: string
-  SAN?: string[]  // subjectAltName
 }
 
 // inner usage
-export interface IssueOpts extends SignOpts {
+export interface IssueOpts extends SignOpts, CertDN {
   serial: string  // hex
   centerName: 'default' | string  // key name of center dir
   alg: Alg
@@ -131,13 +134,6 @@ export interface IssueOpts extends SignOpts {
   keyBits: number // for rsa
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
   hash: 'sha256' | 'sha384'
-  CN: string    // Common Name
-  OU?: string    // Organizational Unit Name
-  O?: string    // Organization Name
-  C?: string    // Country Name (2 letter code)
-  ST?: string   // State or Province Name
-  L?: string    // Locality Name (eg, city)
-  emailAddress?: string
   [prop: string]: any
 }
 
