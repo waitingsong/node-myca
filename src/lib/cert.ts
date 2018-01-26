@@ -128,8 +128,8 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
     await copyFileAsync(tmp, ret.pfxFile)
     await chmodAsync(ret.pfxFile, 0o600)
     unlinkAsync(ret.privateUnsecureKeyFile)
-    unlinkAsync(tmp)
     ret.privateUnsecureKeyFile = ''
+    unlinkAsync(tmp)
   }
 
   return Promise.resolve(ret)
