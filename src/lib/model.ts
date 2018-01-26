@@ -121,7 +121,6 @@ export interface CertOpts extends CertDN {
   keyBits?: number // for rsa
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
   hash?: 'sha256' | 'sha384'
-
 }
 
 // inner usage
@@ -134,7 +133,6 @@ export interface IssueOpts extends SignOpts, CertDN {
   keyBits: number // for rsa
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
   hash: 'sha256' | 'sha384'
-  [prop: string]: any
 }
 
 export interface CertDetail {
