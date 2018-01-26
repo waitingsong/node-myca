@@ -447,7 +447,6 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
     if (typeof options[prop] !== 'undefined' && ! options[prop]) {
       // @ts-ignore
       options[prop] = ''
-      void(0)
     }
   }
 
@@ -489,7 +488,6 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
     if (typeof signOpts[prop] !== 'undefined' && signOpts[prop]) {
       // @ts-ignore
       value = <string> signOpts[prop]
-      void(0)
     }
     tpl = tpl.replace(regx, value)
   }
@@ -501,7 +499,6 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
   if (sans && Array.isArray(sans) && sans.length) {
     tpl += '\nsubjectAltName=' + sans.map(name => 'DNS:' + name).join(',')
   }
-
   return createFile(rfile, tpl).then(() => {
     return rfile
   })
@@ -615,8 +612,6 @@ export async function outputClientCert(options: PfxOpts): Promise<string> {
 
   if (privateKeyPass) {
     args.push('-passin', `pass:${privateKeyPass}`)
-  }
-  if (privateKeyPass) {
   }
   args.push('-passout', (pfxPass ? `pass:${pfxPass}` : 'pass:'))
 
