@@ -261,6 +261,7 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
   return new Promise((resolve, reject) => {
     const args: string[] = [alg]
 
+    /* istanbul ignore next */
     if (pass && privateKey.indexOf('ENCRYPTED') > 0) {
       args.push('-passin', `pass:${pass}`)
     }
