@@ -591,7 +591,7 @@ export async function sign(signOpts: SignOpts): Promise<string> {
 
 // generate pfx file, return file path(under user tmp folder)
 export async function outputClientCert(options: PfxOpts): Promise<string> {
-  await validatePfxOpts(signOpts)
+  await validatePfxOpts(options)
   const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = options
   const pfxFile = join(tmpdir(), `/tmp-${ Math.random() }.p12`)
   const args = <string[]> [
