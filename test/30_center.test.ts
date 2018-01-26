@@ -344,6 +344,16 @@ describe(filename, () => {
     }
   })
 
+  it('Should nextSerial() works with blank centerName', async () => {
+    try {
+      const serial = await myca.nextSerial('', config)
+
+      return assert(false, 'should throw error, but NOT')
+    }
+    catch (ex) {
+      return assert(true)
+    }
+  })
 
 
 })
