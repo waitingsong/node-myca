@@ -18,11 +18,26 @@
   },
   "keywords": [
     "CA",
+    "cert"
+    "csr",
     "certificate",
-    "myca",
-    "self signed",
+    "ec",
+    "ecc",
+    "Elliptic Curve",
     "openssl",
+    "pkcs",
+    "PKCS8",
     "PKCS12",
+    "pfx",
+    "p12",
+    "P-256",
+    "P-384",
+    "prime256v1",
+    "secp384r1",
+    "RSA",
+    "self signed",
+    "SSL",
+    "TLS",
     "x509"
   ],
   "nyc": {
