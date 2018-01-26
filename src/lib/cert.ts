@@ -443,7 +443,9 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
   }
 
   for (const prop of reqSubjectFields) {
-    if ( ! options[prop]) {
+    // @ts-ignore
+    if (typeof options[prop] !== 'undefined' && ! options[prop]) {
+      // @ts-ignore
       options[prop] = ''
     }
   }
@@ -452,13 +454,13 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
 }
 
 
-
 function genIssueSubj(options: CertDN): string {
   const arr: string[] = []
 
   for (let prop of reqSubjectFields) {
     // @ts-ignore
     if (typeof options[prop] !== 'undefined' && options[prop]) {
+      // @ts-ignore
       const value = options[prop]
 
       value && arr.push(`${prop}=${value}`)

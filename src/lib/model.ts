@@ -92,7 +92,6 @@ export interface CertDN {
   L?: string    // Locality Name (eg, city)
   emailAddress?: string
   SAN?: string[]  // subjectAltName
-  [prop: string]: string | number | string[] | undefined
 }
 
 // sign csr
