@@ -21,11 +21,15 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
     return Promise.reject(`centerPath not exists, centerName: "${centerName}"`)
   }
   const buf = await readFileAsync(serialFile)
-  const nextHex = buf.toString('utf8').trim()
+  const nextHex = buf.toString('utf8').trim() // 'BARZ' -> 186
   const nextDec = parseInt(nextHex, 16)
 
-  if (typeof nextDec !== 'number' || ! nextDec || ! Number.isSafeInteger(nextDec)) {
-    throw new Error('retrive nextSerial failed or invalid. value: ' + nextDec)
+  if (typeof nextDec !== 'number' ||
+    ! nextDec ||
+    ! Number.isSafeInteger(nextDec) ||
+    nextHex !== nextDec.toString(16)
+  ) {
+    throw new Error(`retrive nextSerial failed or invalid. value: "${nextHex}", Dec: ${nextDec}`)
   }
   return nextHex
 }
