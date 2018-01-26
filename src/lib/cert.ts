@@ -299,6 +299,7 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
   const runOpts = { cwd: centerPath }
   let rtpl = ''
 
+  /* istanbul ignore next */
   if (config.isWin32) { // use config file
     rtpl = await createRandomConfTpl(config, options)
     args.push('-config', rtpl)
