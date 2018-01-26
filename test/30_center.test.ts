@@ -387,5 +387,21 @@ describe(filename, () => {
     }
   })
 
+  it('Should nextSerial() works with reading 0', async () => {
+    const centerName = 'default'
+    const centerPath = await myca.getCenterPath(centerName)
+    const serialFile = `${centerPath}/db/serial`
+
+    try {
+      await writeFileAsync(serialFile, 0)
+      const serial = await myca.nextSerial(centerName, config)
+
+      return assert(false, `should throw error, but NOT. serial:"${serial}"`)
+    }
+    catch (ex) {
+      return assert(true)
+    }
+  })
+
 
 })
