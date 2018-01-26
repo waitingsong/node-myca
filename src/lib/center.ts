@@ -27,7 +27,7 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
   if (typeof nextDec !== 'number' ||
     ! nextDec ||
     ! Number.isSafeInteger(nextDec) ||
-    nextHex !== nextDec.toString(16) ||
+    nextHex.replace(/^0+/, '') !== nextDec.toString(16) ||
     nextDec < 1
   ) {
     throw new Error(`retrive nextSerial failed or invalid. value: "${nextHex}", Dec: ${nextDec}`)
