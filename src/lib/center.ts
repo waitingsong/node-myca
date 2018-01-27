@@ -180,7 +180,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
   if (!key || !path) {
     throw new Error('params key or path is invalid')
   }
-  const centerList = await loadCenterList() || {}
+  const centerList = await loadCenterList() || <CenterList> {}
   const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
 
   path = normalize(path)
