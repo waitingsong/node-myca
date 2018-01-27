@@ -173,7 +173,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
 
 
 
-async function loadCenterList(config: Config): Promise<CenterList | void> {
+async function loadCenterList(config: Config): Promise<CenterList | null> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
 
   if ( ! await isFileExists(file)) {
@@ -182,19 +182,7 @@ async function loadCenterList(config: Config): Promise<CenterList | void> {
   const buf = await readFileAsync(file)
   const str = buf.toString()
 
-  if (typeof str === 'string' && str) {
-    const centerList: CenterList = JSON.parse(str)
-
-    if (centerList && centerList.default) {
-      return centerList
-    }
-    else {
-      throw new Error('centerList invalid or contains not key of default')
-    }
-  }
-  else {
-    return
-  }
+  return (typeof str === 'string' && str) ? <CenterList> JSON.parse(str) : null
 }
 
 

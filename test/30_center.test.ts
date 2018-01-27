@@ -454,7 +454,7 @@ describe(filename, () => {
 
   it('Should loadCenterList() works', async () => {
     const fnName = 'loadCenterList'
-    const fn = <(config: myca.Config) => Promise<myca.CenterList | void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config) => Promise<myca.CenterList | null>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
@@ -477,7 +477,7 @@ describe(filename, () => {
 
   it('Should loadCenterList() works without centerList file', async () => {
     const fnName = 'loadCenterList'
-    const fn = <(config: myca.Config) => Promise<myca.CenterList | void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config) => Promise<myca.CenterList | null>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
