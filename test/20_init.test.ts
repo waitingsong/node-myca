@@ -41,6 +41,15 @@ describe(filename, () => {
       `isCenterInited('default') says folder not exits. path: "${config.defaultCenterPath}"`
     )
 
+    // initialize again
+    try {
+      await myca.initDefaultCenter()
+      assert(false, 'should throw error during duplicate initialization, but NOT')
+    }
+    catch {
+      assert(true)
+    }
+
     // rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
