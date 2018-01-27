@@ -113,7 +113,7 @@ async function createCenter(config: Config, centerName: string, path: string): P
     }
   }
   await initDbFiles(config, path, initialDbFiles)
-  await updateCenterList(centerName, path)
+  await updateCenterList(config, centerName, path)
   await initOpensslConfig(config.configName, path)
 }
 
@@ -167,7 +167,7 @@ async function initDbFiles(config: Config, path: string, files: InitialFile[]): 
 }
 
 
-async function updateCenterList(key: string, path: string): Promise<void> {
+async function updateCenterList(config: Config, key: string, path: string): Promise<void> {
   if (!key || !path) {
     throw new Error('params key or path is invalid')
   }
