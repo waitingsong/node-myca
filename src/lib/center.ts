@@ -134,8 +134,9 @@ async function createInitialFiles(path: string, files: string[]): Promise<void> 
     if ( ! name) {
       throw new Error('value of files item empty')
     }
-
-    await createFile(file, data)
+    else {
+      await createFile(file, data)
+    }
   }
 }
 
