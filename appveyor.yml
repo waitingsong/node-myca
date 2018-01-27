@@ -27,10 +27,10 @@ test_script:
   - openssl version
   - openssl ecparam -list_curves
   - npm run build
-  - npm run test:travis
+  - npm run test:appveyor
 
-    #on_success:
-    #- npm run cov
+on_success:
+  - npm run cov
 
 build: off
 deploy: off
