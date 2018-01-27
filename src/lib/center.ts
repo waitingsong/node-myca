@@ -53,7 +53,7 @@ export async function initDefaultCenter(): Promise<void> {
   }
 
   await createDir(config.defaultCenterPath) // create default ca dir under userHome
-  await createCenterListFile(config.defaultCenterPath)  // must before createCenter()
+  await createCenterListFile(join(config.defaultCenterPath, config.centerListName))  // must before createCenter()
   await createCenter(config, centerName, config.defaultCenterPath)  // create default cneter dir under userHome
 }
 
@@ -73,7 +73,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
 
   await createDir(path) // create default ca dir under userHome
   await createCenter(config, centerName, path)  // create default cneter dir under userHome
-  // console.log(`CenterPath name: ${centerName}, path: ${path}`)
+  // console.log(`centerPath name: ${centerName}, path: ${path}`)
 }
 
 
@@ -180,17 +180,13 @@ async function addCenterList(config: Config, key: string, path: string): Promise
   if (!key || !path) {
     throw new Error('params key or path is invalid')
   }
-  const centerList = await loadCenterList()
+  const centerList = await loadCenterList() || {}
   const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
-
-  if ( ! centerList) {
-    throw new Error(`file not exists: "${file}"`)
-  }
 
   path = normalize(path)
   if (key === 'default') {
     if (centerList.default) {
-      throw new Error(`default Center path exists, no change allowed. path: "${centerList.default}"`)
+      throw new Error(`default Center path exists, no change allowed. path: "${centerList.default}", target: "${path}"`)
     }
   }
   else if (centerList[key]) {
@@ -198,7 +194,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
   }
   centerList[key] = path
 
-  writeFileAsync(file, JSON.stringify(centerList))
+  await writeFileAsync(file, JSON.stringify(centerList))
 }
 
 
@@ -206,7 +202,7 @@ async function loadCenterList(): Promise<CenterList | void> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
 
   if ( ! await isFileExists(file)) {
-    return
+    throw new Error(`center file not exists. path: "${file}"`)
   }
   const buf = await readFileAsync(file)
   const str = buf.toString()
@@ -221,7 +217,9 @@ async function loadCenterList(): Promise<CenterList | void> {
       throw new Error('centerList invalid or contains not key of default')
     }
   }
-  throw new Error(`Content from loading file: ${file} is blank or invalid.`)
+  else {
+    return
+  }
 }
 
 
