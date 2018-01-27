@@ -16,9 +16,9 @@ export const closeAsync = promisify(close)
 export const copyFileAsync = promisify(copyFile)
 export const chmodAsync = promisify(chmod)
 
-export function runOpenssl(args: string[] = [], options?: ExecFileOptions): Promise<string> {
+export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(config.openssl, args, options ? options : {}, (err, stdout) => {
+    execFile(config.openssl, args, (options ? options : {}), (err, stdout) => {
       if (err) {
         return reject(err)
       }
