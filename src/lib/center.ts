@@ -127,28 +127,6 @@ async function createCenterListFile(file: string): Promise<void> {
 }
 
 
-async function createInitialFiles(path: string, files: string[]): Promise<void> {
-  if ( ! path) {
-    throw new Error('value of path empty')
-  }
-  path = normalize(path)
-  if ( ! await isDirExists(path)) {
-    await createDir(path)
-  }
-
-  for (let i = 0, len = files.length; i < len; i++) {
-    const name = files[i]
-    const file = `${path}/${name}`
-    const data = { default: path }
-
-    if ( ! name) {
-      throw new Error('value of files item empty')
-    }
-    else {
-      await createFile(file, data)
-    }
-  }
-}
 
 async function initDbFiles(config: Config, path: string, files: InitialFile[]): Promise<void> {
   const db = `${path}/${config.dbDir}`
