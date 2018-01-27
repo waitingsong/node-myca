@@ -53,7 +53,7 @@ export async function initDefaultCenter(): Promise<void> {
   }
 
   await createDir(config.defaultCenterPath) // create default ca dir under userHome
-  await createInitialFiles(config.defaultCenterPath, initialFiles)  // must before createCenter()
+  await createCenterListFile(config.defaultCenterPath)  // must before createCenter()
   await createCenter(config, centerName, config.defaultCenterPath)  // create default cneter dir under userHome
 }
 
@@ -115,6 +115,15 @@ async function createCenter(config: Config, centerName: string, path: string): P
   await initDbFiles(config, path, initialDbFiles)
   await updateCenterList(config, centerName, path)
   await initOpensslConfig(config.configName, path)
+}
+
+async function createCenterListFile(file: string): Promise<void> {
+  if (await isFileExists(file)) {
+    throw new Error(`centerList file exists. path: "${file}"`)
+  }
+  else {
+    await createFile(file, '')
+  }
 }
 
 
