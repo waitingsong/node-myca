@@ -4,6 +4,7 @@
 import { tmpdir } from 'os'
 import { basename, join } from 'path'
 import * as assert from 'power-assert'
+import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
@@ -19,15 +20,24 @@ import { config } from '../src/lib/config'
 const filename = basename(__filename)
 const tmpDir = tmpdir()
 const pathPrefix = 'myca-test-center'
+const mods = rewire('../src/lib/common')
 
 
 describe(filename, () => {
+
   it('Should isDirFileExists() works', async () => {
+    const fnName = 'isDirFileExists'
+    const fn = <(path: string, type: 'DIR' | 'FILE') => Promise<boolean>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
     try {
-      assert(await isDirExists(tmpDir), `user tmp dir should exist. path: "${tmpDir}"`)
+      assert(await fn(tmpDir, 'DIR'), `user tmp dir should exist. path: "${tmpDir}"`)
     }
     catch (ex) {
-      return assert(false, ex)
+      assert(false, ex)
     }
   })
 
