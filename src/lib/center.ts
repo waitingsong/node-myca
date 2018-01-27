@@ -54,7 +54,7 @@ export async function initDefaultCenter(): Promise<void> {
 
   await createDir(config.defaultCenterPath) // create default ca dir under userHome
   await createInitialFiles(config.defaultCenterPath, initialFiles)  // must before createCenter()
-  await createCenter(centerName, config.defaultCenterPath)  // create default cneter dir under userHome
+  await createCenter(config, centerName, config.defaultCenterPath)  // create default cneter dir under userHome
 }
 
 
@@ -72,7 +72,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
   }
 
   await createDir(path) // create default ca dir under userHome
-  await createCenter(centerName, path)  // create default cneter dir under userHome
+  await createCenter(config, centerName, path)  // create default cneter dir under userHome
   // console.log(`CenterPath name: ${centerName}, path: ${path}`)
 }
 
@@ -94,7 +94,7 @@ export async function isCenterInited(centerName: string): Promise<string | false
 
 
 // create center dir to store output certifacates
-async function createCenter(centerName: string, path: string): Promise<void> {
+async function createCenter(config: Config, centerName: string, path: string): Promise<void> {
   const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
   if ( ! centerName) {
@@ -112,7 +112,7 @@ async function createCenter(centerName: string, path: string): Promise<void> {
       await createDir(dir)
     }
   }
-  await initDbFiles(path, initialDbFiles)
+  await initDbFiles(config, path, initialDbFiles)
   await updateCenterList(centerName, path)
   await initOpensslConfig(config.configName, path)
 }
@@ -141,7 +141,7 @@ async function createInitialFiles(path: string, files: string[]): Promise<void> 
   }
 }
 
-async function initDbFiles(path: string, files: InitialFile[]): Promise<void> {
+async function initDbFiles(config: Config, path: string, files: InitialFile[]): Promise<void> {
   const db = `${path}/${config.dbDir}`
 
   if ( ! path) {

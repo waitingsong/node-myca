@@ -78,14 +78,14 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const fnName = 'createCenter'
-    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      await fn(centerName, centerPath)
+      await fn(config, centerName, centerPath)
     }
     catch (ex) {
       return assert(false, ex)
@@ -105,14 +105,14 @@ describe(filename, () => {
     const centerPath = `${randomPath}/${config.centerDirName}`
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
     const fnName = 'createCenter'
-    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      await fn(centerName, centerPath)
+      await fn(config, centerName, centerPath)
     }
     catch (ex) {
       return assert(false, ex)
@@ -135,7 +135,7 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const fnName = 'createCenter'
-    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
     if (typeof fn !== 'function') {
@@ -143,7 +143,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn('', centerPath)
+      await fn(config, '', centerPath)
       assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
     }
     catch (ex) {
@@ -167,7 +167,7 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${config.centerDirName}`
     const fnName = 'createCenter'
-    const fn = <(centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
     const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
     if (typeof fn !== 'function') {
@@ -175,7 +175,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn(centerName, '')
+      await fn(config, centerName, '')
       assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
     }
     catch (ex) {
@@ -261,7 +261,7 @@ describe(filename, () => {
     // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'initDbFiles'
-    const fn = <(path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
     const db = `${randomPath}/${config.dbDir}`
     const files = initialDbFiles
 
@@ -270,7 +270,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn(randomPath, files)
+      await fn(config, randomPath, files)
     }
     catch (ex) {
       rmdir(randomPath, (err) => err && console.error(err))
@@ -292,7 +292,7 @@ describe(filename, () => {
     // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const fnName = 'initDbFiles'
-    const fn = <(path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
     // const db = `${randomPath}/${config.dbDir}`
     let files: my.InitialFile[] = [
       { name: '', defaultValue: '' },
@@ -303,7 +303,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn('', files)
+      await fn(config, '', files)
       return assert(false, 'initDbFiles() should throw error, but NOT')
     }
     catch (ex) {
@@ -311,7 +311,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn(randomPath, files)
+      await fn(config, randomPath, files)
       return assert(false, 'initDbFiles() should throw error, but NOT')
     }
     catch (ex) {
@@ -322,7 +322,7 @@ describe(filename, () => {
       { name: 'test', defaultValue: null },
     ]
     try {
-      await fn(randomPath, files)
+      await fn(config, randomPath, files)
       return assert(false, 'initDbFiles() should throw error, but NOT')
     }
     catch (ex) {
