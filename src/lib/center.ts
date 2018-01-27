@@ -158,7 +158,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
   if (!key || !path) {
     throw new Error('params key or path is invalid')
   }
-  const centerList = await loadCenterList() || <CenterList> {}
+  const centerList = await loadCenterList(config) || <CenterList> {}
   const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
 
   path = normalize(path)
@@ -172,7 +172,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
 }
 
 
-async function loadCenterList(): Promise<CenterList | void> {
+async function loadCenterList(config: Config): Promise<CenterList | void> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
 
   if ( ! await isFileExists(file)) {
@@ -204,7 +204,7 @@ export async function getCenterPath(centerName: string | void): Promise<string> 
   if (centerName === 'default') {
     return Promise.resolve(config.defaultCenterPath)
   }
-  const centerList = await loadCenterList()
+  const centerList = await loadCenterList(config)
 
   if (typeof centerList === 'object' && centerList) {
     return Promise.resolve(centerList[centerName])
