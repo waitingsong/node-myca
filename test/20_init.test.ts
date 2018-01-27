@@ -8,7 +8,7 @@ import * as rmdir from 'rimraf'
 import { promisify } from 'util'
 
 import * as myca from '../src/index'
-import { isDirExists, unlinkAsync } from '../src/lib/common'
+import { createFile, isDirExists, isFileExists, unlinkAsync, writeFileAsync } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
@@ -135,6 +135,23 @@ describe(filename, () => {
 
   // ------------------ at last
 
+  it('Should getCenterPath() works with empty centerList', async () => {
+    const file = join(config.defaultCenterPath, config.centerListName)
+    console.log('file:::', file)
+
+    try {
+      if (await isFileExists(file)) {
+        await unlinkAsync(file)
+      }
+      await createFile(file, '')
+      assert(! await myca.getCenterPath('center'), 'should return empty')
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
+
   it('Should initCenter() works without default Center', async () => {
     const random = Math.random()
     const centerName = `${pathPrefix}-${random}`
@@ -163,5 +180,7 @@ describe(filename, () => {
 
     assert( ! await isDirExists(centerPath), `path should not exists: "${centerPath}"`)
   })
+
+
 
 })
