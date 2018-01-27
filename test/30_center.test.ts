@@ -8,7 +8,7 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createDir, isDirExists, isFileExists, writeFileAsync } from '../src/lib/common'
+import { createDir, isDirExists, isFileExists, unlinkAsync, writeFileAsync } from '../src/lib/common'
 import { config, initialDbFiles } from '../src/lib/config'
 
 
@@ -449,6 +449,49 @@ describe(filename, () => {
     }
 
     rmdir(randomPath, (err) => err && console.error(err))
+  })
+
+
+  it('Should loadCenterList() works', async () => {
+    const fnName = 'loadCenterList'
+    const fn = <(config: myca.Config) => Promise<myca.CenterList | void>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const ret = await fn(config)
+
+      if ( ! ret || ! ret.default) {
+        return assert(false, 'should return valid centerList object')
+      }
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
+  // --------------- at last
+
+  it('Should loadCenterList() works without centerList file', async () => {
+    const fnName = 'loadCenterList'
+    const fn = <(config: myca.Config) => Promise<myca.CenterList | void>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+    const file = join(config.defaultCenterPath, config.centerListName)
+
+    try {
+      await unlinkAsync(file)
+      await fn(config)
+      assert(false, 'should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
   })
 
 
