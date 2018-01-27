@@ -30,7 +30,7 @@ test_script:
   - npm run test:appveyor
 
 on_success:
-  - npm run cov
+  - npm run cov:coveralls
 
 build: off
 deploy: off
