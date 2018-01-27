@@ -22,6 +22,16 @@ const pathPrefix = 'myca-test-center'
 
 
 describe(filename, () => {
+  it('Should isDirFileExists() works', async () => {
+    try {
+      assert(await isDirExists(tmpDir), `user tmp dir should exist. path: "${tmpDir}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
   it('Should createDir() works', async () => {
     const random = Math.random()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
