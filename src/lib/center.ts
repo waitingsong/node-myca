@@ -213,5 +213,7 @@ export async function getCenterPath(centerName: string | void): Promise<string> 
   if (typeof centerList === 'object' && centerList) {
     return Promise.resolve(centerList[centerName])
   }
-  return Promise.resolve('')
+  else {
+    return Promise.resolve('')
+  }
 }
