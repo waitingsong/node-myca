@@ -155,6 +155,7 @@ async function initDbFiles(config: Config, path: string, files: InitialFile[]): 
     if ( ! file.name) {
       throw new Error('file name empty within initDbFiles()')
     }
+    /* istanbul ignore next */
     if (typeof file.defaultValue === 'undefined') {
       throw new Error('file defaultValue empty')
     }
