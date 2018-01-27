@@ -408,6 +408,48 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+  it('Should addCenterList() works with invalid param', async () => {
+    const random = Math.random()
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+    const fnName = 'addCenterList'
+    const fn = <(config: myca.Config, key: string, path: string) => Promise<void>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    await createDir(centerPath)
+
+    try {
+      await fn(config, '', centerPath)
+      return assert(false, 'should throw error with blank centerName, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+    try {
+      await fn(config, centerName, '')
+      return assert(false, 'should throw error with blank centerPath, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+    try {
+      await fn(config, 'default', centerPath)
+      return assert(false, 'should throw error with blank centerPath, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    if (! await isDirExists(centerPath)) {
+      return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
 
 
 })
