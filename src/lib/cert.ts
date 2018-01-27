@@ -476,6 +476,7 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
   const rfile = `${tmp}/openssl-` + Math.random() + '.conf'
   let tpl = (await readFileAsync(join(__dirname, '../../asset', `/${config.confTpl}`))).toString()
 
+  /* istanbul ignore next */
   if ( ! tpl) {
     throw new Error('loaded openssl config tpl is empty')
   }
