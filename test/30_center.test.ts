@@ -194,62 +194,30 @@ describe(filename, () => {
   })
 
 
-  it('Should createInitialFiles() works', async () => {
+  it('Should createCenterListFile() works', async () => {
     const random = Math.random()
-    // const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
-    const fnName = 'createInitialFiles'
-    const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
-    const files = ['file1', 'file2']
+    const randomFile = `${randomPath}/test`
+    const fnName = 'createCenterListFile'
+    const fn = <(file: string) => Promise<void>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      await fn(randomPath, files)
+      await fn(randomFile)
     }
     catch (ex) {
-      rmdir(randomPath, (err) => err && console.error(err))
       return assert(false, ex)
     }
-    for (const name of files) {
-      const file = `${randomPath}/${name}`
-
-      if ( ! await isFileExists(file)) {
-        assert(false, `file not exists. path: "${file}"`)
-      }
-    }
-
-    rmdir(randomPath, (err) => err && console.error(err))
-  })
-
-  it('Should createInitialFiles() works with invalid param', async () => {
-    const random = Math.random()
-    // const centerName = `${pathPrefix}-${random}`
-    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
-    const fnName = 'createInitialFiles'
-    const fn = <(path: string, files: string[]) => Promise<void>> mods.__get__(fnName)
-    const files = ['file1', '']
-
-    if (typeof fn !== 'function') {
-      return assert(false, `${fnName} is not a function`)
-    }
 
     try {
-      await fn('', files)
-      return assert(false, 'createInitialFiles() should throw error, but NOT')
+      await fn(randomFile)
+      assert(false, `should throw error during create duplicate file, but NOT. file: "${randomFile}"`)
     }
     catch (ex) {
-      assert(true)
-    }
-
-    try {
-      await fn(randomPath, files)
-      return assert(false, 'createInitialFiles() should throw error, but NOT')
-    }
-    catch (ex) {
-      assert(true)
+      return assert(true)
     }
 
     rmdir(randomPath, (err) => err && console.error(err))
