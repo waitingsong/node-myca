@@ -118,10 +118,13 @@ export function getOpensslVer(openssl: string): Promise<string> {
       if (err) {
         return reject(err)
       }
+      /* istanbul ignore next */
       if (stdout && stdout.indexOf('OpenSSL') >= 0) {
         return resolve(stdout.split(' ')[1])
       }
-      reject('openssl cli error:' + stdout)
+      else {
+        reject('openssl cli error:' + stdout)
+      }
     })
   })
 }
