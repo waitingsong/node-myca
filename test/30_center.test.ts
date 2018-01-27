@@ -464,11 +464,11 @@ describe(filename, () => {
       const ret = await fn(config)
 
       if ( ! ret || ! ret.default) {
-        return assert(false, 'should return valid centerList object')
+        assert(false, 'should return valid centerList object')
       }
     }
     catch (ex) {
-      return assert(false, ex)
+      assert(false, ex)
     }
   })
 
