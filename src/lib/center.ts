@@ -107,6 +107,7 @@ async function createCenter(centerName: string, path: string): Promise<void> {
   for (let i = 0, len = folders.length; i < len; i++) {
     const dir = `${path}/${folders[i]}`
 
+    /* istanbul ignore else */
     if ( ! await isDirExists(dir)) {
       await createDir(dir)
     }
