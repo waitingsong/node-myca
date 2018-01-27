@@ -329,6 +329,15 @@ describe(filename, () => {
       assert(true)
     }
 
+    files = []
+    try {
+      await fn(config, randomPath, files)
+      return assert(false, 'initDbFiles() should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
