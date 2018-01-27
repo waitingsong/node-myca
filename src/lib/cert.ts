@@ -554,6 +554,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
   await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o644 })
   await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
 
+  /* istanbul ignore next */
   if ( ! await isFileExists(keysRet.privateKeyFile)) {
     throw new Error(`save private key file failed. file: "${keysRet.privateKeyFile}"`)
   }
