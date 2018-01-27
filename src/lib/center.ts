@@ -162,17 +162,13 @@ async function addCenterList(config: Config, key: string, path: string): Promise
   const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
 
   path = normalize(path)
-  if (key === 'default') {
-    if (centerList.default) {
-      throw new Error(`default Center path exists, no change allowed. path: "${centerList.default}", target: "${path}"`)
-    }
+  if (centerList[key]) {
+    throw new Error(`center list exists already, can not create more. key: "${key}", path: "${path}", target: "${path}"`)
   }
-  else if (centerList[key]) {
-    throw new Error(`center list exists already, can not create more. key: "${key}", path: "${path}"`)
+  else {
+    centerList[key] = path
+    await writeFileAsync(file, JSON.stringify(centerList))
   }
-  centerList[key] = path
-
-  await writeFileAsync(file, JSON.stringify(centerList))
 }
 
 
