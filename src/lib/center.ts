@@ -172,6 +172,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
 }
 
 
+
 async function loadCenterList(config: Config): Promise<CenterList | void> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
 
