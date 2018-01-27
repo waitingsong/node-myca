@@ -181,6 +181,19 @@ describe(filename, () => {
     }
   })
 
+  it('Should getOpensslVer() works with blank cmd', async () => {
+    try {
+      const ver = await getOpensslVer('')
+
+      if (ver) {
+        assert(false, 'ver value should empty, but return: ' + ver)
+      }
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
   it('Should isDirExists() works', async () => {
     try {
