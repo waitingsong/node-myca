@@ -181,7 +181,7 @@ async function updateCenterList(config: Config, key: string, path: string): Prom
   path = normalize(path)
   if (key === 'default') {
     if (centerList.default) {
-      return
+      throw new Error(`default Center path exists, no change allowed. path: "${centerList.default}"`)
     }
   }
   else if (centerList[key]) {
