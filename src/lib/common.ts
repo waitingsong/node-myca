@@ -83,7 +83,7 @@ export async function createDir(path: string): Promise<void> {
 export async function createFile(file: string, data: any, options?: WriteFileOptions): Promise<void> {
   const path = dirname(file)
 
-  /* istanbul ignore else */
+  /* istanbul ignore next */
   if ( ! path) {
     throw new Error('path empty')
   }
@@ -91,6 +91,7 @@ export async function createFile(file: string, data: any, options?: WriteFileOpt
     await createDir(path)
   }
 
+  /* istanbul ignore else */
   if (!await isFileExists(file)) {
     if (typeof data === 'object') {
       await writeFileAsync(file, JSON.stringify(data))
