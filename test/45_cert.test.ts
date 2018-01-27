@@ -9,7 +9,7 @@ import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
-import { isFileExists } from '../src/lib/common'
+import { isFileExists, readFileAsync } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
@@ -539,6 +539,44 @@ describe(filename, () => {
       const str = `/CN=${opts.CN}/C=${opts.C}`
 
       assert(ret === str, `result should be "${str}", but got "${ret}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
+  it('Should createRandomConfTpl() works', async () => {
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+      keyBits: 2048,
+      alg: 'rsa',
+      SAN: ['foo.com', 'bar.com', '中文'],
+    }
+    const fnName = 'createRandomConfTpl'
+    const fn = <(config: myca.Config, signOpts: myca.SignOpts) => Promise<string>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const tpl = await fn(config, opts)
+
+      if (! await isFileExists(tpl)) {
+        return assert(false, `tpl file crated failed. path: "${$tpl}"`)
+      }
+      const content = await readFileAsync(tpl)
+
+      for (const vv of opts.SAN) {
+        assert(content.includes(vv))
+      }
     }
     catch (ex) {
       return assert(false, ex)
