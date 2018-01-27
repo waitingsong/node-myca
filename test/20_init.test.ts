@@ -5,9 +5,10 @@ import { tmpdir } from 'os'
 import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
+import { promisify } from 'util'
 
 import * as myca from '../src/index'
-import { isDirExists } from '../src/lib/common'
+import { isDirExists, unlinkAsync } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
@@ -50,6 +51,7 @@ describe(filename, () => {
       assert(true)
     }
 
+    // not rm for below test
     // rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
@@ -130,5 +132,36 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+
+  // ------------------ at last
+
+  it('Should initCenter() works without default Center', async () => {
+    const random = Math.random()
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+    const path = join(config.defaultCenterPath, '..')
+
+    if (await isDirExists(path)) {
+      const rmdirAsync = promisify(rmdir)
+
+      try {
+        await rmdirAsync(path)
+      }
+      catch (ex) {
+        assert(false, `unlink default Center failed. path: "${path}"`)
+      }
+    }
+
+    try {
+      await myca.initCenter(centerName, centerPath)
+      assert(false, 'initCenter() should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+
+    assert( ! await isDirExists(centerPath), `path should not exists: "${centerPath}"`)
+  })
 
 })
