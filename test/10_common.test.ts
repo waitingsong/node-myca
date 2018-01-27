@@ -41,6 +41,22 @@ describe(filename, () => {
     }
   })
 
+  it('Should isDirFileExists() works with blank path', async () => {
+    const fnName = 'isDirFileExists'
+    const fn = <(path: string, type: 'DIR' | 'FILE') => Promise<boolean>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      assert( ! await fn('', 'DIR'), 'should return false with blank path')
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
 
   it('Should createDir() works', async () => {
     const random = Math.random()
