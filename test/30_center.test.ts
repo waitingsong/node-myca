@@ -8,7 +8,7 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { isDirExists, isFileExists, writeFileAsync } from '../src/lib/common'
+import { createDir, isDirExists, isFileExists, writeFileAsync } from '../src/lib/common'
 import { config, initialDbFiles } from '../src/lib/config'
 
 
@@ -379,6 +379,35 @@ describe(filename, () => {
       return assert(true)
     }
   })
+
+
+  it('Should addCenterList() works', async () => {
+    const random = Math.random()
+    const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const centerPath = `${randomPath}/${config.centerDirName}`
+    const fnName = 'addCenterList'
+    const fn = <(config: myca.Config, key: string, path: string) => Promise<void>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      await createDir(centerPath)
+      await fn(config, centerName, centerPath)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+
+    if (! await isDirExists(centerPath)) {
+      return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
 
 
 })
