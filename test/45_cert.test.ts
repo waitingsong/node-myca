@@ -400,9 +400,14 @@ describe(filename, () => {
 
       assert(file && (await isFileExists(file)), `value of file empty or file not exists. path:"${file}"`)
 
-      // with pass
+      // with key pass
       clientOpts.privateKeyFile = ret.privateKeyFile
       clientOpts.privateKeyPass = ret.pass
+      file = await fn(clientOpts)
+      assert(file && (await isFileExists(file)), `value of file empty or file not exists. path:"${file}"`)
+
+      // with blank pfxPass
+      clientOpts.pfxPass = ''
       file = await fn(clientOpts)
       assert(file && (await isFileExists(file)), `value of file empty or file not exists. path:"${file}"`)
     }
