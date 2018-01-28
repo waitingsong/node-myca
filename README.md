@@ -109,7 +109,7 @@ myca.initDefaultCenter().catch(console.error)
    .catch(console.error)
 ```
 
-- Issue a serve certificate with SANs
+- Issue a serve certificate with Domain Name SANs
 ```js
  // import * as myca from 'myca'
  const myca = require('myca')
@@ -129,6 +129,28 @@ myca.initDefaultCenter().catch(console.error)
    })
    .catch(console.error)
 ```
+
+- Issue a serve certificate with IP SANs
+```js
+ // import * as myca from 'myca'
+ const myca = require('myca')
+
+ myca
+   .genCert({
+     caKeyPass: 'mycapass',
+     kind: 'server',
+     days: 730,
+     pass: 'fooo',
+     CN: 'www.waitingsong.com',
+     C: 'CN',
+     ips: ['127.0.0.1', '192.168.0.1'], // not support ip mask
+   })
+   .then((ret) => {
+     console.log(ret.cert)
+   })
+   .catch(console.error)
+```
+
 
 - Issue a RSA client p12/pfx certificate
 ```js
