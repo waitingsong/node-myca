@@ -369,7 +369,7 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
 
 /* istanbul ignore next */
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
-  const { alg, centerPath, kind, pass } = options
+  const { alg, centerPath, hash, kind, pass } = options
   const caKeyFile = `${centerPath}/${config.caKeyName}`
 
   if (alg === 'ec' && config.opensslVer && config.opensslVer < '1.0.2') {
@@ -391,6 +391,12 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   }
   if (/\s/.test(pass)) {
     throw new Error('pass phrase contains blank or invisible char')
+  }
+  if ( ! hash) {
+    throw new Error('value of hash empty. must be sha256|sha384')
+  }
+  if (hash !== 'sha256' && hash !== 'sha384') {
+    throw new Error('value of hash invalid. must be sha256|sha384')
   }
 
   if (kind !== 'ca' && kind !== 'server' && kind !== 'client') {
