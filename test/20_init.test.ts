@@ -137,7 +137,6 @@ describe(filename, () => {
 
   it('Should getCenterPath() works with empty centerList', async () => {
     const file = join(config.defaultCenterPath, config.centerListName)
-    console.log('file:::', file)
 
     try {
       if (await isFileExists(file)) {
