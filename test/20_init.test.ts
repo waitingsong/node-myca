@@ -8,11 +8,17 @@ import * as rmdir from 'rimraf'
 import { promisify } from 'util'
 
 import * as myca from '../src/index'
-import { createFile, isDirExists, isFileExists, unlinkAsync, writeFileAsync } from '../src/lib/common'
+import {
+  createDir,
+  createFile,
+  isDirExists,
+  isFileExists,
+  unlinkAsync,
+  writeFileAsync } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
-const tmpDir = tmpdir()
+const tmpDir =  join(tmpdir(), 'myca-tmp')
 const random = Math.random()
 const pathPrefix = 'myca-test-center'
 const randomPath = `${tmpDir}/${pathPrefix}-${random}`
@@ -21,8 +27,11 @@ const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
 
 describe(filename, () => {
-  after(() => {
-    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+  before(async () => {
+    await createDir(tmpDir)
+  })
+  after((done) => {
+    rmdir(tmpDir, (err) => err && console.error(err) || done())
   })
 
   it('Should initDefaultCenter() works', async () => {

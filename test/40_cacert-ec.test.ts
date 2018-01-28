@@ -8,18 +8,19 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { getOpensslVer } from '../src/lib/common'
+import { createDir, getOpensslVer } from '../src/lib/common'
 import { config, initialCaOpts } from '../src/lib/config'
 
 
 const filename = basename(__filename)
-const tmpDir = tmpdir()
+const tmpDir =  join(tmpdir(), 'myca-tmp')
 const pathPrefix = 'myca-test-center'
 const mods = rewire('../src/lib/cert')
 
 
 describe(filename, () => {
   before(async () => {
+    await createDir(tmpDir)
     config.opensslVer = await getOpensslVer(config.openssl)
     if (config.opensslVer < '1.0.2') {
       console.info('openssl version < "1.0.2" not support ec cert generation, current is: ' + config.opensslVer)
@@ -36,6 +37,9 @@ describe(filename, () => {
   afterEach(() => {
     if (config.opensslVer < '1.0.2') { return }
     rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+  })
+  after((done) => {
+    rmdir(tmpDir, (err) => err && console.error(err) || done())
   })
 
 

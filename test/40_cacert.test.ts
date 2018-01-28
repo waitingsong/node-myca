@@ -8,16 +8,19 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createFile } from '../src/lib/common'
+import { createDir, createFile } from '../src/lib/common'
 import { config, initialCaOpts } from '../src/lib/config'
 
 
 const filename = basename(__filename)
-const tmpDir = tmpdir()
+const tmpDir =  join(tmpdir(), 'myca-tmp')
 const pathPrefix = 'myca-test-center'
 const mods = rewire('../src/lib/cert')
 
 describe(filename, () => {
+  before(async () => {
+    await createDir(tmpDir)
+  })
   beforeEach(async () => {
     const random = Math.random()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
@@ -27,6 +30,9 @@ describe(filename, () => {
   })
   afterEach(() => {
     rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+  })
+  after((done) => {
+    rmdir(tmpDir, (err) => err && console.error(err) || done())
   })
 
 

@@ -18,12 +18,18 @@ import {
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
-const tmpDir = tmpdir()
+const tmpDir =  join(tmpdir(), 'myca-tmp')
 const pathPrefix = 'myca-test-center'
 const mods = rewire('../src/lib/common')
 
 
 describe(filename, () => {
+  before(async () => {
+    await createDir(tmpDir)
+  })
+  after((done) => {
+    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  })
 
   it('Should isDirFileExists() works', async () => {
     const fnName = 'isDirFileExists'
