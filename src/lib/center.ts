@@ -24,13 +24,16 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
   const nextHex = buf.toString('utf8').trim() // 'BARZ' -> 186
   const nextDec = parseInt(nextHex, 16)
 
-  if (typeof nextDec !== 'number' ||
-    ! nextDec ||
-    ! Number.isSafeInteger(nextDec) ||
-    nextHex.replace(/^0+/, '') !== nextDec.toString(16) ||
-    nextDec < 1
-  ) {
-    throw new Error(`retrive nextSerial failed or invalid. value: "${nextHex}", Dec: ${nextDec}`)
+  if (typeof nextDec !== 'number' || ! nextDec || nextDec < 1) {
+    throw new Error(`retrive nextSerial failed nextDec not typeof number or invalid. value: "${nextHex}", Dec: ${nextDec}`)
+  }
+  if ( ! Number.isSafeInteger(nextDec) ) {
+    throw new Error(`retrive nextSerial failed. not save integer. value: "${nextHex}", Dec: ${nextDec}`)
+  }
+  if (nextHex.replace(/^0+/, '').toLocaleLowerCase() !== nextDec.toString(16)) {
+    throw new Error(`retrive nextSerial failed or invalid.
+      hex formatted: "${ nextHex.replace(/^0+/, '').toLocaleLowerCase() }",
+      Dec to hex: ${ nextDec.toString(16) }`)
   }
   return nextHex
 }
