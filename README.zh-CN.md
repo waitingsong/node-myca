@@ -144,6 +144,10 @@ myca.initDefaultCenter().catch(console.error)
      pass: 'fooo',
      CN: 'www.waitingsong.com',
      C: 'CN',
+     // https://www.tbs-certificates.co.uk/FAQ/en/normes_tld.html
+     // 10.0.0.0 – 10.255.255.255
+     // 172.16.0.0 – 172.31.255.255
+     // 192.168.0.0 – 192.168.255.255
      ips: ['127.0.0.1', '192.168.0.1'], // not support ip mask
    })
    .then((ret) => {
