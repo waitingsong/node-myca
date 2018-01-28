@@ -62,14 +62,14 @@ async function genCaCert(config: Config, options: CaOpts): Promise<IssueCertRet>
 
   issueOpts.kind = 'ca'
   await validateIssueOpts(issueOpts)
-  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
-  const keysRet: KeysRet = await genKeys(privateKeyOpts)
   const caKeyFile = `${issueOpts.centerPath}/${config.caKeyName}` // ca.key
 
   // console.log(issueOpts)
   if (await isFileExists(caKeyFile)) {
     return Promise.reject(`caKeyFile exists: "${caKeyFile}"`)
   }
+  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
+  const keysRet: KeysRet = await genKeys(privateKeyOpts)
   await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
   const cert = await reqCaCert(config, issueOpts) // ca cert
   const ret: IssueCertRet = { ...initialCertRet, ...keysRet, cert }
