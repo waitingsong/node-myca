@@ -92,6 +92,7 @@ export interface CertDN {
   L?: string    // Locality Name (eg, city)
   emailAddress?: string
   SAN?: string[]  // subjectAltName
+  ips?: string[] // subjectAltName ip
 }
 
 // sign csr
@@ -105,7 +106,8 @@ export interface SignOpts {
   caKeyPass: string
   csrFile: string
   configFile?: string // openssl config file . default centerPath/.config
-  SAN?: string[]  // subjectAltName
+  SAN?: string[]  // subjectAltName DNS
+  ips?: string[] // subjectAltName ip. NOT support ip mask such as 192.168.0.*
 }
 
 // passed by customer

@@ -62,6 +62,7 @@ export const initialSignOpts: SignOpts = {
   csrFile: '',
   configFile: '',
   SAN: [],
+  ips: [],
 }
 
 export const initialCertOpts: IssueOpts = {

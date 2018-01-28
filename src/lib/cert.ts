@@ -111,6 +111,7 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
     csrFile,
     configFile: issueOpts.configFile,
     SAN: issueOpts.SAN,
+    ips: issueOpts.ips,
   }
 
   ret.cert = await sign(signOpts)
@@ -501,11 +502,24 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
   tpl = tpl.replace(/%hash%/g, signOpts.hash)  // global
 
   const sans = signOpts.SAN
+  const ips = signOpts.ips
+  let names = '\nsubjectAltName='
+  let dn = ''
+  let ip = ''
 
   // subjectAltName=DNS:www.foo.com,DNS:www.bar.com
   if (sans && Array.isArray(sans) && sans.length) {
-    tpl += '\nsubjectAltName=' + sans.map(name => 'DNS:' + name).join(',')
+    dn = sans.map(name => 'DNS:' + name).join(',')
   }
+  // subjectAltName=IP:127.0.0.1,IP:192.168.0.1
+  if (ips && Array.isArray(ips) && ips.length) {
+    ip = ips.map(name => 'IP:' + name).join(',')
+    dn && (ip += ',')
+  }
+  if (dn || ip) {
+    tpl += (names + dn + ip)
+  }
+
   return createFile(rfile, tpl).then(() => {
     return rfile
   })
@@ -571,7 +585,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
 // sign csr with ca.key, return crt
 export async function sign(signOpts: SignOpts): Promise<string> {
   await validateSignOpts(signOpts)
-  const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath, SAN } = signOpts
+  const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath, ips, SAN } = signOpts
   const args = <string[]> [
     'ca', '-batch',
     // '-config', configFile,
@@ -583,7 +597,7 @@ export async function sign(signOpts: SignOpts): Promise<string> {
     '-passin', `pass:${caKeyPass}`,
   ]
 
-  if (SAN || ! configFile) {
+  if (SAN || ips || ! configFile) {
     const rtpl = await createRandomConfTpl(config, signOpts)
 
     args.push('-config', rtpl)
@@ -637,7 +651,7 @@ export async function outputClientCert(options: PfxOpts): Promise<string> {
 
 /* istanbul ignore next */
 async function validateSignOpts(signOpts: SignOpts): Promise<void> {
-  const { SAN, centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
+  const { SAN, ips, centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
 
   if ( ! await isDirExists(centerPath)) {
     return Promise.reject(`folder of param centerPath of signOpts not exists: "${centerPath}"`)
@@ -655,6 +669,16 @@ async function validateSignOpts(signOpts: SignOpts): Promise<void> {
     for (const name of SAN) {
       if ( ! name) {
         return Promise.reject('item value of SAN of signOpts empty')
+      }
+    }
+  }
+  if (typeof ips !== 'undefined') {
+    if ( ! Array.isArray(ips)) {
+      return Promise.reject('value of param ips of signOpts inavlid, must Array<string>')
+    }
+    for (const name of ips) {
+      if ( ! name) {
+        return Promise.reject('item value of ips of signOpts empty')
       }
     }
   }
