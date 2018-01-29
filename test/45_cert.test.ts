@@ -8,9 +8,9 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { decryptPrivateKey, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
+import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
 import { createDir, isFileExists, readFileAsync } from '../src/lib/common'
-import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
+import { config, initialCaOpts, initialCertOpts, initialSignOpts } from '../src/lib/config'
 
 
 const filename = basename(__filename)
@@ -694,6 +694,83 @@ describe(filename, () => {
   })
 
 
+  it('Should sign() works', async () => {
+    // copy from Should genCert() works
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+      ips: ['127.0.0.1'],
+    }
+    let ret: myca.IssueCertRet
+
+    try {
+      ret = await myca.genCert(opts)
+
+      assert(ret, 'result empty')
+      assert(ret.csrFile, 'value of result.csrFile empty')
+      assert(ret.csr && ret.csr.includes('REQUEST'), 'value of result.csr invalid')
+      assert(ret.crtFile, 'value of result.certFile empty')
+      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
+      assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
+      assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
+      assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
+      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+
+    ret.cert = ''
+    ret.crtFile = ''
+    const issueOpts = <myca.IssueOpts> { ...initialCertOpts, ...opts }
+
+    issueOpts.centerPath = await myca.getCenterPath(issueOpts.centerName)
+    issueOpts.configFile || (issueOpts.configFile = `${issueOpts.centerPath}/${config.configName}`)
+    const centerPath = issueOpts.centerPath
+
+    // issueOpts.serial = await myca.nextSerial(issueOpts.centerName, config)
+    // const csrFile = `${centerPath}/${issueOpts.kind}/${issueOpts.serial}.csr`
+    const caKeyFile = join(centerPath, config.caKeyName) // ca.key
+    const caCrtFile = `${centerPath}/${config.caCrtName}` // ca.crt
+    const signOpts: myca.SignOpts = {
+      ...initialSignOpts,
+      centerPath,
+      caCrtFile,
+      caKeyFile,
+      caKeyPass: issueOpts.caKeyPass,
+      csrFile: ret.csrFile,
+      configFile: issueOpts.configFile,
+      SAN: issueOpts.SAN,
+      ips: issueOpts.ips,
+    }
+
+    try {
+      let cert: string = await sign(signOpts, config)
+
+      assert(cert && cert.includes(opts.CN), `result invalid. value: "${cert}"`)
+
+      delete signOpts.SAN
+      cert = await sign(signOpts, config)
+      assert(cert && cert.includes(opts.CN), `result invalid without SAN. value: "${cert}"`)
+
+      delete signOpts.ips
+      // use default config file instead of created tpl
+      cert = await sign(signOpts, config)
+      assert(cert && cert.includes(opts.CN), `result invalid without configFile. value: "${cert}"`)
+
+      cert = await sign(signOpts)
+      assert(cert && cert.includes(opts.CN), `result invalid without argument conf. value: "${cert}"`)
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
 
 
   // --------------
