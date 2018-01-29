@@ -595,6 +595,45 @@ describe(filename, () => {
   })
 
 
+  it('Should createRandomConfTpl() works for ips', async () => {
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code)
+      keyBits: 2048,
+      alg: 'rsa',
+      ips: ['127.0.0.1', '192.168.0.1'],
+    }
+    const fnName = 'createRandomConfTpl'
+    const fn = <(config: myca.Config, signOpts: myca.SignOpts) => Promise<string>> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const tpl = await fn(config, opts)
+
+      if (! await isFileExists(tpl)) {
+        return assert(false, `tpl file crated failed. path: "${$tpl}"`)
+      }
+      const content = await readFileAsync(tpl)
+
+      for (const vv of opts.ips) {
+        assert(content.includes(vv))
+      }
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
+
+
 
   // --------------
 
