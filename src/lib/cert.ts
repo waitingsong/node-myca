@@ -79,8 +79,9 @@ async function genCaCert(config: Config, options: CaOpts): Promise<IssueCertRet>
 
 
 // issue certificate of server or client by ca.key
-export async function genCert(options: CertOpts): Promise<IssueCertRet> {
-  const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
+export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCertRet> {
+  const localConfig = conf ? { ...config, ...conf } : config
+  const issueOpts = await processIssueOpts(localConfig, <IssueOpts> { ...initialCertOpts, ...options })
   const centerPath = issueOpts.centerPath
 
   /* istanbul ignore next */
@@ -89,13 +90,13 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
   }
   await validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
-  const caKeyFile = normalize(`${centerPath}/${config.caKeyName}`) // ca.key
-  const caCrtFile = `${centerPath}/${config.caCrtName}` // ca.crt
+  const caKeyFile = normalize(`${centerPath}/${localConfig.caKeyName}`) // ca.key
+  const caCrtFile = `${centerPath}/${localConfig.caCrtName}` // ca.crt
   let keysRet: KeysRet = await genKeys(privateKeyOpts)
 
-  issueOpts.serial = await nextSerial(issueOpts.centerName, config)
-  keysRet = await savePrivateKeys(config, issueOpts, keysRet)
-  const csr = await reqServerCert(config, issueOpts, keysRet) // csr string
+  issueOpts.serial = await nextSerial(issueOpts.centerName, localConfig)
+  keysRet = await savePrivateKeys(localConfig, issueOpts, keysRet)
+  const csr = await reqServerCert(localConfig, issueOpts, keysRet) // csr string
   const csrFile = `${centerPath}/${issueOpts.kind}/${issueOpts.serial}.csr`
   const ret: IssueCertRet = { ...initialCertRet, ...keysRet, csr, csrFile }
 
@@ -114,7 +115,7 @@ export async function genCert(options: CertOpts): Promise<IssueCertRet> {
     ips: issueOpts.ips,
   }
 
-  ret.cert = await sign(signOpts)
+  ret.cert = await sign(signOpts, localConfig)
   await createFile(ret.crtFile, ret.cert, { mode: 0o644 })
 
   // EXPORT TO PKCS#12 FORMAT
@@ -583,7 +584,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
 
 
 // sign csr with ca.key, return crt
-export async function sign(signOpts: SignOpts): Promise<string> {
+export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
   await validateSignOpts(signOpts)
   const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath, ips, SAN } = signOpts
   const args = <string[]> [
@@ -597,8 +598,10 @@ export async function sign(signOpts: SignOpts): Promise<string> {
     '-passin', `pass:${caKeyPass}`,
   ]
 
+  const localConfig: Config = conf ? { ...config, ...conf } : config
+
   if (SAN || ips || ! configFile) {
-    const rtpl = await createRandomConfTpl(config, signOpts)
+    const rtpl = await createRandomConfTpl(localConfig, signOpts)
 
     args.push('-config', rtpl)
   }
