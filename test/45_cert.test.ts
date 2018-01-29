@@ -556,6 +556,26 @@ describe(filename, () => {
     }
   })
 
+  it('Should genIssueSubj() works with empty DN', async () => {
+    const opts = <myca.CertDN> {
+    }
+    const fnName = 'genIssueSubj'
+    const fn = <(options: myca.CertDN) => string> mods.__get__(fnName)
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      const ret = await fn(opts)
+
+      assert(ret === '', `result should be blank, but got "${ret}"`)
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+
 
   it('Should createRandomConfTpl() works', async () => {
     const opts: myca.CertOpts = {
