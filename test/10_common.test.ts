@@ -14,7 +14,8 @@ import {
   getOpensslVer,
   isDirExists,
   isFileExists,
-  readFileAsync } from '../src/lib/common'
+  readFileAsync,
+  runOpenssl } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
@@ -30,6 +31,27 @@ describe(filename, () => {
   after((done) => {
     rmdir(tmpDir, (err) => err && console.error(err) || done())
   })
+
+
+  it('Should runOpenssl() works', async () => {
+    try {
+      await runOpenssl(['version'])
+    }
+    catch (ex) {
+      assert(false, ex)
+    }
+  })
+
+  it('Should runOpenssl() works with invalid args', async () => {
+    try {
+      await runOpenssl(['fake'])
+      assert(false, 'should throw error, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+  })
+
 
   it('Should isDirFileExists() works', async () => {
     const fnName = 'isDirFileExists'
