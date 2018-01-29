@@ -606,7 +606,7 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
     args.push('-config', rtpl)
   }
   else {
-    args.push('-config', configFile)
+    args.push('-config', <string> configFile) // validate by validateSignOpts()
   }
 
   // console.log('signOpts:', signOpts)
