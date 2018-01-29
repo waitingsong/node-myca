@@ -600,7 +600,7 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
 
   const localConfig: Config = conf ? { ...config, ...conf } : config
 
-  if (SAN || ips || ! configFile) {
+  if (SAN || ips) {
     const rtpl = await createRandomConfTpl(localConfig, signOpts)
 
     args.push('-config', rtpl)
