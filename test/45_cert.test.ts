@@ -1,13 +1,13 @@
 /// <reference types="node" />
 /// <reference types="mocha" />
 
-import { stat, Stats } from 'fs'
+import { stat } from 'fs'
 import { tmpdir } from 'os'
 import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
-import { inspect, promisify } from 'util'
+import { promisify } from 'util'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
