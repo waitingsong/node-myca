@@ -13,7 +13,7 @@ import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
 
 
 const filename = basename(__filename)
-const tmpDir =  join(tmpdir(), 'myca-tmp')
+const tmpDir = join(tmpdir(), 'myca-tmp')
 const pathPrefix = 'myca-test-center'
 // const mods = rewire('../src/lib/cert')
 
