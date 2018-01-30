@@ -18,7 +18,7 @@ export const chmodAsync = promisify(chmod)
 
 export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(config.openssl, args, (options ? options : {}), (err, stdout) => err ? reject(err) : resolve(stdout))
+    execFile(config.openssl, args, (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout)))
   })
 }
 
@@ -36,7 +36,7 @@ export function isFileExists(path: string): Promise<boolean> {
 function isDirFileExists(path: string, type: 'DIR' | 'FILE'): Promise<boolean> {
   return path
     ? new Promise(resolve => {
-      stat(path, (err, stats) => err ? resolve(false) : resolve(type === 'DIR' ? stats.isDirectory() : stats.isFile()))
+      stat(path, (err, stats) => ( err ? resolve(false) : resolve(type === 'DIR' ? stats.isDirectory() : stats.isFile())) )
     })
     : Promise.resolve(false)
 }
