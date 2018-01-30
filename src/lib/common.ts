@@ -18,12 +18,7 @@ export const chmodAsync = promisify(chmod)
 
 export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(config.openssl, args, (options ? options : {}), (err, stdout) => {
-      if (err) {
-        return reject(err)
-      }
-      return resolve(stdout)
-    })
+    execFile(config.openssl, args, (options ? options : {}), (err, stdout) => err ? reject(err) : resolve(stdout))
   })
 }
 
