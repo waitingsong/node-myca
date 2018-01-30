@@ -266,6 +266,48 @@ describe(filename, () => {
     rmdir(randomPath, (err) => err && console.error(err))
   })
 
+  it('Should initDbFiles() works without mode value', async () => {
+    const random = Math.random()
+    // const centerName = `${pathPrefix}-${random}`
+    const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+    const fnName = 'initDbFiles'
+    const fn = <(config: myca.Config, path: string, files: myca.InitialFile[]) => Promise<void>> mods.__get__(fnName)
+    const db = `${randomPath}/${config.dbDir}`
+    const files = [
+      {
+        name: 'serial',
+        defaultValue: '01',
+      },
+      {
+        name: 'index',
+        defaultValue: '',
+        mode: 0o644,
+      },
+    ]
+
+    if (typeof fn !== 'function') {
+      return assert(false, `${fnName} is not a function`)
+    }
+
+    try {
+      await fn(config, randomPath, files)
+    }
+    catch (ex) {
+      rmdir(randomPath, (err) => err && console.error(err))
+      return assert(false, ex)
+    }
+    for (const file of files) {
+      const path = `${db}/${file.name}`
+
+      if ( ! await isFileExists(path)) {
+        assert(false, `file not exists. path: "${path}"`)
+      }
+    }
+
+    rmdir(randomPath, (err) => err && console.error(err))
+  })
+
+
   it('Should initDbFiles() works with invalid param', async () => {
     const random = Math.random()
     // const centerName = `${pathPrefix}-${random}`
