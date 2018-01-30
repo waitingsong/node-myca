@@ -572,7 +572,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
 
   keysRet.privateKeyFile = `${centerPath}/${kind}/${serial}.key`
   keysRet.privateUnsecureKeyFile = `${keysRet.privateKeyFile}.unsecure`
-  await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o644 })
+  await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o600 })
   await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
 
   /* istanbul ignore next */
