@@ -18,7 +18,7 @@ import {
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
-const tmpDir =  join(tmpdir(), 'myca-tmp')
+const tmpDir = join(tmpdir(), 'myca-tmp')
 const random = Math.random()
 const pathPrefix = 'myca-test-center'
 const randomPath = `${tmpDir}/${pathPrefix}-${random}`
