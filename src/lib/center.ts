@@ -48,13 +48,11 @@ export async function initOpensslConfig(configName: string, centerPath: string) 
 // create defaultCenterPath and center folders/files
 export async function initDefaultCenter(): Promise<void> {
   const centerName = 'default'
-  const initialFiles: string[] = [config.centerListName]
-
   const centerPath = await isCenterInited(centerName)
+
   if (centerPath) {
     return Promise.reject(`default center initialized already. path: "${centerPath}"`)
   }
-
   await createDir(config.defaultCenterPath) // create default ca dir under userHome
   await createCenterListFile(join(config.defaultCenterPath, config.centerListName))  // must before createCenter()
   await createCenter(config, centerName, config.defaultCenterPath)  // create default cneter dir under userHome
