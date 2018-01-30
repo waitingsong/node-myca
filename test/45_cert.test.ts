@@ -540,7 +540,7 @@ describe(filename, () => {
     }
   })
 
-  it('Should genIssueSubj() works', async () => {
+  it('Should genIssueSubj() works', () => {
     const opts = <myca.CertDN> {
       CN: 'waitingsong',
       C: 'CN',
@@ -553,7 +553,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(opts)
+      const ret = fn(opts)
       const str = `/CN=${opts.CN}/C=${opts.C}`
 
       assert(ret === str, `result should be "${str}", but got "${ret}"`)
@@ -563,7 +563,7 @@ describe(filename, () => {
     }
   })
 
-  it('Should genIssueSubj() works with Chinese', async () => {
+  it('Should genIssueSubj() works with Chinese', () => {
     const opts = <myca.CertDN> {
       CN: 'waitingsong中文',
       C: 'CN',
@@ -576,7 +576,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(opts)
+      const ret = fn(opts)
       const str = `/CN=${opts.CN}/C=${opts.C}`
 
       assert(ret === str, `result should be "${str}", but got "${ret}"`)
@@ -586,7 +586,7 @@ describe(filename, () => {
     }
   })
 
-  it('Should genIssueSubj() works with empty DN', async () => {
+  it('Should genIssueSubj() works with empty DN', () => {
     const opts = <myca.CertDN> {
     }
     const fnName = 'genIssueSubj'
@@ -597,7 +597,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(opts)
+      const ret = fn(opts)
 
       assert(ret === '', `result should be blank, but got "${ret}"`)
     }
