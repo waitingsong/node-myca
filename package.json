@@ -4,7 +4,7 @@
   "description": "Create Self-signed CA certificate for development use and issue server or client certificates, generated using openssl",
   "main": "./dist/index.js",
   "scripts": {
-    "build": "npm run clean && npm run build:ts && npm run jslint",
+    "build": "npm run clean && npm run lint && npm run build:ts && npm run jslint",
     "build:ts": "tsc -p ./ --outDir dist/",
     "clean": "rm -rf dist/*",
     "cov": "nyc mocha",
