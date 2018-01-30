@@ -378,7 +378,7 @@ describe(filename, () => {
     try {
       const serial = await myca.nextSerial('', config)
 
-      return assert(false, 'should throw error, but NOT')
+      return assert(serial, 'should throw error, but NOT')
     }
     catch (ex) {
       return assert(true)
