@@ -77,10 +77,10 @@ describe(filename, () => {
 
       if ( ! config.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
-        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode is 0o600, but is ${fileMode}`)
+        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
         fileMode = (await statAsync(ret.privateUnsecureKeyFile)).mode.toString(8)
-        assert(fileMode.slice(-3) === '600', `should privateUnsecureKeyFile file mode is 0o600, but is ${fileMode}`)
+        assert(fileMode.slice(-3) === '600', `should privateUnsecureKeyFile file mode be 0o600, but is ${fileMode}`)
       }
     }
     catch (ex) {
@@ -413,6 +413,11 @@ describe(filename, () => {
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
       assert(ret.pfxFile && (await isFileExists(ret.pfxFile)), `value of result.pfxFile empty or file not exists. path: "${ret.pfxFile}"`)
+
+      if ( ! config.isWin32) {
+        const fileMode = (await statAsync(ret.pfxFile)).mode.toString(8)
+        assert(fileMode.slice(-3) === '600', `should pfxFile file mode be 0o600, but is ${fileMode}`)
+      }
     }
     catch (ex) {
       return assert(false, ex)
