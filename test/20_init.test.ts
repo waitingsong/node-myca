@@ -13,8 +13,7 @@ import {
   createFile,
   isDirExists,
   isFileExists,
-  unlinkAsync,
-  writeFileAsync } from '../src/lib/common'
+  unlinkAsync } from '../src/lib/common'
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)

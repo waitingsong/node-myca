@@ -7,7 +7,6 @@ import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
-import * as myca from '../src/index'
 import {
   createDir,
   createFile,
@@ -19,7 +18,7 @@ import {
 import { config } from '../src/lib/config'
 
 const filename = basename(__filename)
-const tmpDir =  join(tmpdir(), 'myca-tmp')
+const tmpDir = join(tmpdir(), 'myca-tmp')
 const pathPrefix = 'myca-test-center'
 const mods = rewire('../src/lib/common')
 
