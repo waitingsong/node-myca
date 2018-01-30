@@ -1,17 +1,20 @@
 /// <reference types="node" />
 /// <reference types="mocha" />
 
+import { stat, Stats } from 'fs'
 import { tmpdir } from 'os'
 import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
+import { inspect, promisify } from 'util'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
 import { createDir, isFileExists, readFileAsync } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts, initialSignOpts } from '../src/lib/config'
 
+const statAsync = promisify(stat)
 
 const filename = basename(__filename)
 const tmpDir = join(tmpdir(), 'myca-tmp')
@@ -47,7 +50,7 @@ describe(filename, () => {
   })
 
 
-  it('Should genCert() works', async () => {
+  it.only('Should genCert() works', async () => {
     const opts: myca.CertOpts = {
       centerName: 'default',
       caKeyPass: 'mycapass',
@@ -71,6 +74,14 @@ describe(filename, () => {
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+
+      if ( ! config.isWin32) {
+        let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
+        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode is 0o600, but is ${fileMode}`)
+
+        fileMode = (await statAsync(ret.privateUnsecureKeyFile)).mode.toString(8)
+        assert(fileMode.slice(-3) === '600', `should privateUnsecureKeyFile file mode is 0o600, but is ${fileMode}`)
+      }
     }
     catch (ex) {
       return assert(false, ex)
