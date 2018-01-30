@@ -50,7 +50,7 @@ describe(filename, () => {
   })
 
 
-  it.only('Should genCert() works', async () => {
+  it('Should genCert() works', async () => {
     const opts: myca.CertOpts = {
       centerName: 'default',
       caKeyPass: 'mycapass',
