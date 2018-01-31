@@ -9,7 +9,6 @@
 
 import { normalize } from 'path'
 
-import { getOpensslVer } from './lib/common'
 import { config } from './lib/config'
 
 
@@ -19,12 +18,6 @@ config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : no
 config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
 config.openssl = normalize(config.openssl)
 
-/* istanbul ignore next */
-if ( ! config.opensslVer) {
-  getOpensslVer(config.openssl).then(ver => {
-    config.opensslVer = ver
-  })
-}
 /* istanbul ignore next */
 if ( ! config.userHome) {
   throw new Error('path of user profile empty')
