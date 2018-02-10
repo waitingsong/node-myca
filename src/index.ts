@@ -26,3 +26,4 @@ if ( ! config.userHome) {
 export * from './lib/center'
 export * from './lib/cert'
 export * from './lib/model'
+export { initialCaOpts, initialCertOpts } from './lib/config'
