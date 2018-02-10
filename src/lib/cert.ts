@@ -34,7 +34,7 @@ import {
   SignOpts } from './model'
 
 
-export async function initCaCert(issueOpts: CaOpts): Promise<void> {
+export async function initCaCert(issueOpts: CaOpts): Promise<IssueCertRet> {
   const opts = <CaOpts> { ...initialCaOpts, ...issueOpts }
 
   if ( ! opts.centerName) {
@@ -53,6 +53,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<void> {
   const certRet = await genCaCert(config, opts)
 
   await saveCaCrt(config, opts, certRet.cert)
+  return certRet
 }
 
 
