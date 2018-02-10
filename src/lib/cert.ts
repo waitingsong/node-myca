@@ -533,11 +533,13 @@ async function unlinkRandomConfTpl(file: string): Promise<void> {
 }
 
 
-export async function saveCaCrt(config: Config, issueOpts: CaOpts, data: string): Promise<void> {
+// return cert file path
+export async function saveCaCrt(config: Config, issueOpts: CaOpts, data: string): Promise<string> {
   const centerPath = await getCenterPath(issueOpts.centerName)
-  const file = `${centerPath}/${config.caCrtName}`
+  const file = join(centerPath, config.caCrtName)
 
   await writeFileAsync(file, data, { mode: 0o644 })
+  return file
 }
 
 export async function unlinkCaCrt(centerName: string): Promise<void> {
