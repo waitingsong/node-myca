@@ -15,6 +15,7 @@ import {
   writeFileAsync } from './common'
 import {
   config,
+  initialCaCertRet,
   initialCaOpts,
   initialCertOpts,
   initialCertRet,
@@ -26,6 +27,7 @@ import {
   CertDN,
   CertOpts,
   Config,
+  IssueCaCertRet,
   IssueCertRet,
   IssueOpts,
   KeysRet,
@@ -34,7 +36,7 @@ import {
   SignOpts } from './model'
 
 
-export async function initCaCert(issueOpts: CaOpts): Promise<IssueCertRet> {
+export async function initCaCert(issueOpts: CaOpts): Promise<IssueCaCertRet> {
   const opts = <CaOpts> { ...initialCaOpts, ...issueOpts }
 
   if ( ! opts.centerName) {
@@ -58,7 +60,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<IssueCertRet> {
 
 
 // generate certificate of self-signed CA
-async function genCaCert(config: Config, options: CaOpts): Promise<IssueCertRet> {
+async function genCaCert(config: Config, options: CaOpts): Promise<IssueCaCertRet> {
   const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
 
   issueOpts.kind = 'ca'
@@ -71,9 +73,18 @@ async function genCaCert(config: Config, options: CaOpts): Promise<IssueCertRet>
   }
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
   const keysRet: KeysRet = await genKeys(privateKeyOpts)
+
   await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
+
   const cert = await reqCaCert(config, issueOpts) // ca cert
-  const ret: IssueCertRet = { ...initialCertRet, ...keysRet, cert, privateKeyFile: caKeyFile }
+  const ret: IssueCaCertRet = { // crtFile empty here
+    ...initialCaCertRet,
+    cert,
+    privateKeyFile: caKeyFile,
+    centerName: issueOpts.centerName,
+    privateKey: keysRet.privateKey,
+    pass: keysRet.pass,
+  }
 
   return Promise.resolve(ret)
 }

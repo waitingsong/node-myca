@@ -8,7 +8,7 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createDir, getOpensslVer } from '../src/lib/common'
+import { createDir, getOpensslVer, isFileExists } from '../src/lib/common'
 import { config, initialCaOpts } from '../src/lib/config'
 
 
@@ -291,7 +291,7 @@ describe(filename, () => {
       C: 'CN',
     }
     const fnName = 'genCaCert'
-    const fn = <(config: myca.Config, options: myca.CaOpts) => Promise<myca.IssueCertRet>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, options: myca.CaOpts) => Promise<myca.IssueCaCertRet>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
@@ -301,10 +301,14 @@ describe(filename, () => {
       const ret = await fn(config, opts)
 
       assert(ret, 'result empty')
-      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
-      assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.centerName, 'value of result.centerName invalid')
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(ret.pass, 'value of result.pass empty')
+      assert(ret.privateKeyFile, 'value of result.privateKeyFile invalid')
+      assert(await isFileExists(ret.privateKeyFile), `privateKeyFile not exists. path: "${ret.privateKeyFile}"`)
+      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
+      assert( ! ret.crtFile, 'value of result.crtFile should empty at this time')
+      assert( ! await isFileExists(ret.crtFile), `crtFile should not exists at this time. path: "${ret.crtFile}"`)
     }
     catch (ex) {
       return assert(false, ex)

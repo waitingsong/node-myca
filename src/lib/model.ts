@@ -157,6 +157,15 @@ export interface KeysRet {
   privateUnsecureKeyFile: string
 }
 
+export interface IssueCaCertRet {
+  centerName: string
+  privateKey: string  // private key pem
+  pass: string
+  privateKeyFile: string
+  cert: string  // certificate pem
+  crtFile: string // certificate file path
+}
+
 export interface IssueCertRet extends KeysRet {
   csr: string
   csrFile: string
