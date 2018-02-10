@@ -112,6 +112,9 @@ export const initialCaCertRet: IssueCaCertRet = {
 }
 
 export const initialCertRet: IssueCertRet = {
+  centerName: '',
+  caKeyFile: '',
+  caCrtFile: '',
   pubKey: '',     // pubkey pem
   privateKey: '',  // private key pem
   privateUnsecureKey: '',  // private key pem

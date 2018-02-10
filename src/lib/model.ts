@@ -167,6 +167,9 @@ export interface IssueCaCertRet {
 }
 
 export interface IssueCertRet extends KeysRet {
+  centerName: string
+  caKeyFile: string
+  caCrtFile: string
   csr: string
   csrFile: string
   cert: string  // certificate pem

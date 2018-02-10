@@ -109,12 +109,19 @@ export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCe
   issueOpts.serial = await nextSerial(issueOpts.centerName, localConfig)
   keysRet = await savePrivateKeys(localConfig, issueOpts, keysRet)
   const csr = await reqServerCert(localConfig, issueOpts, keysRet) // csr string
-  const csrFile = `${centerPath}/${issueOpts.kind}/${issueOpts.serial}.csr`
-  const ret: IssueCertRet = { ...initialCertRet, ...keysRet, csr, csrFile }
+  const csrFile = join(centerPath, issueOpts.kind, `${issueOpts.serial}.csr`)
+  const ret: IssueCertRet = {
+    ...initialCertRet,
+    ...keysRet,
+    centerName: issueOpts.centerName,
+    caKeyFile,
+    caCrtFile,
+    csr,
+    csrFile,
+    crtFile: join(centerPath, issueOpts.kind, `${issueOpts.serial}.crt`),
+  }
 
   await createFile(csrFile, csr, { mode: 0o600 })
-  ret.crtFile = normalize(`${centerPath}/${issueOpts.kind}/${issueOpts.serial}.crt`)
-
   const signOpts: SignOpts = {
     ...initialSignOpts,
     centerPath,
