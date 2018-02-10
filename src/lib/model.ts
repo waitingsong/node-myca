@@ -130,7 +130,7 @@ export interface IssueOpts extends SignOpts, CertDN {
   centerName: 'default' | string  // key name of center dir
   alg: Alg
   days: number
-  pass?: string
+  pass: string
   keyBits: number // for rsa
   ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
   hash: 'sha256' | 'sha384'
