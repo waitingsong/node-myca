@@ -52,7 +52,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<IssueCertRet> {
   }
   const certRet = await genCaCert(config, opts)
 
-  await saveCaCrt(config, opts, certRet.cert)
+  certRet.crtFile = await saveCaCrt(config, opts, certRet.cert)
   return certRet
 }
 
