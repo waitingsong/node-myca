@@ -35,7 +35,9 @@ describe(filename, () => {
 
   it('Should initDefaultCenter() works', async () => {
     try {
-      await myca.initDefaultCenter()
+      const centerPath = await myca.initDefaultCenter()
+
+      assert(centerPath === config.defaultCenterPath, `result not expected. result: "${centerPath}", expected: "${config.defaultCenterPath}"`)
     }
     catch (ex) {
       return assert(false, ex)
