@@ -102,8 +102,8 @@ export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCe
   }
   await validateIssueOpts(issueOpts)
   const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
-  const caKeyFile = normalize(`${centerPath}/${localConfig.caKeyName}`) // ca.key
-  const caCrtFile = `${centerPath}/${localConfig.caCrtName}` // ca.crt
+  const caKeyFile = join(centerPath, localConfig.caKeyName) // ca.key
+  const caCrtFile = join(centerPath, localConfig.caCrtName) // ca.crt
   let keysRet: KeysRet = await genKeys(privateKeyOpts)
 
   issueOpts.serial = await nextSerial(issueOpts.centerName, localConfig)
