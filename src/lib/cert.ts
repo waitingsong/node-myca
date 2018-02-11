@@ -323,7 +323,7 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
 
   /* istanbul ignore next */
   if (config.isWin32) { // use config file
-    rtpl = await createRandomConfTpl(config, options)
+    rtpl = normalize(await createRandomConfTpl(config, options))
     args.push('-config', rtpl)
   }
   else {  // pass args by -subj
@@ -364,7 +364,7 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
     '-key', privateUnsecureKeyFile,
   ]
   const runOpts = { cwd: centerPath }
-  const rtpl = await createRandomConfTpl(config, options)
+  const rtpl = normalize(await createRandomConfTpl(config, options))
 
   args.push('-config', rtpl)
   // console.log('issueOpts:', options)
@@ -613,9 +613,9 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
     // '-config', configFile,
     // '-config', rtpl,
     '-days', days + '',
-    '-cert', caCrtFile,
-    '-keyfile', caKeyFile,
-    '-in', csrFile,
+    '-cert', normalize(caCrtFile),
+    '-keyfile', normalize(caKeyFile),
+    '-in', normalize(csrFile),
     '-passin', `pass:${caKeyPass}`,
   ]
 
@@ -624,10 +624,10 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
   if (SAN || ips) {
     const rtpl = await createRandomConfTpl(localConfig, signOpts)
 
-    args.push('-config', rtpl)
+    args.push('-config', normalize(rtpl))
   }
   else {
-    args.push('-config', <string> configFile) // validate by validateSignOpts()
+    args.push('-config', normalize(<string> configFile)) // validate by validateSignOpts()
   }
 
   // console.log('signOpts:', signOpts)
