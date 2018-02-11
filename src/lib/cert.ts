@@ -621,13 +621,13 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
 
   const localConfig: Config = conf ? { ...config, ...conf } : config
 
-  if (SAN || ips) {
+  if ((SAN && SAN.length) || (ips && ips.length)) {
     const rtpl = await createRandomConfTpl(localConfig, signOpts)
 
     args.push('-config', normalize(rtpl))
   }
   else {
-    args.push('-config', normalize(<string> configFile)) // validate by validateSignOpts()
+    args.push('-config', normalize(<string> configFile)) // configFile validate by validateSignOpts()
   }
 
   // console.log('signOpts:', signOpts)
