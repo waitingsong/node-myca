@@ -591,7 +591,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
   const { centerPath, kind, serial } = issueOpts
   const { privateKey, privateUnsecureKey } = keysRet
 
-  keysRet.privateKeyFile = `${centerPath}/${kind}/${serial}.key`
+  keysRet.privateKeyFile = join(centerPath, kind, `${serial}.key`)
   keysRet.privateUnsecureKeyFile = `${keysRet.privateKeyFile}.unsecure`
   await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o600 })
   await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
