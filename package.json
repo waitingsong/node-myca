@@ -1,46 +1,24 @@
 {
-  "name": "myca",
-  "version": "1.11.4",
-  "description": "Create Self-signed CA certificate for development use and issue server or client certificates, generated using openssl",
-  "main": "./dist/index.js",
-  "scripts": {
-    "build": "npm run clean && npm run lint && npm run build:ts && npm run jslint",
-    "build:ts": "tsc -p ./ --outDir dist/",
-    "clean": "rm -rf dist/*",
-    "cov": "nyc mocha",
-    "cov:coveralls": "nyc mocha && nyc report --reporter=text-lcov | coveralls",
-    "jslint": "eslint --fix dist/**/*.js",
-    "lint": "tslint --fix -p tslint.json -e **/*.d.ts -t stylish src/**/*.ts test/**/*.ts",
-    "prepublishOnly": "npm run build",
-    "test": "npm run test:travis",
-    "test:appveyor": "mocha --config test/mocha.appveyor.opts",
-    "test:travis": "mocha --config test/mocha.travis.opts"
+  "name": "npm-base",
+  "author": "waiting",
+  "version": "0.0.1",
+  "description": "npm boilerplate",
+  "keywords": [],
+  "engines": {
+    "node": ">=8.9.0"
   },
-  "keywords": [
-    "CA",
-    "cert",
-    "csr",
-    "certificate",
-    "ec",
-    "ecc",
-    "Elliptic Curve",
-    "openssl",
-    "pkcs",
-    "PKCS8",
-    "PKCS12",
-    "pfx",
-    "p12",
-    "P-256",
-    "P-384",
-    "prime256v1",
-    "secp384r1",
-    "RSA",
-    "self signed",
-    "SAN",
-    "SSL",
-    "TLS",
-    "x509"
-  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/waitingsong/npm-base/issues"
+  },
+  "homepage": "https://github.com/waitingsong/npm-base#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waitingsong/npm-base.git"
+  },
+  "license": "MIT",
   "nyc": {
     "exclude": [
       "**/*.js",
@@ -60,30 +38,17 @@
     ],
     "all": true
   },
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "author": "waiting",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/waitingsong/node-myca.git"
+  "dependencies": {
+    "typescript": "^2.7.2"
   },
-  "bugs": {
-    "url": "https://github.com/waitingsong/node-myca/issues"
-  },
-  "homepage": "https://github.com/waitingsong/node-myca#readme",
-  "engines": {
-    "node": ">=8.0.0"
-  },
-  "dependencies": {},
   "devDependencies": {
     "@types/mocha": "^2.2.48",
-    "@types/node": "^8.9.4",
+    "@types/node": "^9.4.7",
     "@types/power-assert": "^1.4.29",
     "@types/rewire": "^2.5.28",
     "@types/rimraf": "^2.0.2",
     "coveralls": "^3.0.0",
-    "eslint": "^4.18.2",
+    "eslint": "^4.19.1",
     "intelli-espower-loader": "^1.0.1",
     "istanbul": "^0.4.5",
     "mocha": "^5.0.3",
@@ -93,10 +58,25 @@
     "power-assert": "^1.4.4",
     "rewire": "^3.0.2",
     "rimraf": "^2.6.2",
-    "source-map-support": "^0.5.3",
+    "source-map-support": "^0.5.4",
     "ts-node": "^5.0.1",
-    "tslint": "^5.9.1",
-    "tslint-eslint-rules": "^5.1.0",
-    "typescript": "^2.7.2"
+    "tslint": "^5.9.1"
+  },
+  "scripts": {
+    "bp:add": "git remote add bp https://github.com/waitingsong/npm-base",
+    "bp:sync": "git co develop && git pull --no-edit && git fetch bp && git pull --no-edit bp master && git push",
+    "build": "npm run clean && npm run lint && npm run tsc && npm run jslint",
+    "clean": "rm -rf dist/*",
+    "cov": "nyc mocha",
+    "cov:coveralls": "nyc mocha && nyc report --reporter=text-lcov | coveralls",
+    "git:init": "npm run bp:add && git config --global core.hooksPath ./.githooks && ts-node .githooks/init.ts",
+    "jslint": "eslint --fix dist/**/*.js",
+    "lint": "tslint --fix -p tsconfig.json -e **/*.d.ts -t stylish src/**/*.ts test/**/*.ts",
+    "prepublishOnly": "npm run build",
+    "test": "npm run test:travis",
+    "test:appveyor": "mocha --config test/mocha.appveyor.opts",
+    "test:travis": "mocha --config test/mocha.travis.opts",
+    "tsc": "tsc -p tsconfig.json",
+    "tsc:w": "tsc -p tsconfig.json -w"
   }
 }

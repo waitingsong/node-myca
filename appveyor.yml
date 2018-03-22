@@ -24,8 +24,6 @@ install:
 test_script:
   - node --version
   - npm --version
-  - openssl version
-  - openssl ecparam -list_curves
   - npm run build
   - npm run test:appveyor
 
