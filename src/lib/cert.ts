@@ -531,10 +531,11 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
   if (sans && Array.isArray(sans) && sans.length) {
     dn = sans.map(name => 'DNS:' + name).join(',')
   }
+  
   // subjectAltName=IP:127.0.0.1,IP:192.168.0.1
   if (ips && Array.isArray(ips) && ips.length) {
     ip = ips.map(name => 'IP:' + name).join(',')
-    dn && (ip += ',')
+    dn && (ip = ',' + ip)
   }
   if (dn || ip) {
     tpl += (names + dn + ip)

@@ -88,6 +88,46 @@ describe(filename, () => {
     }
   })
 
+  it('Should genCert() workswith ips and SAN', async () => {
+    const opts: myca.CertOpts = {
+      centerName: 'default',
+      caKeyPass: 'mycapass',
+      kind: 'server',   // server cert
+      days: 730,
+      pass: 'fooo',   // at least 4 letters
+      CN: 'www.waitingsong.com',    // Common Name
+      C: 'CN',   // Country Name (2 letter code),
+      ips: ["127.0.0.1"],
+      SAN: ["localhost"]
+    }
+
+    try {
+      const ret: myca.IssueCertRet = await myca.genCert(opts)
+
+      assert(ret, 'result empty')
+      assert(ret.csrFile, 'value of result.csrFile empty')
+      assert(ret.csr && ret.csr.includes('REQUEST'), 'value of result.csr invalid')
+      assert(ret.crtFile, 'value of result.certFile empty')
+      assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
+      assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
+      assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
+      assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
+      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+
+      if ( ! config.isWin32) {
+        let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
+        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
+
+        fileMode = (await statAsync(ret.privateUnsecureKeyFile)).mode.toString(8)
+        assert(fileMode.slice(-3) === '600', `should privateUnsecureKeyFile file mode be 0o600, but is ${fileMode}`)
+      }
+    }
+    catch (ex) {
+      return assert(false, ex)
+    }
+  })
+  
   it('Should genCert() works with passing conf', async () => {
     const opts: myca.CertOpts = {
       centerName: 'default',
