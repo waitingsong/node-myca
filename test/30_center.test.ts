@@ -1,7 +1,5 @@
 /// <reference types="mocha" />
 
-import { tmpdir } from 'os'
-import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
@@ -9,9 +7,12 @@ import * as rmdir from 'rimraf'
 import * as myca from '../src/index'
 import { config, initialDbFiles } from '../src/lib/config'
 import {
+  basename,
   createDir,
   isDirExists,
   isFileExists,
+  join,
+  tmpdir,
   unlinkAsync,
   writeFileAsync,
 } from '../src/shared/index'

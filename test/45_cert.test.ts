@@ -1,18 +1,22 @@
-/// <reference types="node" />
 /// <reference types="mocha" />
 
 import { stat } from 'fs'
-import { tmpdir } from 'os'
-import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
-import { promisify } from 'util'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
 import { config, initialCaOpts, initialCertOpts, initialSignOpts } from '../src/lib/config'
-import { createDir, isFileExists, readFileAsync } from '../src/shared/index'
+import {
+  basename,
+  createDir,
+  isFileExists,
+  join,
+  promisify,
+  readFileAsync,
+  tmpdir,
+ } from '../src/shared/index'
 
 const statAsync = promisify(stat)
 

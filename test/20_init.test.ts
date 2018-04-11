@@ -1,18 +1,19 @@
 /// <reference types="mocha" />
 
-import { tmpdir } from 'os'
-import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
-import { promisify } from 'util'
 
 import * as myca from '../src/index'
 import { config } from '../src/lib/config'
 import {
+  basename,
   createDir,
   createFile,
   isDirExists,
   isFileExists,
+  join,
+  promisify,
+  tmpdir,
   unlinkAsync,
 } from '../src/shared/index'
 

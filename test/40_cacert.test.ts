@@ -1,14 +1,19 @@
 /// <reference types="mocha" />
 
-import { tmpdir } from 'os'
-import { basename, join } from 'path'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
 import { config, initialCaOpts } from '../src/lib/config'
-import { createDir, createFile, isFileExists } from '../src/shared/index'
+import {
+  basename,
+  createDir,
+  createFile,
+  isFileExists,
+  join,
+  tmpdir,
+ } from '../src/shared/index'
 
 
 const filename = basename(__filename)
