@@ -1,6 +1,4 @@
 import { execFile } from 'child_process'
-import { tmpdir } from 'os'
-import { join, normalize } from 'path'
 
 import {
   chmodAsync,
@@ -8,7 +6,10 @@ import {
   createFile,
   isDirExists,
   isFileExists,
+  join,
+  normalize,
   readFileAsync,
+  tmpdir,
   unlinkAsync,
   writeFileAsync,
 } from '../shared/index'
