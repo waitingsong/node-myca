@@ -39,10 +39,10 @@ import {
 export async function initCaCert(issueOpts: CaOpts): Promise<IssueCaCertRet> {
   const opts = <CaOpts> { ...initialCaOpts, ...issueOpts }
 
-  if ( ! opts.centerName) {
+  if (! opts.centerName) {
     return Promise.reject('centerName empty')
   }
-  if ( ! await isCenterInited(opts.centerName)) {
+  if (! await isCenterInited(opts.centerName)) {
     return Promise.reject(`center: ${opts.centerName} not initialized yet`)
   }
   const centerPath = await getCenterPath(opts.centerName)
@@ -167,7 +167,10 @@ export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> 
   // console.log('pub:', pubKey)
   // console.log('unsecure key:', privateUnsecureKey)
 
-  return { pubKey, privateKey, privateUnsecureKey,
+  return {
+    pubKey,
+    privateKey,
+    privateUnsecureKey,
     pass: privateKeyOpts.pass,
     privateKeyFile: '',
     privateUnsecureKeyFile: '',
@@ -270,7 +273,7 @@ export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): 
   const openssl = config.openssl
   const { alg, pass } = options
 
-  if ( ! privateKey.includes('ENCRYPTED')) {
+  if (!privateKey.includes('ENCRYPTED')) {
     /* istanbul ignore next */
     if (privateKey.includes('PRIVATE')) {  // unsecure private key
       return Promise.resolve(privateKey)
@@ -396,7 +399,7 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   if (alg === 'ec' && config.opensslVer && config.opensslVer < '1.0.2') {
     throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + config.opensslVer)
   }
-  if ( ! centerPath) {
+  if (! centerPath) {
     throw new Error(`centerPath: "${centerPath}" not exits for centerName: "${options.centerName}" \n
       should create center dir by calling initCenter(centerName, path)
     `)
@@ -413,7 +416,7 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   if (/\s/.test(pass)) {
     throw new Error('pass phrase contains blank or invisible char')
   }
-  if ( ! hash) {
+  if (! hash) {
     throw new Error('value of hash empty. must be sha256|sha384')
   }
   if (hash !== 'sha256' && hash !== 'sha384') {
@@ -426,10 +429,10 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   if (kind !== 'ca' && ! await isFileExists(caKeyFile)) {
     throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
   }
-  if ( ! options.C || options.C.length !== 2) {
+  if (! options.C || options.C.length !== 2) {
     throw new Error('value of C (Country Name) must be 2 letters')
   }
-  if ( ! options.CN) {
+  if (! options.CN) {
     throw new Error('value of CN (Common Name) invalid')
   }
   // if ( ! options.OU) {
@@ -484,7 +487,7 @@ async function processIssueOpts(config: Config, options: IssueOpts): Promise<Iss
 function genIssueSubj(options: CertDN): string {
   const arr: string[] = []
 
-  for (let prop of reqSubjectFields) {
+  for (const prop of reqSubjectFields) {
     // @ts-ignore
     if (typeof options[prop] !== 'undefined' && options[prop]) {
       // @ts-ignore
@@ -504,7 +507,7 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
   let tpl = (await readFileAsync(join(__dirname, '../../asset', `/${config.confTpl}`))).toString()
 
   /* istanbul ignore next */
-  if ( ! tpl) {
+  if (! tpl) {
     throw new Error('loaded openssl config tpl is empty')
   }
 
@@ -523,7 +526,7 @@ async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<
 
   const sans = signOpts.SAN
   const ips = signOpts.ips
-  let names = '\nsubjectAltName='
+  const names = '\nsubjectAltName='
   let dn = ''
   let ip = ''
 
@@ -576,7 +579,7 @@ export async function unlinkCaCrt(centerName: string): Promise<void> {
 export async function unlinkCaKey(centerName: string): Promise<void> {
   const centerPath = await getCenterPath(centerName)
 
-  if ( ! centerPath) {
+  if (! centerPath) {
     return Promise.reject(`centerPath empty for centerName: "${centerName}"`)
   }
   const file = `${centerPath}/${config.caKeyName}` // ca.key
@@ -598,7 +601,7 @@ async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: Ke
   await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
 
   /* istanbul ignore next */
-  if ( ! await isFileExists(keysRet.privateKeyFile)) {
+  if (! await isFileExists(keysRet.privateKeyFile)) {
     throw new Error(`save private key file failed. file: "${keysRet.privateKeyFile}"`)
   }
   return keysRet
@@ -665,7 +668,7 @@ export async function outputClientCert(options: PfxOpts): Promise<string> {
   /* istanbul ignore next */
   return runOpenssl(args)
     .then((stdout: string) => {
-      if ( ! stdout) {
+      if (! stdout) {
         return pfxFile
       }
       throw new Error('openssl output pkcs12 failed, return value: ' + stdout)
@@ -678,7 +681,7 @@ export async function outputClientCert(options: PfxOpts): Promise<string> {
 async function validateSignOpts(signOpts: SignOpts): Promise<void> {
   const { SAN, ips, centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
 
-  if ( ! await isDirExists(centerPath)) {
+  if (! await isDirExists(centerPath)) {
     return Promise.reject(`folder of param centerPath of signOpts not exists: "${centerPath}"`)
   }
   if (typeof +days !== 'number') {
@@ -688,45 +691,45 @@ async function validateSignOpts(signOpts: SignOpts): Promise<void> {
     return Promise.reject(`value of param days of signOpts inavlid: "${days}"`)
   }
   if (typeof SAN !== 'undefined') {
-    if ( ! Array.isArray(SAN)) {
+    if (! Array.isArray(SAN)) {
       return Promise.reject('value of param SAN of signOpts inavlid, must Array<string>')
     }
     for (const name of SAN) {
-      if ( ! name) {
+      if (! name) {
         return Promise.reject('item value of SAN of signOpts empty')
       }
     }
   }
   if (typeof ips !== 'undefined') {
-    if ( ! Array.isArray(ips)) {
+    if (! Array.isArray(ips)) {
       return Promise.reject('value of param ips of signOpts inavlid, must Array<string>')
     }
     for (const name of ips) {
-      if ( ! name) {
+      if (! name) {
         return Promise.reject('item value of ips of signOpts empty')
       }
     }
   }
 
-  if ( ! hash) {
+  if (! hash) {
     return Promise.reject(`value of param hash of signOpts inavlid: "${hash}"`)
   }
-  if ( ! await isFileExists(caCrtFile)) {
+  if (! await isFileExists(caCrtFile)) {
     return Promise.reject(`file of param caCrtFile of signOpts not exists: "${caCrtFile}"`)
   }
-  if ( ! await isFileExists(caKeyFile)) {
+  if (! await isFileExists(caKeyFile)) {
     return Promise.reject(`file of param caKeyFile of signOpts not exists: "${caKeyFile}"`)
   }
-  if ( ! await isFileExists(csrFile)) {
+  if (! await isFileExists(csrFile)) {
     return Promise.reject(`file of param csrFile of signOpts not exists: "${csrFile}"`)
   }
-  if ( ! configFile) {
+  if (! configFile) {
     return Promise.reject(`value of param configFile of signOpts empty: "${configFile }"`)
   }
-  if ( ! await isFileExists(configFile)) {
+  if (! await isFileExists(configFile)) {
     return Promise.reject(`file of param configFile  of signOpts not exists: "${configFile }"`)
   }
-  if ( ! caKeyPass) {
+  if (! caKeyPass) {
     return Promise.reject(`value of param caKeyPass of signOpts inavlid: "${caKeyPass}"`)
   }
 }
@@ -736,10 +739,10 @@ async function validateSignOpts(signOpts: SignOpts): Promise<void> {
 async function validatePfxOpts(pfxOpts: PfxOpts): Promise<void> {
   const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = pfxOpts
 
-  if ( ! await isFileExists(privateKeyFile)) {
+  if (! await isFileExists(privateKeyFile)) {
     throw new Error(`privateKeyFile not exists: "${privateKeyFile}"`)
   }
-  if ( ! await isFileExists(crtFile)) {
+  if (! await isFileExists(crtFile)) {
     throw new Error(`crtFile not exists: "${crtFile}"`)
   }
   if (privateKeyPass) { // can be blank
