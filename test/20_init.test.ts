@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
@@ -8,13 +7,15 @@ import * as rmdir from 'rimraf'
 import { promisify } from 'util'
 
 import * as myca from '../src/index'
+import { config } from '../src/lib/config'
 import {
   createDir,
   createFile,
   isDirExists,
   isFileExists,
-  unlinkAsync } from '../src/lib/common'
-import { config } from '../src/lib/config'
+  unlinkAsync,
+} from '../src/shared/index'
+
 
 const filename = basename(__filename)
 const tmpDir = join(tmpdir(), 'myca-tmp')
@@ -29,8 +30,8 @@ describe(filename, () => {
   before(async () => {
     await createDir(tmpDir)
   })
-  after((done) => {
-    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  after(done => {
+    rmdir(tmpDir, err => err && console.error(err) || done())
   })
 
   it('Should initDefaultCenter() works', async () => {
@@ -43,7 +44,7 @@ describe(filename, () => {
       return assert(false, ex)
     }
 
-    if ( ! await isDirExists(config.defaultCenterPath)) {
+    if (! await isDirExists(config.defaultCenterPath)) {
       return assert(false, `default center folder not exists, path: "${config.defaultCenterPath}"`)
     }
 
@@ -105,7 +106,7 @@ describe(filename, () => {
       assert(true)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -139,7 +140,7 @@ describe(filename, () => {
       ! await myca.isCenterInited(centerName),
       `isCenterInited(${centerName}) says folder exits, but should NOT. path: "${centerPath}"`)
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -187,7 +188,7 @@ describe(filename, () => {
       assert(true)
     }
 
-    assert( ! await isDirExists(centerPath), `path should not exists: "${centerPath}"`)
+    assert(! await isDirExists(centerPath), `path should not exists: "${centerPath}"`)
   })
 
 

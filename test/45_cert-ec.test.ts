@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
@@ -8,8 +7,9 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createDir, getOpensslVer } from '../src/lib/common'
+import { getOpensslVer } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts } from '../src/lib/config'
+import { createDir } from '../src/shared/index'
 
 
 const filename = basename(__filename)
@@ -45,10 +45,10 @@ describe(filename, () => {
   })
   afterEach(() => {
     if (config.opensslVer < '1.0.2') { return }
-    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), err => err && console.error(err))
   })
-  after((done) => {
-    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  after(done => {
+    rmdir(tmpDir, err => err && console.error(err) || done())
   })
 
 
@@ -76,8 +76,14 @@ describe(filename, () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
-      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(
+        ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
+        'value of result.privateKey invalid'
+      )
+      assert(
+        ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
+        'value of result.privateUnsecureKey invalid'
+      )
     }
     catch (ex) {
       return assert(false, ex)

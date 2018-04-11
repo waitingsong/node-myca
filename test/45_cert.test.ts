@@ -11,8 +11,8 @@ import { promisify } from 'util'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
-import { createDir, isFileExists, readFileAsync } from '../src/lib/common'
 import { config, initialCaOpts, initialCertOpts, initialSignOpts } from '../src/lib/config'
+import { createDir, isFileExists, readFileAsync } from '../src/shared/index'
 
 const statAsync = promisify(stat)
 
@@ -43,10 +43,10 @@ describe(filename, () => {
     await myca.initCaCert(opts)
   })
   afterEach(() => {
-    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), err => err && console.error(err))
   })
-  after((done) => {
-    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  after(done => {
+    rmdir(tmpDir, err => err && console.error(err) || done())
   })
 
 
@@ -75,7 +75,7 @@ describe(filename, () => {
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
 
-      if ( ! config.isWin32) {
+      if (! config.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
@@ -115,7 +115,7 @@ describe(filename, () => {
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
 
-      if ( ! config.isWin32) {
+      if (! config.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
@@ -454,7 +454,7 @@ describe(filename, () => {
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
       assert(ret.pfxFile && (await isFileExists(ret.pfxFile)), `value of result.pfxFile empty or file not exists. path: "${ret.pfxFile}"`)
 
-      if ( ! config.isWin32) {
+      if (! config.isWin32) {
         const fileMode = (await statAsync(ret.pfxFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should pfxFile file mode be 0o600, but is ${fileMode}`)
       }

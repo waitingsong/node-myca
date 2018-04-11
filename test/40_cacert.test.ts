@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
@@ -8,8 +7,8 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { createDir, createFile, isFileExists } from '../src/lib/common'
 import { config, initialCaOpts } from '../src/lib/config'
+import { createDir, createFile, isFileExists } from '../src/shared/index'
 
 
 const filename = basename(__filename)
@@ -29,10 +28,10 @@ describe(filename, () => {
     await myca.initDefaultCenter()
   })
   afterEach(() => {
-    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), err => err && console.error(err))
   })
-  after((done) => {
-    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  after(done => {
+    rmdir(tmpDir, err => err && console.error(err) || done())
   })
 
 
@@ -279,8 +278,8 @@ describe(filename, () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile invalid')
       assert(await isFileExists(ret.privateKeyFile), `privateKeyFile not exists. path: "${ret.privateKeyFile}"`)
       assert(ret.cert && ret.cert.includes('CERTIFICATE'), 'value of result.cert invalid')
-      assert( ! ret.crtFile, 'value of result.crtFile should empty at this time')
-      assert( ! await isFileExists(ret.crtFile), `crtFile should not exists at this time. path: "${ret.crtFile}"`)
+      assert(! ret.crtFile, 'value of result.crtFile should empty at this time')
+      assert(! await isFileExists(ret.crtFile), `crtFile should not exists at this time. path: "${ret.crtFile}"`)
     }
     catch (ex) {
       return assert(false, ex)

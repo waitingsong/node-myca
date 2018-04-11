@@ -1,4 +1,3 @@
-/// <reference types="node" />
 /// <reference types="mocha" />
 
 import { tmpdir } from 'os'
@@ -7,15 +6,15 @@ import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
+import { getOpensslVer, runOpenssl } from '../src/lib/common'
+import { config } from '../src/lib/config'
 import {
   createDir,
   createFile,
-  getOpensslVer,
   isDirExists,
   isFileExists,
   readFileAsync,
-  runOpenssl } from '../src/lib/common'
-import { config } from '../src/lib/config'
+} from '../src/shared/index'
 
 const filename = basename(__filename)
 const tmpDir = join(tmpdir(), 'myca-tmp')
@@ -27,8 +26,8 @@ describe(filename, () => {
   before(async () => {
     await createDir(tmpDir)
   })
-  after((done) => {
-    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  after(done => {
+    rmdir(tmpDir, err => err && console.error(err) || done())
   })
 
 
@@ -77,7 +76,7 @@ describe(filename, () => {
     }
 
     try {
-      assert( ! await fn('', 'DIR'), 'should return false with blank path')
+      assert(! await fn('', 'DIR'), 'should return false with blank path')
     }
     catch (ex) {
       assert(false, ex)
@@ -96,11 +95,11 @@ describe(filename, () => {
       return assert(false, ex)
     }
 
-    if ( ! await isDirExists(randomPath)) {
+    if (! await isDirExists(randomPath)) {
       return assert(false, `folder not exists, path: "${randomPath}"`)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should createDir() works with blank param', async () => {
@@ -126,7 +125,7 @@ describe(filename, () => {
       return assert(false, ex)
     }
 
-    if ( ! await isFileExists(file)) {
+    if (! await isFileExists(file)) {
       return assert(false, `file not exists, path: "${file}"`)
     }
 
@@ -138,7 +137,7 @@ describe(filename, () => {
       assert(false, ex)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should createFile() works with object data', async () => {
@@ -155,7 +154,7 @@ describe(filename, () => {
       return assert(false, ex)
     }
 
-    if ( ! await isFileExists(file)) {
+    if (! await isFileExists(file)) {
       return assert(false, `file not exists, path: "${file}"`)
     }
 
@@ -168,7 +167,7 @@ describe(filename, () => {
       assert(false, ex)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should createFile() works with blank path', async () => {
@@ -186,7 +185,7 @@ describe(filename, () => {
     try {
       const ver = await getOpensslVer(config.openssl)
 
-      if ( ! ver) {
+      if (! ver) {
         assert(false, 'ver value empty')
       }
     }
@@ -236,7 +235,7 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
     try {
-      assert( ! await isDirExists(randomPath), `path should NOT exists: "${randomPath}"`)
+      assert(! await isDirExists(randomPath), `path should NOT exists: "${randomPath}"`)
     }
     catch (ex) {
       assert(false, ex)
@@ -245,7 +244,7 @@ describe(filename, () => {
 
   it('Should isDirExists() works with blank path', async () => {
     try {
-      assert( ! await isDirExists(''), 'empty path should NOT exists')
+      assert(! await isDirExists(''), 'empty path should NOT exists')
     }
     catch (ex) {
       assert(false, ex)
