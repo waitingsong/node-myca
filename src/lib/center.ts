@@ -7,7 +7,9 @@ import {
   isDirExists,
   isFileExists,
   readFileAsync,
-  writeFileAsync } from './common'
+  writeFileAsync,
+} from '../shared/index'
+
 import { config, initialDbFiles } from './config'
 import { CenterList, Config, InitialFile } from './model'
 
@@ -17,7 +19,7 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
   const centerPath = await getCenterPath(centerName)
   const serialFile = `${centerPath}/db/serial`
 
-  if ( ! centerPath) {
+  if (! centerPath) {
     return Promise.reject(`centerPath not exists, centerName: "${centerName}"`)
   }
   const buf = await readFileAsync(serialFile)
@@ -27,7 +29,7 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
   if (typeof nextDec !== 'number' || ! nextDec || nextDec < 1) {
     throw new Error(`retrive nextSerial failed nextDec not typeof number or invalid. value: "${nextHex}", Dec: ${nextDec}`)
   }
-  if ( ! Number.isSafeInteger(nextDec) ) {
+  if (! Number.isSafeInteger(nextDec)) {
     throw new Error(`retrive nextSerial failed. not save integer. value: "${nextHex}", Dec: ${nextDec}`)
   }
   if (nextHex.replace(/^0+/, '').toLocaleLowerCase() !== nextDec.toString(16)) {
@@ -41,7 +43,7 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
 
 // copy .config to center
 export async function initOpensslConfig(configName: string, centerPath: string) {
-  return copyFileAsync(join(__dirname, '../../asset', configName), join(centerPath, configName) )
+  return copyFileAsync(join(__dirname, '../../asset', configName), join(centerPath, configName))
 }
 
 
@@ -66,7 +68,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
   if (centerName === 'default') {
     return Promise.reject('init default center by calling method of initDefaultCenter()')
   }
-  if ( ! await isCenterInited('default')) {
+  if (! await isCenterInited('default')) {
     return Promise.reject('default center must be initialized first')
   }
   const centerPath = await isCenterInited(centerName)
@@ -81,12 +83,12 @@ export async function initCenter(centerName: string, path: string): Promise<void
 
 
 export async function isCenterInited(centerName: string): Promise<string | false> {
-  if ( ! centerName) {
+  if (! centerName) {
     throw new Error('value of path param invalid')
   }
   const centerPath = await getCenterPath(centerName)
 
-  if ( ! centerPath) {
+  if (! centerPath) {
     return false
   }
   if (await isDirExists(centerPath)) {
@@ -100,18 +102,18 @@ export async function isCenterInited(centerName: string): Promise<string | false
 async function createCenter(config: Config, centerName: string, path: string): Promise<void> {
   const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
 
-  if ( ! centerName) {
+  if (! centerName) {
     throw new Error('value of centerName invalid')
   }
 
-  if ( ! await isCenterInited(centerName)) {
+  if (! await isCenterInited(centerName)) {
     await createDir(path)
   }
   for (let i = 0, len = folders.length; i < len; i++) {
     const dir = `${path}/${folders[i]}`
 
     /* istanbul ignore else */
-    if ( ! await isDirExists(dir)) {
+    if (! await isDirExists(dir)) {
       await createDir(dir)
     }
   }
@@ -134,15 +136,15 @@ async function createCenterListFile(file: string): Promise<void> {
 async function initDbFiles(config: Config, path: string, files: InitialFile[]): Promise<void> {
   const db = `${path}/${config.dbDir}`
 
-  if ( ! path) {
+  if (! path) {
     throw new Error('value of path empty initDbFiles()')
   }
-  if ( ! files || ! Array.isArray(files) || ! files.length) {
+  if (! files || ! Array.isArray(files) || ! files.length) {
     throw new Error('value of param files empty initDbFiles()')
   }
 
   for (const file of files) {
-    if ( ! file.name) {
+    if (! file.name) {
       throw new Error('file name empty within initDbFiles()')
     }
     /* istanbul ignore next */
@@ -179,7 +181,7 @@ async function addCenterList(config: Config, key: string, path: string): Promise
 async function loadCenterList(config: Config): Promise<CenterList | null> {
   const file = `${config.defaultCenterPath}/${config.centerListName}`
 
-  if ( ! await isFileExists(file)) {
+  if (! await isFileExists(file)) {
     throw new Error(`center file not exists. path: "${file}"`)
   }
   const buf = await readFileAsync(file)
@@ -190,7 +192,7 @@ async function loadCenterList(config: Config): Promise<CenterList | null> {
 
 
 export async function getCenterPath(centerName: string | void): Promise<string> {
-  if ( ! centerName) {
+  if (! centerName) {
     return Promise.resolve('')
   }
   if (centerName === 'default') {

@@ -2,7 +2,6 @@ import { execFile } from 'child_process'
 import { tmpdir } from 'os'
 import { join, normalize } from 'path'
 
-import { getCenterPath, isCenterInited, nextSerial } from './center'
 import {
   chmodAsync,
   copyFileAsync,
@@ -10,9 +9,12 @@ import {
   isDirExists,
   isFileExists,
   readFileAsync,
-  runOpenssl,
   unlinkAsync,
-  writeFileAsync } from './common'
+  writeFileAsync,
+} from '../shared/index'
+
+import { getCenterPath, isCenterInited, nextSerial } from './center'
+import { runOpenssl  } from './common'
 import {
   config,
   initialCaCertRet,
