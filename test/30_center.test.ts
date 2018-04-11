@@ -8,13 +8,14 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
+import { config, initialDbFiles } from '../src/lib/config'
 import {
   createDir,
   isDirExists,
   isFileExists,
   unlinkAsync,
-  writeFileAsync } from '../src/lib/common'
-import { config, initialDbFiles } from '../src/lib/config'
+  writeFileAsync,
+} from '../src/shared/index'
 
 
 const filename = basename(__filename)
@@ -34,10 +35,10 @@ describe(filename, () => {
     await myca.initDefaultCenter()
   })
   afterEach(() => {
-    rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
+    rmdir(join(config.defaultCenterPath, '../'), err => err && console.error(err))
   })
-  after((done) => {
-    rmdir(tmpDir, (err) => err && console.error(err) || done())
+  after(done => {
+    rmdir(tmpDir, err => err && console.error(err) || done())
   })
 
 
@@ -66,7 +67,7 @@ describe(filename, () => {
       return assert(false, ex)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should getCenterPath() works with invalid param', async () => {
@@ -106,7 +107,7 @@ describe(filename, () => {
       return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should createCenter() works', async () => {
@@ -137,7 +138,7 @@ describe(filename, () => {
       }
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should createCenter() works with invalid param', async () => {
@@ -169,7 +170,7 @@ describe(filename, () => {
       }
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should createCenter() works with invalid param', async () => {
@@ -201,7 +202,7 @@ describe(filename, () => {
       }
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -231,7 +232,7 @@ describe(filename, () => {
       return assert(true)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -252,18 +253,18 @@ describe(filename, () => {
       await fn(config, randomPath, files)
     }
     catch (ex) {
-      rmdir(randomPath, (err) => err && console.error(err))
+      rmdir(randomPath, err => err && console.error(err))
       return assert(false, ex)
     }
     for (const file of files) {
       const path = `${db}/${file.name}`
 
-      if ( ! await isFileExists(path)) {
+      if (! await isFileExists(path)) {
         assert(false, `file not exists. path: "${path}"`)
       }
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should initDbFiles() works without mode value', async () => {
@@ -293,18 +294,18 @@ describe(filename, () => {
       await fn(config, randomPath, files)
     }
     catch (ex) {
-      rmdir(randomPath, (err) => err && console.error(err))
+      rmdir(randomPath, err => err && console.error(err))
       return assert(false, ex)
     }
     for (const file of files) {
       const path = `${db}/${file.name}`
 
-      if ( ! await isFileExists(path)) {
+      if (! await isFileExists(path)) {
         assert(false, `file not exists. path: "${path}"`)
       }
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -359,7 +360,7 @@ describe(filename, () => {
       assert(true)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -458,7 +459,7 @@ describe(filename, () => {
       return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
   it('Should addCenterList() works with invalid param', async () => {
@@ -501,7 +502,7 @@ describe(filename, () => {
       return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
     }
 
-    rmdir(randomPath, (err) => err && console.error(err))
+    rmdir(randomPath, err => err && console.error(err))
   })
 
 
@@ -516,7 +517,7 @@ describe(filename, () => {
     try {
       const ret = await fn(config)
 
-      if ( ! ret || ! ret.default) {
+      if (! ret || ! ret.default) {
         assert(false, 'should return valid centerList object')
       }
     }
