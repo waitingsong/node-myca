@@ -7,13 +7,13 @@ import {
   isFileExists,
 } from '../shared/index'
 
-import { config } from './config'
+import { initialConfig } from './config'
 import { ExecFileOptions } from './model'
 
 
 export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(config.openssl, args, (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout)))
+    execFile(initialConfig.openssl, args, (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout)))
   })
 }
 

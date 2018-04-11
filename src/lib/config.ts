@@ -9,7 +9,7 @@ import {
   SignOpts } from './model'
 
 
-export const config: Config = {
+export const initialConfig: Config = {
   dbDir: 'db',
   dbCertsDir: 'db/certs',
   serverDir: 'server',

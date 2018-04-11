@@ -10,7 +10,7 @@ import {
   writeFileAsync,
 } from '../shared/index'
 
-import { config, initialDbFiles } from './config'
+import { initialConfig, initialDbFiles } from './config'
 import { CenterList, Config, InitialFile } from './model'
 
 
@@ -56,11 +56,11 @@ export async function initDefaultCenter(): Promise<Config['defaultCenterPath']> 
   if (flag) {
     return Promise.reject(`default center initialized already. path: "${flag}"`)
   }
-  await createDir(config.defaultCenterPath) // create default ca dir under userHome
-  await createCenterListFile(join(config.defaultCenterPath, config.centerListName))  // must before createCenter()
-  await createCenter(config, centerName, config.defaultCenterPath)  // create default cneter dir under userHome
+  await createDir(initialConfig.defaultCenterPath) // create default ca dir under userHome
+  await createCenterListFile(join(initialConfig.defaultCenterPath, initialConfig.centerListName))  // must before createCenter()
+  await createCenter(initialConfig, centerName, initialConfig.defaultCenterPath)  // create default cneter dir under userHome
 
-  return Promise.resolve(config.defaultCenterPath)
+  return Promise.resolve(initialConfig.defaultCenterPath)
 }
 
 
@@ -78,7 +78,7 @@ export async function initCenter(centerName: string, path: string): Promise<void
   }
 
   await createDir(path) // create default ca dir under userHome
-  await createCenter(config, centerName, path)  // create default cneter dir under userHome
+  await createCenter(initialConfig, centerName, path)  // create default cneter dir under userHome
   // console.log(`centerPath name: ${centerName}, path: ${path}`)
 }
 
@@ -197,9 +197,9 @@ export async function getCenterPath(centerName: string | void): Promise<string> 
     return Promise.resolve('')
   }
   if (centerName === 'default') {
-    return Promise.resolve(config.defaultCenterPath)
+    return Promise.resolve(initialConfig.defaultCenterPath)
   }
-  const centerList = await loadCenterList(config)
+  const centerList = await loadCenterList(initialConfig)
 
   if (typeof centerList === 'object' && centerList) {
     return Promise.resolve(centerList[centerName])

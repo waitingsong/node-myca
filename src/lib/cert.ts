@@ -17,11 +17,11 @@ import {
 import { getCenterPath, isCenterInited, nextSerial } from './center'
 import { runOpenssl } from './common'
 import {
-  config,
   initialCaCertRet,
   initialCaOpts,
   initialCertOpts,
   initialCertRet,
+  initialConfig,
   initialPrivateKeyOpts,
   initialSignOpts,
   reqSubjectFields,
@@ -51,15 +51,15 @@ export async function initCaCert(issueOpts: CaOpts): Promise<IssueCaCertRet> {
     return Promise.reject(`center: ${opts.centerName} not initialized yet`)
   }
   const centerPath = await getCenterPath(opts.centerName)
-  const file = normalize(`${centerPath}/${config.caCrtName}`)
+  const file = normalize(`${centerPath}/${initialConfig.caCrtName}`)
 
   /* istanbul ignore next */
   if (await isFileExists(file)) {
     return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
   }
-  const certRet = await genCaCert(config, opts)
+  const certRet = await genCaCert(initialConfig, opts)
 
-  certRet.crtFile = await saveCaCrt(config, opts, certRet.cert)
+  certRet.crtFile = await saveCaCrt(initialConfig, opts, certRet.cert)
   return certRet
 }
 
@@ -97,7 +97,7 @@ async function genCaCert(config: Config, options: CaOpts): Promise<IssueCaCertRe
 
 // issue certificate of server or client by ca.key
 export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCertRet> {
-  const localConfig = conf ? { ...config, ...conf } : config
+  const localConfig = conf ? { ...initialConfig, ...conf } : initialConfig
   const issueOpts = await processIssueOpts(localConfig, <IssueOpts> { ...initialCertOpts, ...options })
   const centerPath = issueOpts.centerPath
 
@@ -242,7 +242,7 @@ function genECKey(options: PrivateKeyOpts): Promise<string> {
 
 
 function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOpts): Promise<string> {
-  const openssl = config.openssl
+  const openssl = initialConfig.openssl
   const { alg, pass } = options
 
   return new Promise((resolve, reject) => {
@@ -275,7 +275,7 @@ function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOpts): P
 
 
 export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): Promise<string> {
-  const openssl = config.openssl
+  const openssl = initialConfig.openssl
   const { alg, pass } = options
 
   if (!privateKey.includes('ENCRYPTED')) {
@@ -399,10 +399,10 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
 /* istanbul ignore next */
 async function validateIssueOpts(options: IssueOpts): Promise<void> {
   const { alg, centerPath, hash, kind, pass } = options
-  const caKeyFile = `${centerPath}/${config.caKeyName}`
+  const caKeyFile = `${centerPath}/${initialConfig.caKeyName}`
 
-  if (alg === 'ec' && config.opensslVer && config.opensslVer < '1.0.2') {
-    throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + config.opensslVer)
+  if (alg === 'ec' && initialConfig.opensslVer && initialConfig.opensslVer < '1.0.2') {
+    throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + initialConfig.opensslVer)
   }
   if (!centerPath) {
     throw new Error(`centerPath: "${centerPath}" not exits for centerName: "${options.centerName}" \n
@@ -571,7 +571,7 @@ export async function saveCaCrt(config: Config, issueOpts: CaOpts, data: string)
 
 export async function unlinkCaCrt(centerName: string): Promise<void> {
   const centerPath = await getCenterPath(centerName)
-  const file = `${centerPath}/${config.caCrtName}`
+  const file = `${centerPath}/${initialConfig.caCrtName}`
 
   /* istanbul ignore next */
   if (await isFileExists(file)) {
@@ -587,7 +587,7 @@ export async function unlinkCaKey(centerName: string): Promise<void> {
   if (!centerPath) {
     return Promise.reject(`centerPath empty for centerName: "${centerName}"`)
   }
-  const file = `${centerPath}/${config.caKeyName}` // ca.key
+  const file = `${centerPath}/${initialConfig.caKeyName}` // ca.key
 
   /* istanbul ignore next */
   if (await isFileExists(file)) {
@@ -628,7 +628,7 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
     '-passin', `pass:${caKeyPass}`,
   ]
 
-  const localConfig: Config = conf ? { ...config, ...conf } : config
+  const localConfig: Config = conf ? { ...initialConfig, ...conf } : initialConfig
 
   if ((SAN && SAN.length) || (ips && ips.length)) {
     const rtpl = await createRandomConfTpl(localConfig, signOpts)

@@ -9,17 +9,17 @@
 
 import { normalize } from 'path'
 
-import { config } from './lib/config'
+import { initialConfig } from './lib/config'
 
 
 /* istanbul ignore next */
-config.isWin32 = process.platform === 'win32' ? true : false    /* istanbul ignore next */
-config.userHome = config.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
-config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
-config.openssl = normalize(config.openssl)
+initialConfig.isWin32 = process.platform === 'win32' ? true : false    /* istanbul ignore next */
+initialConfig.userHome = initialConfig.isWin32 ? normalize(process.env.USERPROFILE || '') : normalize(`${process.env.HOME}`)
+initialConfig.defaultCenterPath = normalize(`${initialConfig.userHome}/${initialConfig.centerDirName}`) // dir contains conf file and folders
+initialConfig.openssl = normalize(initialConfig.openssl)
 
 /* istanbul ignore next */
-if ( ! config.userHome) {
+if (! initialConfig.userHome) {
   throw new Error('path of user profile empty')
 }
 
