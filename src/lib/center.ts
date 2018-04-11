@@ -27,7 +27,8 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
   const nextDec = parseInt(nextHex, 16)
 
   if (typeof nextDec !== 'number' || ! nextDec || nextDec < 1) {
-    throw new Error(`retrive nextSerial failed nextDec not typeof number or invalid. value: "${nextHex}", Dec: ${nextDec}`)
+    throw new Error(`retrive nextSerial failed nextDec not typeof number or invalid.
+      value: "${nextHex}", Dec: ${nextDec}`)
   }
   if (! Number.isSafeInteger(nextDec)) {
     throw new Error(`retrive nextSerial failed. not save integer. value: "${nextHex}", Dec: ${nextDec}`)
