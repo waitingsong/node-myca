@@ -13,7 +13,11 @@ import { ExecFileOptions } from './model'
 
 export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<string> {
   return new Promise((resolve, reject) => {
-    execFile(initialConfig.openssl, args, (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout)))
+    execFile(
+      initialConfig.openssl,
+      args,
+      (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout))
+    )
   })
 }
 

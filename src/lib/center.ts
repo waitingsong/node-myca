@@ -57,8 +57,10 @@ export async function initDefaultCenter(): Promise<Config['defaultCenterPath']> 
     return Promise.reject(`default center initialized already. path: "${flag}"`)
   }
   await createDir(initialConfig.defaultCenterPath) // create default ca dir under userHome
-  await createCenterListFile(join(initialConfig.defaultCenterPath, initialConfig.centerListName))  // must before createCenter()
-  await createCenter(initialConfig, centerName, initialConfig.defaultCenterPath)  // create default cneter dir under userHome
+  // must before createCenter()
+  await createCenterListFile(join(initialConfig.defaultCenterPath, initialConfig.centerListName))
+  // create default cneter dir under userHome
+  await createCenter(initialConfig, centerName, initialConfig.defaultCenterPath)
 
   return Promise.resolve(initialConfig.defaultCenterPath)
 }
@@ -169,7 +171,8 @@ async function addCenterList(config: Config, key: string, path: string): Promise
 
   path = normalize(path)
   if (centerList[key]) {
-    throw new Error(`center list exists already, can not create more. key: "${key}", path: "${path}", target: "${path}"`)
+    throw new Error(`center list exists already, can not create more. key: "${key}",
+      path: "${path}", target: "${path}"`)
   }
   else {
     centerList[key] = path
