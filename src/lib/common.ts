@@ -8,7 +8,7 @@ import {
 } from '../shared/index'
 
 import { config } from './config'
-import { ExecFileOptions, WriteFileOptions } from './model'
+import { ExecFileOptions } from './model'
 
 
 export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<string> {
