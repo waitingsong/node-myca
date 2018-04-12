@@ -7,7 +7,7 @@ import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
-import { config, initialCaOpts, initialCertOpts, initialSignOpts } from '../src/lib/config'
+import { initialCaOpts, initialCertOpts, initialConfig, initialSignOpts } from '../src/lib/config'
 import {
   basename,
   createDir,
@@ -42,12 +42,12 @@ describe(filename, () => {
       C: 'CN',
     }
 
-    config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
+    initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
     await myca.initDefaultCenter()
     await myca.initCaCert(opts)
   })
   afterEach(() => {
-    rmdir(join(config.defaultCenterPath, '../'), err => err && console.error(err))
+    rmdir(join(initialConfig.defaultCenterPath, '../'), err => err && console.error(err))
   })
   after(done => {
     rmdir(tmpDir, err => err && console.error(err) || done())
@@ -79,7 +79,7 @@ describe(filename, () => {
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
 
-      if (! config.isWin32) {
+      if (! initialConfig.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
@@ -119,7 +119,7 @@ describe(filename, () => {
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
 
-      if (! config.isWin32) {
+      if (! initialConfig.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
@@ -144,7 +144,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret: myca.IssueCertRet = await myca.genCert(opts, config)
+      const ret: myca.IssueCertRet = await myca.genCert(opts, initialConfig)
 
       assert(ret, 'result empty')
       assert(ret.csrFile, 'value of result.csrFile empty')
@@ -397,7 +397,7 @@ describe(filename, () => {
       C: 'CN',   // Country Name (2 letter code)
     }
     const random = Math.random()
-    config.caKeyName = `fake-ca-${random}.key`
+    initialConfig.caKeyName = `fake-ca-${random}.key`
 
     try {
       await myca.genCert(opts)
@@ -458,7 +458,7 @@ describe(filename, () => {
       assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
       assert(ret.pfxFile && (await isFileExists(ret.pfxFile)), `value of result.pfxFile empty or file not exists. path: "${ret.pfxFile}"`)
 
-      if (! config.isWin32) {
+      if (! initialConfig.isWin32) {
         const fileMode = (await statAsync(ret.pfxFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should pfxFile file mode be 0o600, but is ${fileMode}`)
       }
@@ -533,7 +533,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(config, opts)
+      const ret = await fn(initialConfig, opts)
 
       assert(ret.keyBits === 2048, `processed keyBits value should be 2048, but got "${ret.keyBits}"`)
     }
@@ -562,7 +562,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(config, opts)
+      const ret = await fn(initialConfig, opts)
 
       assert(ret.keyBits === 8192, `processed keyBits value should be 2048, but got "${ret.keyBits}"`)
     }
@@ -591,7 +591,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(config, opts)
+      const ret = await fn(initialConfig, opts)
 
       assert(ret.keyBits === 2048, `processed keyBits value should be 2048, but got "${ret.keyBits}"`)
     }
@@ -688,7 +688,7 @@ describe(filename, () => {
     }
 
     try {
-      const tpl = await fn(config, opts)
+      const tpl = await fn(initialConfig, opts)
 
       if (! await isFileExists(tpl)) {
         return assert(false, `tpl file crated failed. path: "${$tpl}"`)
@@ -726,7 +726,7 @@ describe(filename, () => {
     }
 
     try {
-      const tpl = await fn(config, opts)
+      const tpl = await fn(initialConfig, opts)
 
       if (! await isFileExists(tpl)) {
         return assert(false, `tpl file crated failed. path: "${$tpl}"`)
@@ -764,7 +764,7 @@ describe(filename, () => {
     }
 
     try {
-      const tpl = await fn(config, opts)
+      const tpl = await fn(initialConfig, opts)
 
       if (! await isFileExists(tpl)) {
         return assert(false, `tpl file crated failed. path: "${$tpl}"`)
@@ -821,13 +821,13 @@ describe(filename, () => {
     const issueOpts = <myca.IssueOpts> { ...initialCertOpts, ...opts }
 
     issueOpts.centerPath = await myca.getCenterPath(issueOpts.centerName)
-    issueOpts.configFile || (issueOpts.configFile = `${issueOpts.centerPath}/${config.configName}`)
+    issueOpts.configFile || (issueOpts.configFile = `${issueOpts.centerPath}/${initialConfig.configName}`)
     const centerPath = issueOpts.centerPath
 
     // issueOpts.serial = await myca.nextSerial(issueOpts.centerName, config)
     // const csrFile = `${centerPath}/${issueOpts.kind}/${issueOpts.serial}.csr`
-    const caKeyFile = join(centerPath, config.caKeyName) // ca.key
-    const caCrtFile = `${centerPath}/${config.caCrtName}` // ca.crt
+    const caKeyFile = join(centerPath, initialConfig.caKeyName) // ca.key
+    const caCrtFile = `${centerPath}/${initialConfig.caCrtName}` // ca.crt
     const signOpts: myca.SignOpts = {
       ...initialSignOpts,
       centerPath,
@@ -841,17 +841,17 @@ describe(filename, () => {
     }
 
     try {
-      let cert: string = await sign(signOpts, config)
+      let cert: string = await sign(signOpts, initialConfig)
 
       assert(cert && cert.includes(opts.CN), `result invalid. value: "${cert}"`)
 
       delete signOpts.SAN
-      cert = await sign(signOpts, config)
+      cert = await sign(signOpts, initialConfig)
       assert(cert && cert.includes(opts.CN), `result invalid without SAN. value: "${cert}"`)
 
       delete signOpts.ips
       // use default config file instead of created tpl
-      cert = await sign(signOpts, config)
+      cert = await sign(signOpts, initialConfig)
       assert(cert && cert.includes(opts.CN), `result invalid without configFile. value: "${cert}"`)
 
       cert = await sign(signOpts)

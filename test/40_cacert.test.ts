@@ -5,7 +5,7 @@ import rewire = require('rewire')
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { config, initialCaOpts } from '../src/lib/config'
+import { initialCaOpts, initialConfig } from '../src/lib/config'
 import {
   basename,
   createDir,
@@ -29,11 +29,11 @@ describe(filename, () => {
     const random = Math.random()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
-    config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
+    initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
     await myca.initDefaultCenter()
   })
   afterEach(() => {
-    rmdir(join(config.defaultCenterPath, '../'), err => err && console.error(err))
+    rmdir(join(initialConfig.defaultCenterPath, '../'), err => err && console.error(err))
   })
   after(done => {
     rmdir(tmpDir, err => err && console.error(err) || done())
@@ -274,7 +274,7 @@ describe(filename, () => {
     }
 
     try {
-      const ret = await fn(config, opts)
+      const ret = await fn(initialConfig, opts)
 
       assert(ret, 'result empty')
       assert(ret.centerName, 'value of result.centerName invalid')
@@ -303,9 +303,9 @@ describe(filename, () => {
     }
     const random = Math.random()
     const caKeyName = `fake-ca-${random}.key`
-    const caKeyFile = `${config.defaultCenterPath}/${caKeyName}`  // fake
+    const caKeyFile = `${initialConfig.defaultCenterPath}/${caKeyName}`  // fake
     const p: myca.Config = {
-      ...config,
+      ...initialConfig,
       caKeyName,
     }
     const fnName = 'genCaCert'

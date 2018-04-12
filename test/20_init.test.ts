@@ -4,7 +4,7 @@ import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
-import { config } from '../src/lib/config'
+import { initialConfig } from '../src/lib/config'
 import {
   basename,
   createDir,
@@ -25,7 +25,7 @@ const pathPrefix = 'myca-test-center'
 const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
 // config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
-config.defaultCenterPath = `${randomPath}/${config.centerDirName}`
+initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
 
 describe(filename, () => {
   before(async () => {
@@ -39,19 +39,19 @@ describe(filename, () => {
     try {
       const centerPath = await myca.initDefaultCenter()
 
-      assert(centerPath === config.defaultCenterPath, `result not expected. result: "${centerPath}", expected: "${config.defaultCenterPath}"`)
+      assert(centerPath === initialConfig.defaultCenterPath, `result not expected. result: "${centerPath}", expected: "${initialConfig.defaultCenterPath}"`)
     }
     catch (ex) {
       return assert(false, ex)
     }
 
-    if (! await isDirExists(config.defaultCenterPath)) {
-      return assert(false, `default center folder not exists, path: "${config.defaultCenterPath}"`)
+    if (! await isDirExists(initialConfig.defaultCenterPath)) {
+      return assert(false, `default center folder not exists, path: "${initialConfig.defaultCenterPath}"`)
     }
 
     assert(
       await myca.isCenterInited('default'),
-      `isCenterInited('default') says folder not exits. path: "${config.defaultCenterPath}"`
+      `isCenterInited('default') says folder not exits. path: "${initialConfig.defaultCenterPath}"`
     )
 
     // initialize again
@@ -81,7 +81,7 @@ describe(filename, () => {
     const random = Math.random()
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
-    const centerPath = `${randomPath}/${config.centerDirName}`
+    const centerPath = `${randomPath}/${initialConfig.centerDirName}`
 
     try {
       await myca.initCenter(centerName, centerPath)
@@ -115,7 +115,7 @@ describe(filename, () => {
     const random = Math.random()
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
-    const centerPath = `${randomPath}/${config.centerDirName}`
+    const centerPath = `${randomPath}/${initialConfig.centerDirName}`
 
     try {
       await myca.initCenter('default', centerPath)  // 'default' not allowed
@@ -148,7 +148,7 @@ describe(filename, () => {
   // ------------------ at last
 
   it('Should getCenterPath() works with empty centerList', async () => {
-    const file = join(config.defaultCenterPath, config.centerListName)
+    const file = join(initialConfig.defaultCenterPath, initialConfig.centerListName)
 
     try {
       if (await isFileExists(file)) {
@@ -167,8 +167,8 @@ describe(filename, () => {
     const random = Math.random()
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
-    const centerPath = `${randomPath}/${config.centerDirName}`
-    const path = join(config.defaultCenterPath, '..')
+    const centerPath = `${randomPath}/${initialConfig.centerDirName}`
+    const path = join(initialConfig.defaultCenterPath, '..')
 
     if (await isDirExists(path)) {
       const rmdirAsync = promisify(rmdir)
