@@ -181,7 +181,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid param', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
     }
 
@@ -195,7 +195,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank centerName', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -215,7 +215,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with fake centerName', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -235,7 +235,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank pass', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -255,7 +255,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid C', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -284,7 +284,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank C', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -304,7 +304,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank CN', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -324,7 +324,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with zero days', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -344,7 +344,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with negative days', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -364,7 +364,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid alg', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -384,7 +384,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid hash', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -404,7 +404,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with missing caKeyFile', async () => {
-    const opts: myca.CertOpts = {
+    const opts = <myca.CertOpts> {
       ...initialCertOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
@@ -483,8 +483,11 @@ describe(filename, () => {
       )
 
       if (! initialConfig.isWin32) {
-        const fileMode = (await statAsync(ret.pfxFile)).mode.toString(8)
-        assert(fileMode.slice(-3) === '600', `should pfxFile file mode be 0o600, but is ${fileMode}`)
+        if (ret.pfxFile) {
+          const fileMode = (await statAsync(ret.pfxFile)).mode.toString(8)
+
+          assert(fileMode.slice(-3) === '600', `should pfxFile file mode be 0o600, but is ${fileMode}`)
+        }
       }
     }
     catch (ex) {
@@ -538,7 +541,8 @@ describe(filename, () => {
 
 
   it('Should processIssueOpts() works with invalid lesser keyBits', async () => {
-    const opts: myca.CertOpts = {
+    const opts: myca.IssueOpts = {
+      ...initialCertOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
@@ -567,7 +571,8 @@ describe(filename, () => {
   })
 
   it('Should processIssueOpts() works with invalid bigger keyBits', async () => {
-    const opts: myca.CertOpts = {
+    const opts: myca.IssueOpts = {
+      ...initialCertOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
@@ -596,7 +601,8 @@ describe(filename, () => {
   })
 
   it('Should processIssueOpts() works with 0 keyBits', async () => {
-    const opts: myca.CertOpts = {
+    const opts: myca.IssueOpts = {
+      ...initialCertOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
