@@ -20,13 +20,12 @@ import {
 
 const filename = basename(__filename)
 const tmpDir = join(tmpdir(), 'myca-tmp')
-const random = Math.random()
 const pathPrefix = 'myca-test-center'
-const randomPath = `${tmpDir}/${pathPrefix}-${random}`
+const randomPathG = `${tmpDir}/${pathPrefix}-${Math.random()}`
 
 // dir contains conf file and folders
 // config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`)
-initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
+initialConfig.defaultCenterPath = `${randomPathG}/${initialConfig.centerDirName}`
 
 describe(filename, () => {
   before(async () => {
@@ -195,7 +194,5 @@ describe(filename, () => {
 
     assert(! await isDirExists(centerPath), `path should not exists: "${centerPath}"`)
   })
-
-
 
 })
