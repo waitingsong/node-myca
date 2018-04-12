@@ -10,6 +10,8 @@ cache:
     - node_modules
 
 before_install:
+  - openssl version
+  - openssl ecparam -list_curves
   - npm install
 
 
@@ -21,4 +23,3 @@ script:
 
 after_success:
   - npm run cov:coveralls
-
