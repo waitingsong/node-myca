@@ -166,8 +166,14 @@ describe(filename, () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
-      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(
+        ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
+        'value of result.privateKey invalid'
+      )
+      assert(
+        ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
+        'value of result.privateUnsecureKey invalid'
+      )
     }
     catch (ex) {
       return assert(false, ex)
@@ -467,8 +473,14 @@ describe(filename, () => {
       assert(! ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile should deleted') // deleted
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
       assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
-      assert(ret.pfxFile && (await isFileExists(ret.pfxFile)), `value of result.pfxFile empty or file not exists. path: "${ret.pfxFile}"`)
+      assert(
+        ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
+        'value of result.privateUnsecureKey invalid'
+      )
+      assert(
+        ret.pfxFile && (await isFileExists(ret.pfxFile)),
+        `value of result.pfxFile empty or file not exists. path: "${ret.pfxFile}"`
+      )
 
       if (! initialConfig.isWin32) {
         const fileMode = (await statAsync(ret.pfxFile)).mode.toString(8)
