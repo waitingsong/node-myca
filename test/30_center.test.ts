@@ -115,7 +115,12 @@ describe(filename, () => {
     const centerName = `${pathPrefix}-${random}`
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
-    const folders: string[] = [initialConfig.dbDir, initialConfig.serverDir, initialConfig.clientDir, initialConfig.dbCertsDir]
+    const folders: string[] = [
+      initialConfig.dbDir,
+      initialConfig.serverDir,
+      initialConfig.clientDir,
+      initialConfig.dbCertsDir,
+    ]
     const fnName = 'createCenter'
     const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
 
@@ -148,7 +153,12 @@ describe(filename, () => {
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
     const fnName = 'createCenter'
     const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
-    const folders: string[] = [initialConfig.dbDir, initialConfig.serverDir, initialConfig.clientDir, initialConfig.dbCertsDir]
+    const folders: string[] = [
+      initialConfig.dbDir,
+      initialConfig.serverDir,
+      initialConfig.clientDir,
+      initialConfig.dbCertsDir,
+    ]
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
@@ -180,7 +190,12 @@ describe(filename, () => {
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
     const fnName = 'createCenter'
     const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
-    const folders: string[] = [initialConfig.dbDir, initialConfig.serverDir, initialConfig.clientDir, initialConfig.dbCertsDir]
+    const folders: string[] = [
+      initialConfig.dbDir,
+      initialConfig.serverDir,
+      initialConfig.clientDir,
+      initialConfig.dbCertsDir,
+    ]
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
