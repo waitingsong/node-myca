@@ -698,16 +698,12 @@ describe(filename, () => {
 
 
   it('Should createRandomConfTpl() works', async () => {
-    const opts: myca.CertOpts = {
-      centerName: 'default',
+    const opts: myca.SignOpts = {
+      ...initialSignOpts,
+      centerPath: 'fake',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
       days: 730,
-      pass: 'fooo',   // at least 4 letters
-      CN: 'www.waitingsong.com',    // Common Name
-      C: 'CN',   // Country Name (2 letter code)
-      keyBits: 2048,
-      alg: 'rsa',
       SAN: ['foo.com', 'bar.com', '中文'],
     }
     const fnName = 'createRandomConfTpl'
@@ -725,6 +721,7 @@ describe(filename, () => {
       }
       const content = await readFileAsync(tpl)
 
+      // @ts-ignore
       for (const vv of opts.SAN) {
         assert(content.includes(vv))
       }
@@ -736,16 +733,11 @@ describe(filename, () => {
 
 
   it('Should createRandomConfTpl() works for ips', async () => {
-    const opts: myca.CertOpts = {
-      centerName: 'default',
+    const opts: myca.SignOpts = {
+      ...initialSignOpts,
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
       days: 730,
-      pass: 'fooo',   // at least 4 letters
-      CN: 'www.waitingsong.com',    // Common Name
-      C: 'CN',   // Country Name (2 letter code)
-      keyBits: 2048,
-      alg: 'rsa',
       ips: ['127.0.0.1', '192.168.0.1'],
     }
     const fnName = 'createRandomConfTpl'
@@ -763,6 +755,7 @@ describe(filename, () => {
       }
       const content = await readFileAsync(tpl)
 
+      // @ts-ignore
       for (const vv of opts.ips) {
         assert(content.includes(vv))
       }
@@ -773,16 +766,11 @@ describe(filename, () => {
   })
 
   it('Should createRandomConfTpl() works for ips and SAN', async () => {
-    const opts: myca.CertOpts = {
-      centerName: 'default',
+    const opts: myca.SignOpts = {
+      ...initialSignOpts,
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
       days: 730,
-      pass: 'fooo',   // at least 4 letters
-      CN: 'www.waitingsong.com',    // Common Name
-      C: 'CN',   // Country Name (2 letter code)
-      keyBits: 2048,
-      alg: 'rsa',
       SAN: ['foo.com', 'bar.com', '中文'],
       ips: ['127.0.0.1', '192.168.0.1'],
     }
@@ -801,9 +789,11 @@ describe(filename, () => {
       }
       const content = await readFileAsync(tpl)
 
+      // @ts-ignore
       for (const vv of opts.SAN) {
         assert(content.includes(vv))
       }
+      // @ts-ignore
       for (const vv of opts.ips) {
         assert(content.includes(vv))
       }
