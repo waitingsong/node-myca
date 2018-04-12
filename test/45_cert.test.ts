@@ -721,7 +721,7 @@ describe(filename, () => {
       const tpl = await fn(initialConfig, opts)
 
       if (! await isFileExists(tpl)) {
-        return assert(false, `tpl file crated failed. path: "${$tpl}"`)
+        return assert(false, `tpl file crated failed. path: "${tpl}"`)
       }
       const content = await readFileAsync(tpl)
 
@@ -759,7 +759,7 @@ describe(filename, () => {
       const tpl = await fn(initialConfig, opts)
 
       if (! await isFileExists(tpl)) {
-        return assert(false, `tpl file crated failed. path: "${$tpl}"`)
+        return assert(false, `tpl file crated failed. path: "${tpl}"`)
       }
       const content = await readFileAsync(tpl)
 
@@ -797,7 +797,7 @@ describe(filename, () => {
       const tpl = await fn(initialConfig, opts)
 
       if (! await isFileExists(tpl)) {
-        return assert(false, `tpl file crated failed. path: "${$tpl}"`)
+        return assert(false, `tpl file crated failed. path: "${tpl}"`)
       }
       const content = await readFileAsync(tpl)
 
