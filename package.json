@@ -1,6 +1,6 @@
 {
   "name": "myca",
-  "version": "1.11.3",
+  "version": "1.11.4",
   "description": "Create Self-signed CA certificate for development use and issue server or client certificates, generated using openssl",
   "main": "./dist/index.js",
   "scripts": {
