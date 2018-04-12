@@ -24,7 +24,8 @@ const random = Math.random()
 const pathPrefix = 'myca-test-center'
 const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
-// config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`) // dir contains conf file and folders
+// dir contains conf file and folders
+// config.defaultCenterPath = normalize(`${config.userHome}/${config.centerDirName}`)
 initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
 
 describe(filename, () => {
@@ -39,7 +40,10 @@ describe(filename, () => {
     try {
       const centerPath = await myca.initDefaultCenter()
 
-      assert(centerPath === initialConfig.defaultCenterPath, `result not expected. result: "${centerPath}", expected: "${initialConfig.defaultCenterPath}"`)
+      assert(
+        centerPath === initialConfig.defaultCenterPath,
+        `result not expected. result: "${centerPath}", expected: "${initialConfig.defaultCenterPath}"`
+      )
     }
     catch (ex) {
       return assert(false, ex)
