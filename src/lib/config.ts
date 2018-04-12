@@ -1,5 +1,6 @@
 import {
   CaOpts,
+  CertOpts,
   Config,
   InitialFile,
   IssueCaCertRet,
@@ -72,10 +73,33 @@ export const initialSignOpts: SignOpts = {
   ips: [],
 }
 
-export const initialCertOpts: IssueOpts = {
+export const initialCertOpts: CertOpts = {
+  // CertDN
+  kind: 'server',
+  days: 750,  // 2year
+  hash: 'sha256',
+  caKeyPass: '',
+  SAN: [],
+  ips: [],
+
+  centerName: 'default',
+  alg: 'rsa',
+  pass: '',
+  keyBits: 2048,
+  ecParamgenCurve: 'P-256', // for alg==ec
+  // DNs
+  CN: '',
+  OU: '',
+  O: '',
+  C: '',
+  ST: '',
+  L: '',
+  emailAddress: '',
+}
+
+export const initialIssueOpts: IssueOpts = {
   serial: '', // hex
   centerName: 'default',
-  centerPath: '',
   alg: 'rsa',
   pass: '',
   keyBits: 2048,

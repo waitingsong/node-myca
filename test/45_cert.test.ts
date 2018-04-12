@@ -7,7 +7,13 @@ import * as rmdir from 'rimraf'
 
 import * as myca from '../src/index'
 import { decryptPrivateKey, sign, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert'
-import { initialCaOpts, initialCertOpts, initialConfig, initialSignOpts } from '../src/lib/config'
+import {
+  initialCaOpts,
+  initialCertOpts,
+  initialConfig,
+  initialIssueOpts,
+  initialSignOpts,
+} from '../src/lib/config'
 import {
   basename,
   createDir,
@@ -181,7 +187,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid param', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
     }
 
@@ -195,13 +201,13 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank centerName', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      days:  10950,
+      pass:  'mycapass',
+      CN:  'My Root CA',
+      OU:  'waitingsong.com',
+      C:  'CN',
     }
 
     opts.centerName = ''
@@ -215,13 +221,13 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with fake centerName', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      days:   10950,
+      pass:   'mycapass',
+      CN:   'My Root CA',
+      OU:   'waitingsong.com',
+      C:   'CN',
     }
 
     opts.centerName = 'fake'
@@ -235,7 +241,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank pass', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -255,7 +261,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid C', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -284,7 +290,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank C', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -304,7 +310,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with blank CN', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -324,7 +330,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with zero days', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -344,7 +350,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with negative days', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -364,7 +370,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid alg', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -384,7 +390,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with invalid hash', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       days: 10950,
       pass: 'mycapass',
@@ -404,7 +410,7 @@ describe(filename, () => {
   })
 
   it('Should genCert() works with missing caKeyFile', async () => {
-    const opts = <myca.CertOpts> {
+    const opts: myca.CertOpts = {
       ...initialCertOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
@@ -542,7 +548,7 @@ describe(filename, () => {
 
   it('Should processIssueOpts() works with invalid lesser keyBits', async () => {
     const opts: myca.IssueOpts = {
-      ...initialCertOpts,
+      ...initialIssueOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
@@ -572,7 +578,7 @@ describe(filename, () => {
 
   it('Should processIssueOpts() works with invalid bigger keyBits', async () => {
     const opts: myca.IssueOpts = {
-      ...initialCertOpts,
+      ...initialIssueOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
@@ -602,7 +608,7 @@ describe(filename, () => {
 
   it('Should processIssueOpts() works with 0 keyBits', async () => {
     const opts: myca.IssueOpts = {
-      ...initialCertOpts,
+      ...initialIssueOpts,
       centerName: 'default',
       caKeyPass: 'mycapass',
       kind: 'server',   // server cert
