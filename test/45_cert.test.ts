@@ -76,13 +76,19 @@ describe(filename, () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
-      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(
+        ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
+        'value of result.privateKey invalid'
+      )
+      assert(
+        ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
+        'value of result.privateUnsecureKey invalid'
+      )
 
       if (! initialConfig.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
-        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
+        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
         fileMode = (await statAsync(ret.privateUnsecureKeyFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should privateUnsecureKeyFile file mode be 0o600, but is ${fileMode}`)
       }
@@ -116,13 +122,19 @@ describe(filename, () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
-      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(
+        ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
+        'value of result.privateKey invalid'
+      )
+      assert(
+        ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
+        'value of result.privateUnsecureKey invalid'
+      )
 
       if (! initialConfig.isWin32) {
         let fileMode = (await statAsync(ret.privateKeyFile)).mode.toString(8)
-        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
 
+        assert(fileMode.slice(-3) === '600', `should privateKeyFile file mode be 0o600, but is ${fileMode}`)
         fileMode = (await statAsync(ret.privateUnsecureKeyFile)).mode.toString(8)
         assert(fileMode.slice(-3) === '600', `should privateUnsecureKeyFile file mode be 0o600, but is ${fileMode}`)
       }
@@ -809,8 +821,14 @@ describe(filename, () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile, 'value of result.privateUnsecureKeyFile empty')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
-      assert(ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'), 'value of result.privateKey invalid')
-      assert(ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'), 'value of result.privateUnsecureKey invalid')
+      assert(
+        ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
+        'value of result.privateKey invalid'
+      )
+      assert(
+        ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
+        'value of result.privateUnsecureKey invalid'
+      )
     }
     catch (ex) {
       return assert(false, ex)
