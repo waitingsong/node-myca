@@ -97,8 +97,8 @@ describe(filename, () => {
       pass: 'fooo',   // at least 4 letters
       CN: 'www.waitingsong.com',    // Common Name
       C: 'CN',   // Country Name (2 letter code),
-      ips: ["127.0.0.1"],
-      SAN: ["localhost"]
+      ips: ['127.0.0.1'],
+      SAN: ['localhost'],
     }
 
     try {
@@ -127,7 +127,7 @@ describe(filename, () => {
       return assert(false, ex)
     }
   })
-  
+
   it('Should genCert() works with passing conf', async () => {
     const opts: myca.CertOpts = {
       centerName: 'default',
