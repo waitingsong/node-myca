@@ -44,9 +44,9 @@ describe(filename, () => {
 
   it('Should getCenterPath() works', async () => {
     try {
-      const centerPath = await myca.getCenterPath('default')
+      const path = await myca.getCenterPath('default')
 
-      centerPath || assert(false, 'getCenterPath("default") should return not empty result, but EMPTY')
+      path || assert(false, 'getCenterPath("default") should return not empty result, but EMPTY')
     }
     catch (ex) {
       return assert(false, ex)
@@ -59,9 +59,9 @@ describe(filename, () => {
 
     await myca.initCenter(centerName, centerPath)
     try {
-      const centerPath = await myca.getCenterPath(centerName)
+      const path = await myca.getCenterPath(centerName)
 
-      centerPath || assert(false, `getCenterPath('${centerName}') should return not empty result, but EMPTY`)
+      path || assert(false, `getCenterPath('${centerName}') should return not empty result, but EMPTY`)
     }
     catch (ex) {
       return assert(false, ex)
