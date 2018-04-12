@@ -71,7 +71,7 @@ describe(filename, () => {
   })
 
   it('Should getCenterPath() works with invalid param', async () => {
-    const random = Math.random()
+    const random = Math.random() + ''
 
     try {
       const centerPath = await myca.getCenterPath(random)
