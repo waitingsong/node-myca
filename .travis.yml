@@ -3,15 +3,14 @@ if: tag IS blank
 language: node_js
 node_js:
 - '8'
-- '9'
+- '10'
 
 cache:
   directories:
     - node_modules
 
 before_install:
-  - openssl version
-  - openssl ecparam -list_curves
+  - npm i -g rollup
   - npm install
 
 
@@ -23,3 +22,4 @@ script:
 
 after_success:
   - npm run cov:coveralls
+
