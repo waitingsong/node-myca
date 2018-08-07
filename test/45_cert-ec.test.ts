@@ -81,11 +81,11 @@ describe(filename, () => {
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
       assert(
         ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
-        'value of result.privateKey invalid'
+        'value of result.privateKey invalid',
       )
       assert(
         ret.privateUnsecureKey && ret.privateUnsecureKey.includes('PRIVATE KEY'),
-        'value of result.privateUnsecureKey invalid'
+        'value of result.privateUnsecureKey invalid',
       )
     }
     catch (ex) {

@@ -41,7 +41,7 @@ describe(filename, () => {
 
       assert(
         centerPath === initialConfig.defaultCenterPath,
-        `result not expected. result: "${centerPath}", expected: "${initialConfig.defaultCenterPath}"`
+        `result not expected. result: "${centerPath}", expected: "${initialConfig.defaultCenterPath}"`,
       )
     }
     catch (ex) {
@@ -54,7 +54,7 @@ describe(filename, () => {
 
     assert(
       await myca.isCenterInited('default'),
-      `isCenterInited('default') says folder not exits. path: "${initialConfig.defaultCenterPath}"`
+      `isCenterInited('default') says folder not exits. path: "${initialConfig.defaultCenterPath}"`,
     )
 
     // initialize again

@@ -1,11 +1,5 @@
 import { exec, execFile } from 'child_process'
 
-import {
-  createDir,
-  createFile,
-  isDirExists,
-  isFileExists,
-} from '../shared/index'
 
 import { initialConfig } from './config'
 import { ExecFileOptions } from './model'
@@ -16,7 +10,7 @@ export function runOpenssl(args: string[], options?: ExecFileOptions): Promise<s
     execFile(
       initialConfig.openssl,
       args,
-      (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout))
+      (options ? options : {}), (err, stdout) => (err ? reject(err) : resolve(stdout)),
     )
   })
 }
