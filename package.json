@@ -1,9 +1,33 @@
 {
-  "name": "npm-base",
+  "name": "myca",
   "author": "waiting",
-  "version": "0.0.1",
-  "description": "npm boilerplate",
-  "keywords": [],
+  "version": "2.0.1",
+  "description": "Create Self-signed CA certificate for development use and issue server or client certificates, generated using openssl",
+  "keywords": [
+    "CA",
+    "cert",
+    "csr",
+    "certificate",
+    "ec",
+    "ecc",
+    "Elliptic Curve",
+    "openssl",
+    "pkcs",
+    "PKCS8",
+    "PKCS12",
+    "pfx",
+    "p12",
+    "P-256",
+    "P-384",
+    "prime256v1",
+    "secp384r1",
+    "RSA",
+    "self signed",
+    "SAN",
+    "SSL",
+    "TLS",
+    "x509"
+  ],
   "engines": {
     "node": ">=8.10.0"
   },
@@ -13,12 +37,12 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bugs": {
-    "url": "https://github.com/waitingsong/npm-base/issues"
+    "url": "https://github.com/waitingsong/node-myca/issues"
   },
-  "homepage": "https://github.com/waitingsong/npm-base#readme",
+  "homepage": "https://github.com/waitingsong/node-myca#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/waitingsong/npm-base.git"
+    "url": "git+https://github.com/waitingsong/node-myca.git"
   },
   "license": "MIT",
   "nyc": {
