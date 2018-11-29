@@ -11,6 +11,8 @@ import { normalize } from 'path'
 
 import { initialConfig } from './lib/config'
 
+/* istanbul ignore next */
+initialConfig.appDir = __dirname + '/..'
 
 /* istanbul ignore next */
 initialConfig.isWin32 = process.platform === 'win32' ? true : false    /* istanbul ignore next */

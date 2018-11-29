@@ -32,6 +32,7 @@ export interface CenterList {
 }
 
 export interface Config {
+  appDir: string  // base directory of this module
   dbDir: string
   dbCertsDir: string
   serverDir: string

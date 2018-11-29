@@ -510,7 +510,8 @@ function genIssueSubj(options: CertDN): string {
 async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<string> {
   const tmp = tmpdir()
   const rfile = `${tmp}/openssl-` + Math.random() + '.conf'
-  let tpl = (await readFileAsync(join(__dirname, '../../asset', `/${config.confTpl}`))).toString()
+  // console.info('tpl:', join(initialConfig.appDir, '/asset', `/${config.confTpl}`))
+  let tpl = (await readFileAsync(join(initialConfig.appDir, '/asset', `/${config.confTpl}`))).toString()
 
   /* istanbul ignore next */
   if (!tpl) {

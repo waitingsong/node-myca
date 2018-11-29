@@ -11,6 +11,7 @@ import {
 
 
 export const initialConfig: Config = {
+  appDir: '',
   dbDir: 'db',
   dbCertsDir: 'db/certs',
   serverDir: 'server',
