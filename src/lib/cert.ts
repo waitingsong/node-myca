@@ -137,6 +137,7 @@ export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCe
     configFile: issueOpts.configFile,
     SAN: issueOpts.SAN,
     ips: issueOpts.ips,
+    days: issueOpts.days,
   }
 
   ret.cert = await sign(signOpts, localConfig)
