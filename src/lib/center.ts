@@ -44,7 +44,9 @@ export async function nextSerial(centerName: string, config: Config): Promise<st
 
 // copy .config to center
 export async function initOpensslConfig(configName: string, centerPath: string) {
-  return copyFileAsync(join(__dirname, '../../asset', configName), join(centerPath, configName))
+  const src = join(initialConfig.appDir, '/asset', configName)
+  const target = join(centerPath, configName)
+  return copyFileAsync(src, target)
 }
 
 
