@@ -7,7 +7,7 @@ export interface WriteFileOptions {
 
 export interface ExecFileOptions {
   cwd?: string
-  env?: object
+  env?: any
   encoding?: 'utf8' | string
   timeout?: 0 | number
   maxBuffer?: number
@@ -16,6 +16,7 @@ export interface ExecFileOptions {
   gid?: number
   windowsHide?: boolean
   windowsVerbatimArguments?: boolean
+  [prop: string]: any
 }
 
 /**
