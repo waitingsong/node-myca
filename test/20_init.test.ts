@@ -32,7 +32,7 @@ describe(filename, () => {
     await createDir(tmpDir)
   })
   after(done => {
-    rmdir(tmpDir, err => err && console.error(err) || done())
+    rmdir(tmpDir, err => err ? console.error(err) : done())
   })
 
   it('Should initDefaultCenter() works', async () => {
