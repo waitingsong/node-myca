@@ -51,7 +51,7 @@ describe(filename, () => {
     rmdir(join(initialConfig.defaultCenterPath, '../'), err => err && console.error(err))
   })
   after(done => {
-    rmdir(tmpDir, err => err && console.error(err) || done())
+    rmdir(tmpDir, err => err ? console.error(err) : done())
   })
 
 
