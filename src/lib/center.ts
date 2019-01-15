@@ -80,6 +80,9 @@ export async function initCenter(centerName: string, path: string): Promise<void
   if (centerPath) {
     return Promise.reject(`center of "${centerName}" initialized already. path: "${centerPath}"`)
   }
+  if (await isDirExists(path)) {
+    return Promise.reject(`Path exists already: "${path}"`)
+  }
 
   await createDir(path) // create default ca dir under userHome
   await createCenter(initialConfig, centerName, path)  // create default cneter dir under userHome

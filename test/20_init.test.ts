@@ -103,6 +103,21 @@ describe(filename, () => {
 
     // create again
     try {
+      // first with other name
+      await myca.initCenter('otherName', centerPath)
+      return assert(false, 'initCenter() should throw error for already created folder, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+    try {
+      await myca.initCenter(centerName, 'fakepath')
+      return assert(false, 'initCenter() should throw error for already created center, but NOT')
+    }
+    catch (ex) {
+      assert(true)
+    }
+    try {
       await myca.initCenter(centerName, centerPath)
       return assert(false, 'initCenter() should throw error for already created folder, but NOT')
     }
