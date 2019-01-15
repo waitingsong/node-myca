@@ -1,9 +1,28 @@
 import { join, normalize } from 'path'
+import {
+  concat,
+  defer,
+  forkJoin,
+  from as ofrom,
+  merge,
+  of,
+  EMPTY,
+  Observable,
+} from 'rxjs'
+import {
+  concatMap,
+  last,
+  map,
+  mapTo,
+  mergeMap,
+  tap,
+ } from 'rxjs/operators'
 
 import {
   copyFileAsync,
   createDir,
-  createFile,
+  createFileAsync,
+  dirExists,
   isDirExists,
   isFileExists,
   readFileAsync,
@@ -14,128 +33,232 @@ import { initialConfig, initialDbFiles } from './config'
 import { CenterList, Config, InitialFile } from './model'
 
 
-// return new serial HEX string
-export async function nextSerial(centerName: string, config: Config): Promise<string> {
-  const centerPath = await getCenterPath(centerName)
-  const serialFile = `${centerPath}/db/serial`
+/** Get serial HEX string */
+export function nextSerial(centerName: string, config: Config): Observable<string> {
+  const centerPath$ = getCenterPath(centerName).pipe(
+    tap(centerPath => {
+      if (!centerPath) {
+        throw new Error(`centerPath not exists, centerName: "${centerName}"`)
+      }
+    }),
+  )
+  const serial$ = centerPath$.pipe(
+    map(centerPath => `${centerPath}/db/serial`),
+    mergeMap(serialFile => readFileAsync(serialFile)),
+    map(buf => buf.toString('utf8').trim()), // 'BARZ' -> 186
+    map(hex => {
+      return {
+        dec: parseInt(hex, 16),
+        hex,
+      }
+    }),
+  )
 
-  if (! centerPath) {
-    return Promise.reject(`centerPath not exists, centerName: "${centerName}"`)
-  }
-  const buf = await readFileAsync(serialFile)
-  const nextHex = buf.toString('utf8').trim() // 'BARZ' -> 186
-  const nextDec = parseInt(nextHex, 16)
+  const ret$ = serial$.pipe(
+    tap(({ dec, hex }) => {
+      if (typeof dec !== 'number' || ! dec || dec < 1) {
+        throw new Error(`retrive nextSerial failed nextDec not typeof number or invalid.
+      value: "${hex}", Dec: ${dec}`)
+      }
+      if (!Number.isSafeInteger(dec)) {
+        throw new Error(`retrive nextSerial failed. not save integer. value: "${hex}", Dec: ${dec}`)
+      }
+      if (hex.replace(/^0+/, '').toLocaleLowerCase() !== dec.toString(16)) {
+        throw new Error(`retrive nextSerial failed or invalid.
+      hex formatted: "${ hex.replace(/^0+/, '').toLocaleLowerCase()}",
+      Dec to hex: ${ dec.toString(16)}`)
+      }
+    }),
+    map(({ hex }) => {
+      return hex
+    }),
+  )
 
-  if (typeof nextDec !== 'number' || ! nextDec || nextDec < 1) {
-    throw new Error(`retrive nextSerial failed nextDec not typeof number or invalid.
-      value: "${nextHex}", Dec: ${nextDec}`)
-  }
-  if (! Number.isSafeInteger(nextDec)) {
-    throw new Error(`retrive nextSerial failed. not save integer. value: "${nextHex}", Dec: ${nextDec}`)
-  }
-  if (nextHex.replace(/^0+/, '').toLocaleLowerCase() !== nextDec.toString(16)) {
-    throw new Error(`retrive nextSerial failed or invalid.
-      hex formatted: "${ nextHex.replace(/^0+/, '').toLocaleLowerCase() }",
-      Dec to hex: ${ nextDec.toString(16) }`)
-  }
-  return nextHex
+  return ret$
 }
 
 
-// copy .config to center
-export async function initOpensslConfig(configName: string, centerPath: string) {
-  const src = join(initialConfig.appDir, '/asset', configName)
+/** Copy .config to path ./center */
+async function initOpensslConfig(configName: string, centerPath: string) {
+  const src = join(initialConfig.appDir, 'asset', configName)
   const target = join(centerPath, configName)
   return copyFileAsync(src, target)
 }
 
 
-// create defaultCenterPath and center folders/files, return centerPath
-export async function initDefaultCenter(): Promise<Config['defaultCenterPath']> {
+/** Create defaultCenterPath and center folders/files, return centerPath */
+export function initDefaultCenter(): Observable<Config['defaultCenterPath']> {
   const centerName = 'default'
-  const flag = await isCenterInited(centerName)
-
-  if (flag) {
-    return Promise.reject(`default center initialized already. path: "${flag}"`)
-  }
-  await createDir(initialConfig.defaultCenterPath) // create default ca dir under userHome
+  const centerPathErr$ = getCenterPath(centerName).pipe(
+    tap(path => {
+      throw new Error(`default center initialized already. path: "${path}"`)
+    }),
+  )
+  const inited$ = isCenterInited(centerName).pipe(
+    mergeMap(exists => exists ? centerPathErr$ : of(void 0)),
+  )
+  // create default ca dir under userHome
+  const dir$ = createDir(initialConfig.defaultCenterPath)
   // must before createCenter()
-  await createCenterListFile(join(initialConfig.defaultCenterPath, initialConfig.centerListName))
+  const list$ = defer(() => createCenterListFile(join(initialConfig.defaultCenterPath, initialConfig.centerListName)))
   // create default cneter dir under userHome
-  await createCenter(initialConfig, centerName, initialConfig.defaultCenterPath)
+  const center$ = createCenter(initialConfig, centerName, initialConfig.defaultCenterPath)
 
-  return Promise.resolve(initialConfig.defaultCenterPath)
+  const ret$ = concat(
+    inited$,
+    dir$,
+    list$,
+    center$,
+  ).pipe(
+    last(),
+    mapTo(initialConfig.defaultCenterPath),
+  )
+
+  return ret$
 }
 
 
-// create center path and folders/files
-export async function initCenter(centerName: string, path: string): Promise<void> {
-  if (centerName === 'default') {
-    return Promise.reject('init default center by calling method of initDefaultCenter()')
-  }
-  if (! await isCenterInited('default')) {
-    return Promise.reject('default center must be initialized first')
-  }
-  const centerPath = await isCenterInited(centerName)
-  if (centerPath) {
-    return Promise.reject(`center of "${centerName}" initialized already. path: "${centerPath}"`)
-  }
-  if (await isDirExists(path)) {
-    return Promise.reject(`Path exists already: "${path}"`)
-  }
+/** Create center path and folders/files, return center path */
+export function initCenter(centerName: string, path: string): Observable<string> {
+  const centerName$ = of(centerName).pipe(
+    tap(name => {
+      if (name === 'default') {
+        throw new Error('Calling method of initDefaultCenter() to init default center')
+      }
+    }),
+    mergeMap(() => EMPTY),
+  )
+  const defaultInitedValid$ = isCenterInited('default').pipe(
+    tap(inited => {
+      if (! inited) {
+        throw new Error('default center must be initialized first')
+      }
+    }),
+    mergeMap(() => EMPTY),
+  )
+  const inited$ = getCenterPath(centerName).pipe(
+    tap(p => {
+      if (p) {
+        throw new Error(`Center of "${centerName}" initialized already. path: "${p}"`)
+      }
+    }),
+    mergeMap(() => EMPTY),
+  )
 
-  await createDir(path) // create default ca dir under userHome
-  await createCenter(initialConfig, centerName, path)  // create default cneter dir under userHome
-  // console.log(`centerPath name: ${centerName}, path: ${path}`)
+  const validDirs$ = of(
+    initialConfig.dbDir,
+    initialConfig.serverDir,
+    initialConfig.clientDir,
+    initialConfig.dbCertsDir,
+  ).pipe(
+    mergeMap(dirExists),
+    tap(dir => {
+      if (dir) {
+        throw new Error(`Folder(s) exists already during initCenter: ${dir}`)
+      }
+    }),
+    mergeMap(() => EMPTY),
+  )
+
+  const valid$ = merge(
+    centerName$,
+    defaultInitedValid$,
+    inited$,
+    validDirs$,
+  )
+  const ret$ = concat(
+    valid$,
+    // create default ca dir under userHome
+    createDir(path),
+    // create default cneter dir under userHome
+    createCenter(initialConfig, centerName, path),
+  ).pipe(
+    last(),
+    map(() => normalize(path)),
+  )
+
+  return ret$
 }
 
 
-export async function isCenterInited(centerName: string): Promise<string | false> {
+/**
+ * Check whether specified cenerName initialized.
+ * Return center path, blank if not initialized yet
+ */
+export function isCenterInited(centerName: string): Observable<boolean> {
+  /* istanbul ignore next */
   if (! centerName) {
     throw new Error('value of path param invalid')
   }
-  const centerPath = await getCenterPath(centerName)
+  const ret$ = getCenterPath(centerName).pipe(
+    concatMap(centerPath => {
+      if (!centerPath) {
+        return of(false)
+      }
+      else {
+        const path$ = defer(() => isDirExists(centerPath)).pipe(
+          map(exists => {
+            return exists ? true : false
+          }),
+        )
+        return path$
+      }
+    }),
+  )
 
-  if (! centerPath) {
-    return false
-  }
-  if (await isDirExists(centerPath)) {
-    return centerPath
-  }
-  return false
+  return ret$
 }
 
 
-// create center dir to store output certifacates
-async function createCenter(config: Config, centerName: string, path: string): Promise<void> {
+/** Create center dirs to store output certifacates */
+function createCenter(config: Config, centerName: string, path: string): Observable<string> {
   const folders: string[] = [config.dbDir, config.serverDir, config.clientDir, config.dbCertsDir]
+  path = normalize(path)
 
+  /* istanbul ignore next */
   if (! centerName) {
     throw new Error('value of centerName invalid')
   }
 
-  if (! await isCenterInited(centerName)) {
-    await createDir(path)
-  }
-  for (let i = 0, len = folders.length; i < len; i++) {
-    const dir = `${path}/${folders[i]}`
+  const inited$ = isCenterInited(centerName).pipe(
+    concatMap(inited => {
+      return inited
+        ? of(path)
+        : createDir(path)
+    }),
+  )
+  const createDirs$ = ofrom(folders).pipe(
+    // must concatMap !
+    concatMap(folder => {
+      const dir = `${path}/${folder}`
+      return dirExists(dir).pipe(
+        concatMap(exists => exists ? of(void 0) : createDir(dir)),
+        mapTo(void 0),
+      )
+    }),
+  )
 
-    /* istanbul ignore else */
-    if (! await isDirExists(dir)) {
-      await createDir(dir)
-    }
-  }
-  await initDbFiles(config, path, initialDbFiles)
-  await addCenterList(config, centerName, path)
-  await initOpensslConfig(config.configName, path)
+  const ret$ = concat(
+    inited$,
+    createDirs$,
+    defer(() => initDbFiles(config, path, initialDbFiles)),
+    addCenterList(config, centerName, path),
+    defer(() => initOpensslConfig(config.configName, path)),
+  )
+    .pipe(
+      last(),
+      mapTo(path),
+    )
+
+  return ret$
 }
 
 async function createCenterListFile(file: string): Promise<void> {
   if (await isFileExists(file)) {
-    throw new Error(`centerList file exists. path: "${file}"`)
+    throw new Error(`CenterList file exists. path: "${file}"`)
   }
   else {
-    await createFile(file, '')
+    await createFileAsync(file, '')
   }
 }
 
@@ -162,57 +285,87 @@ async function initDbFiles(config: Config, path: string, files: InitialFile[]): 
     if (typeof file.defaultValue !== 'string' && typeof file.defaultValue !== 'number') {
       throw new Error('file defaultValue invalid, must be typeof string or number')
     }
-    await createFile(`${db}/${file.name}`, file.defaultValue, (file.mode ? { mode: file.mode } : {}))
+    await createFileAsync(`${db}/${file.name}`, file.defaultValue, (file.mode ? { mode: file.mode } : {}))
   }
 }
 
 
-async function addCenterList(config: Config, key: string, path: string): Promise<void> {
+function addCenterList(config: Config, key: string, path: string): Observable<void> {
   if (!key || !path) {
-    throw new Error('params key or path is invalid')
+    throw new Error('addCenterList() params key or path is invalid')
   }
-  const centerList = await loadCenterList(config) || <CenterList> {}
-  const file = `${config.defaultCenterPath}/${config.centerListName}` // center-list.json
+  // const centerList = await loadCenterList(config) || <CenterList> {}
+  const centerList$ = loadCenterList(config).pipe(
+    map(centerList => centerList ? centerList : <CenterList> {}),
+  )
+  const ret$ = forkJoin(
+    of({
+      k: key,
+      p: path,
+      defaultCenterPath: config.defaultCenterPath,
+      centerListName: config.centerListName,
+    }),
+    centerList$,
+  ).pipe(
+    mergeMap(([{ centerListName, defaultCenterPath , k, p }, centerList]) => {
+      const file = `${defaultCenterPath}/${centerListName}` // center-list.json
+      p = normalize(p)
+      if (centerList[k]) {
+        throw new Error(`center list exists already, can not create more. key: "${k}",
+      path: "${p}", target: "${p}"`)
+      }
+      else {
+        centerList[k] = p
+        return writeFileAsync(file, JSON.stringify(centerList))
+      }
+    }),
+  )
 
-  path = normalize(path)
-  if (centerList[key]) {
-    throw new Error(`center list exists already, can not create more. key: "${key}",
-      path: "${path}", target: "${path}"`)
-  }
-  else {
-    centerList[key] = path
-    await writeFileAsync(file, JSON.stringify(centerList))
-  }
+  return ret$
 }
 
 
+function loadCenterList(config: Config): Observable<CenterList | null> {
+  const file$ = of(`${config.defaultCenterPath}/${config.centerListName}`)
+    .pipe(
+      mergeMap(file => {
+        return defer(() => isFileExists(file)).pipe(
+          tap(exists => {
+            if (!exists) {
+              throw new Error(`center file not exists. path: "${file}"`)
+            }
+          }),
+          mapTo(file),
+        )
+      }),
+    )
+  const ret$ = file$.pipe(
+    mergeMap(file => readFileAsync(file)),
+    map((buf: Buffer) => {
+      const json = buf.toString()
+      return (typeof json === 'string' && json) ? <CenterList> JSON.parse(json) : null
+    }),
+  )
 
-async function loadCenterList(config: Config): Promise<CenterList | null> {
-  const file = `${config.defaultCenterPath}/${config.centerListName}`
-
-  if (! await isFileExists(file)) {
-    throw new Error(`center file not exists. path: "${file}"`)
-  }
-  const buf = await readFileAsync(file)
-  const str = buf.toString()
-
-  return (typeof str === 'string' && str) ? <CenterList> JSON.parse(str) : null
+  return ret$
 }
 
 
-export async function getCenterPath(centerName: string | void): Promise<string> {
+export function getCenterPath(centerName: string | void): Observable<string> {
+  /* istanbul ignore else */
   if (! centerName) {
-    return Promise.resolve('')
+    return of('')
   }
-  if (centerName === 'default') {
-    return Promise.resolve(initialConfig.defaultCenterPath)
+  else if (centerName === 'default') {
+    return of(initialConfig.defaultCenterPath)
   }
-  const centerList = await loadCenterList(initialConfig)
 
-  if (typeof centerList === 'object' && centerList) {
-    return Promise.resolve(centerList[centerName])
-  }
-  else {
-    return Promise.resolve('')
-  }
+  const ret$ = loadCenterList(initialConfig).pipe(
+    map(centerList => {
+      return typeof centerList === 'object' && centerList
+        ? centerList[centerName]
+        : ''
+    }),
+  )
+  return ret$
 }

@@ -1,10 +1,24 @@
-import { execFile } from 'child_process'
+import { concat, defer, forkJoin, from as ofrom, iif, of, Observable } from 'rxjs'
+import {
+  bufferCount,
+  catchError,
+  concatMap,
+  finalize,
+  map,
+  mapTo,
+  mergeMap,
+  reduce,
+  shareReplay,
+  tap,
+} from 'rxjs/operators'
+import { escapeShell } from 'rxrunscript'
 
 import {
   chmodAsync,
   copyFileAsync,
-  createFile,
-  isDirExists,
+  createFileAsync,
+  dirExists,
+  fileExists,
   isFileExists,
   join,
   normalize,
@@ -14,8 +28,12 @@ import {
   writeFileAsync,
 } from '../shared/index'
 
-import { getCenterPath, isCenterInited, nextSerial } from './center'
-import { runOpenssl } from './common'
+import { getCenterPath, nextSerial } from './center'
+import {
+  runOpenssl,
+  throwMaskError,
+  unlinkRandomConfTpl,
+} from './common'
 import {
   initialCaCertRet,
   initialCaOpts,
@@ -29,6 +47,7 @@ import {
 import {
   CaOpts,
   CertDN,
+  CertDNkeys,
   CertOpts,
   Config,
   IssueCaCertRet,
@@ -38,175 +57,360 @@ import {
   PfxOpts,
   PrivateKeyOpts,
   SignOpts,
+  StreamOpts,
 } from './model'
 
 
-export async function initCaCert(issueOpts: CaOpts): Promise<IssueCaCertRet> {
-  const opts = <CaOpts> { ...initialCaOpts, ...issueOpts }
+export function initCaCert(issueOpts: CaOpts): Observable<IssueCaCertRet> {
+  const opts$ = of(<CaOpts> { ...initialCaOpts, ...issueOpts }).pipe(
+    tap(opts => {
+      if (!opts.centerName) {
+        throw new Error('centerName empty')
+      }
+    }),
+    shareReplay(1),
+  )
 
-  if (!opts.centerName) {
-    return Promise.reject('centerName empty')
-  }
-  if (! await isCenterInited(opts.centerName)) {
-    return Promise.reject(`center: ${opts.centerName} not initialized yet`)
-  }
-  const centerPath = await getCenterPath(opts.centerName)
-  const file = normalize(`${centerPath}/${initialConfig.caCrtName}`)
+  const valid$ = opts$.pipe(
+    concatMap(opts => getCenterPath(<string> opts.centerName)),
+    tap(centerName => {
+      if (! centerName) {
+        throw new Error(`center: ${centerName} not initialized yet`)
+      }
+    }),
+    concatMap(centerPath => {
+      const file = normalize(`${centerPath}/${initialConfig.caCrtName}`)
+      return fileExists(file).pipe(
+        tap(exists => {
+          if (exists) {
+            throw new Error(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
+          }
+        }),
+      )
+    }),
+    mapTo(void 0),
+  )
 
-  /* istanbul ignore next */
-  if (await isFileExists(file)) {
-    return Promise.reject(`CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
-  }
-  const certRet = await genCaCert(initialConfig, opts)
+  const ret$ = forkJoin(
+    opts$,
+    valid$,
+  ).pipe(
+    concatMap(([opts]) => {
+      const { centerName } = opts
+      return genCaCert(initialConfig, opts).pipe(
+        concatMap(certRet => {
+          return saveCaCrt(initialConfig.caCrtName, <string> centerName, certRet.cert).pipe(
+            map(crtFile => {
+              certRet.crtFile = crtFile
+              return certRet
+            }),
+          )
+        }),
+      )
+    }),
+    catchError(throwMaskError),
+  )
 
-  certRet.crtFile = await saveCaCrt(initialConfig, opts, certRet.cert)
-  return certRet
+  return ret$
 }
 
 
-// generate certificate of self-signed CA
-async function genCaCert(config: Config, options: CaOpts): Promise<IssueCaCertRet> {
-  const issueOpts = await processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options })
+/** Generate certificate of self-signed CA */
+function genCaCert(config: Config, options: CaOpts): Observable<IssueCaCertRet> {
+  const issueOpts$ = processIssueOpts(config, <IssueOpts> { ...initialCertOpts, ...options }).pipe(
+    map(issueOpts => {
+      issueOpts.kind = 'ca'
+      return issueOpts
+    }),
+    mergeMap(validateIssueOpts),
+    shareReplay(1),
+  )
 
-  issueOpts.kind = 'ca'
-  await validateIssueOpts(issueOpts)
-  const caKeyFile = join(issueOpts.centerPath, config.caKeyName) // ca.key
+  const caKeyFile$ = issueOpts$.pipe(
+    map(issueOpts => join(issueOpts.centerPath, config.caKeyName)),  // ca.key
+    mergeMap(caKeyFile => {
+      return fileExists(caKeyFile).pipe(
+        tap(file => {
+          if (file) {
+            throw new Error(`caKeyFile already exists: "${file}"`)
+          }
+        }),
+        mapTo(caKeyFile),
+      )
+    }),
+  )
 
-  // console.log(issueOpts)
-  if (await isFileExists(caKeyFile)) {
-    return Promise.reject(`caKeyFile exists: "${caKeyFile}"`)
-  }
-  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
-  const keysRet: KeysRet = await genKeys(privateKeyOpts)
+  const keysRet$ = issueOpts$.pipe(
+    concatMap(issueOpts => {
+      const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
+      return genKeys(privateKeyOpts)
+    }),
+  )
 
-  await createFile(caKeyFile, keysRet.privateKey, { mode: 0o600 })
+  const creat$ = forkJoin(
+    caKeyFile$,
+    keysRet$,
+  ).pipe(
+    concatMap(([caKeyFile, keysRet]) => {
+      return defer(() => createFileAsync(caKeyFile, keysRet.privateKey, { mode: 0o600 }))
+        .pipe(
+          mapTo({ caKeyFile, keysRet }),
+        )
+    }),
+  )
 
-  const cert = await reqCaCert(config, issueOpts) // ca cert
-  const ret: IssueCaCertRet = { // crtFile empty here
-    ...initialCaCertRet,
-    cert,
-    privateKeyFile: caKeyFile,
-    centerName: issueOpts.centerName,
-    privateKey: keysRet.privateKey,
-    pass: keysRet.pass,
-  }
+  const ret$ = forkJoin(
+    issueOpts$,
+    creat$,
+  ).pipe(
+    concatMap(([issueOpts, { caKeyFile, keysRet }]) => {
+      return reqCaCert(config, issueOpts).pipe(
+        map(cert => {
+          const ret: IssueCaCertRet = { // crtFile empty here
+            ...initialCaCertRet,
+            cert,
+            privateKeyFile: caKeyFile,
+            centerName: issueOpts.centerName,
+            privateKey: keysRet.privateKey,
+            pass: keysRet.pass,
+          }
+          return ret
+        }),
+      )
+    }),
+  )
 
-  return Promise.resolve(ret)
+  return ret$
 }
 
 
-// issue certificate of server or client by ca.key
-export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCertRet> {
-  const localConfig = conf ? { ...initialConfig, ...conf } : initialConfig
-  const issueOpts = await processIssueOpts(localConfig, <IssueOpts> { ...initialCertOpts, ...options })
-  const centerPath = issueOpts.centerPath
+/** issue certificate of server or client by ca.key */
+export function genCert(options: CertOpts, conf?: Config): Observable<IssueCertRet> {
+  const localConfig: Config = conf ? { ...initialConfig, ...conf } : initialConfig
+  const issueOpts$ = processGenCertIssueOpts(options, localConfig).pipe(
+    mergeMap(validateIssueOpts),
+    shareReplay(1),
+  )
+  const csrNkeysRet$ = genCsrFile(issueOpts$, localConfig)
+  const tmpRet$: Observable<IssueCertRet> = forkJoin(
+    issueOpts$,
+    csrNkeysRet$,
+  )
+  .pipe(
+    map(([issueOpts, { csr, csrFile, keysRet }]) => {
+      const caKeyFile = join(issueOpts.centerPath, localConfig.caKeyName) // ca.key
+      const caCrtFile = join(issueOpts.centerPath, localConfig.caCrtName) // ca.crt
+      const ret: IssueCertRet = {
+        ...initialCertRet,
+        ...keysRet,
+        centerName: issueOpts.centerName,
+        caKeyFile,
+        caCrtFile,
+        csr,
+        csrFile,
+        crtFile: join(issueOpts.centerPath, issueOpts.kind, `${issueOpts.serial}.crt`),
+      }
 
-  /* istanbul ignore next */
-  if (issueOpts.kind === 'ca') {
-    return Promise.reject('value of kind can not be "ca", generate CA cert via genCaCert()')
-  }
-  await validateIssueOpts(issueOpts)
-  const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
-  const caKeyFile = join(centerPath, localConfig.caKeyName) // ca.key
-  const caCrtFile = join(centerPath, localConfig.caCrtName) // ca.crt
-  let keysRet: KeysRet = await genKeys(privateKeyOpts)
+      return ret
+    }),
+  )
 
-  issueOpts.serial = await nextSerial(issueOpts.centerName, localConfig)
-  keysRet = await savePrivateKeys(localConfig, issueOpts, keysRet)
-  const csr = await reqServerCert(localConfig, issueOpts, keysRet) // csr string
-  const csrFile = join(centerPath, issueOpts.kind, `${issueOpts.serial}.csr`)
-  const ret: IssueCertRet = {
-    ...initialCertRet,
-    ...keysRet,
-    centerName: issueOpts.centerName,
-    caKeyFile,
-    caCrtFile,
-    csr,
-    csrFile,
-    crtFile: join(centerPath, issueOpts.kind, `${issueOpts.serial}.crt`),
-  }
+  const issueRet$: Observable<IssueCertRet> = forkJoin(
+    issueOpts$,
+    tmpRet$,
+  ).pipe(
+    concatMap(([issueOpts, ret]) => {
+      const { centerPath, caKeyPass } = issueOpts
+      const signOpts: SignOpts = {
+        ...initialSignOpts,
+        centerPath,
+        caCrtFile: ret.caCrtFile,
+        caKeyFile: ret.caKeyFile,
+        caKeyPass,
+        csrFile: ret.csrFile,
+        configFile: issueOpts.configFile,
+        SAN: issueOpts.SAN,
+        ips: issueOpts.ips,
+        days: issueOpts.days,
+      }
 
-  await createFile(csrFile, csr, { mode: 0o600 })
-  const signOpts: SignOpts = {
-    ...initialSignOpts,
-    centerPath,
-    caCrtFile,
-    caKeyFile,
-    caKeyPass: issueOpts.caKeyPass,
-    csrFile,
-    configFile: issueOpts.configFile,
-    SAN: issueOpts.SAN,
-    ips: issueOpts.ips,
-    days: issueOpts.days,
-  }
+      return sign(signOpts, localConfig).pipe(
+        map(cert => {
+          ret.cert = cert
+          return ret
+        }),
+        concatMap(issueRet => {
+          return createFileAsync(issueRet.crtFile, issueRet.cert, { mode: 0o644 }).then(() => issueRet)
+        }),
+      )
+    }),
+  )
 
-  ret.cert = await sign(signOpts, localConfig)
-  await createFile(ret.crtFile, ret.cert, { mode: 0o644 })
+  const ret$ = forkJoin(
+    issueOpts$,
+    issueRet$,
+  ).pipe(
+    concatMap(([issueOpts, issueCertRet]) => {
+      // EXPORT TO PKCS#12 FORMAT
+      if (issueOpts.kind === 'client') {
+        const clientOpts: PfxOpts = {
+          privateKeyFile: issueCertRet.privateUnsecureKeyFile,
+          crtFile: issueCertRet.crtFile,
+          pfxPass: issueCertRet.pass,
+        }
+        return outputClientCert(clientOpts).pipe(
+          concatMap(tmpFile => {
+            issueCertRet.pfxFile = join(issueOpts.centerPath, issueOpts.kind, `${issueOpts.serial}.p12`)
+            return defer(() => copyFileAsync(tmpFile, <string> issueCertRet.pfxFile)).pipe(
+              concatMap(() => chmodAsync(<string> issueCertRet.pfxFile, 0o600)),
+              tap(() => {
+                unlinkAsync(issueCertRet.privateUnsecureKeyFile)
+                unlinkAsync(tmpFile)
+              }),
+            )
 
-  // EXPORT TO PKCS#12 FORMAT
-  if (issueOpts.kind === 'client') {
-    const clientOpts: PfxOpts = {
-      privateKeyFile: ret.privateUnsecureKeyFile,
-      crtFile: ret.crtFile,
-      pfxPass: ret.pass,
-    }
-    const tmp = await outputClientCert(clientOpts)
+          }),
+          map(() => {
+            issueCertRet.privateUnsecureKeyFile = ''
+            return issueCertRet
+          }),
+        )
+      }
+      else {
+        return of(issueCertRet)
+      }
+    }),
+    catchError(throwMaskError),
+  )
 
-    ret.pfxFile = join(centerPath, issueOpts.kind, `${issueOpts.serial}.p12`)
-    await copyFileAsync(tmp, ret.pfxFile)
-    await chmodAsync(ret.pfxFile, 0o600)
-    unlinkAsync(ret.privateUnsecureKeyFile)
-    ret.privateUnsecureKeyFile = ''
-    unlinkAsync(tmp)
-  }
-
-  return Promise.resolve(ret)
+  return ret$
 }
 
 
-export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> {
-  const privateKey = await genPrivateKey(privateKeyOpts)
-  const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts)
-  const privateUnsecureKey = await decryptPrivateKey(privateKey, privateKeyOpts)
-  // console.log(`centerPath: ${issueOpts.centerPath}`)
-  // console.log('key::', key)
-  // console.log('pub:', pubKey)
-  // console.log('unsecure key:', privateUnsecureKey)
+function processGenCertIssueOpts(options: CertOpts, localConfig: Config): Observable<IssueOpts> {
+  const ret$ = defer(() => processIssueOpts(localConfig, <IssueOpts> { ...initialCertOpts, ...options }))
+    .pipe(
+      concatMap(issueOpts => {
+        /* istanbul ignore next */
+        if (issueOpts.kind === 'ca') {
+          throw new Error('value of kind can not be "ca", generate CA cert via genCaCert()')
+        }
+        return validateIssueOpts(issueOpts).pipe(
+          concatMap(opts => {
+            return nextSerial(opts.centerName, localConfig).pipe(
+              map(serial => {
+                opts.serial = serial
+                return opts
+              }),
+            )
+          }),
+        )
+      }),
+    )
 
-  return {
-    pubKey,
-    privateKey,
-    privateUnsecureKey,
-    pass: privateKeyOpts.pass,
-    privateKeyFile: '',
-    privateUnsecureKeyFile: '',
-  }
+  return ret$
+}
+
+function genCsrFile(
+  issueOpts$: Observable<IssueOpts>,
+  localConfig: Config,
+): Observable<{csr: string, csrFile: string, keysRet: KeysRet}> {
+
+  const keysRet$ = issueOpts$.pipe(
+    concatMap(issueOpts => {
+      const privateKeyOpts = <PrivateKeyOpts> { ...initialPrivateKeyOpts, ...issueOpts }
+      return genKeys(privateKeyOpts).pipe(
+        concatMap(keysRet => {
+          return savePrivateKeys(localConfig, issueOpts, keysRet).pipe(
+            map(({ privateKeyFile, privateUnsecureKeyFile }) => {
+              keysRet.privateKeyFile = privateKeyFile
+              keysRet.privateUnsecureKeyFile = privateUnsecureKeyFile
+              return keysRet
+            }),
+          )
+        }),
+      )
+    }),
+  )
+  const csrNcsrFile$: Observable<{ csr: string, csrFile: string, keysRet: KeysRet }> = forkJoin(
+    issueOpts$,
+    keysRet$,
+  ).pipe(
+    concatMap(([issueOpts, keysRet]) => {
+      return reqServerCert(localConfig, issueOpts, keysRet).pipe(
+        concatMap(csr => {
+          const csrFile = join(issueOpts.centerPath, issueOpts.kind, `${issueOpts.serial}.csr`)
+          return createFileAsync(csrFile, csr, { mode: 0o600 }).then(() => {
+            return { csr, csrFile, keysRet }
+          })
+        }),
+      )
+    }),
+  )
+
+  return csrNcsrFile$
 }
 
 
-async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
-  let key = ''
+export function genKeys(privateKeyOpts: PrivateKeyOpts): Observable<KeysRet> {
+  const privateKey$ = genPrivateKey(privateKeyOpts)
+
+  const ret$ = privateKey$.pipe(
+    concatMap(privateKey => {
+      const obbs = [
+        of(privateKey),
+        genPubKeyFromPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg),
+        decryptPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg),
+      ]
+      // not using forkJoin cause of EPIPE
+      return concat(...obbs).pipe(
+        bufferCount(obbs.length),
+      )
+    }),
+    map(([privateKey, pubKey, privateUnsecureKey]) => {
+      const ret: KeysRet = {
+        pubKey,
+        privateKey,
+        privateUnsecureKey,
+        pass: privateKeyOpts.pass,
+        privateKeyFile: '',
+        privateUnsecureKeyFile: '',
+      }
+      return ret
+    }),
+    catchError(throwMaskError),
+  )
+
+  return ret$
+}
+
+
+function genPrivateKey(options: PrivateKeyOpts): Observable<string> {
+  let key$ = of('')
 
   switch (options.alg) {
     case 'rsa':
-      key = await genRSAKey(options)
+      key$ = genRSAKey(options.pass, options.keyBits)
       break
 
     case 'ec':
-      key = await genECKey(options)
+      key$ = genECKey(options.pass, options.ecParamgenCurve)
       break
 
     default:
       throw new Error('value of param invalid')
   }
 
-  return key
+  return key$
 }
 
 
 // generate rsa private key pem
-function genRSAKey(options: PrivateKeyOpts): Promise<string> {
-  const { keyBits, pass } = options
+function genRSAKey(
+  pass: PrivateKeyOpts['pass'],
+  keyBits: PrivateKeyOpts['keyBits'],
+): Observable<string> {
+
   const args = [
     'genpkey', '-algorithm', 'rsa',
     '-aes256', '-pass', `pass:${pass}`,
@@ -214,18 +418,23 @@ function genRSAKey(options: PrivateKeyOpts): Promise<string> {
   ]
 
   /* istanbul ignore next */
-  return runOpenssl(args).then(stdout => {
-    if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
-      return stdout
-    }
-    throw new Error(`generate private key failed. stdout: "${stdout}"`)
-  })
+  return runOpenssl(args).pipe(
+    tap(stdout => {
+      if (! stdout || ! stdout.includes('PRIVATE KEY')) {
+        throw new Error(`generate private key failed. stdout: "${stdout}"`)
+      }
+    }),
+    catchError(throwMaskError),
+  )
 }
 
 
 // generate ec private key pem
-function genECKey(options: PrivateKeyOpts): Promise<string> {
-  const { ecParamgenCurve, pass } = options
+function genECKey(
+  pass: PrivateKeyOpts['pass'],
+  ecParamgenCurve: PrivateKeyOpts['ecParamgenCurve'],
+): Observable<string> {
+
   const args = [
     'genpkey', '-algorithm', 'ec',
     '-aes256', '-pass', `pass:${pass}`,
@@ -233,175 +442,210 @@ function genECKey(options: PrivateKeyOpts): Promise<string> {
   ]
 
   /* istanbul ignore next */
-  return runOpenssl(args).then(stdout => {
-    if (stdout && stdout.indexOf('PRIVATE KEY') > 0) {
-      return stdout
-    }
-    throw new Error(`generate private key failed. stdout: "${stdout}"`)
-  })
+  return runOpenssl(args).pipe(
+    tap(stdout => {
+      if (! stdout || ! stdout.includes('PRIVATE KEY')) {
+        throw new Error(`generate private key failed. stdout: "${stdout}"`)
+      }
+    }),
+    catchError(throwMaskError),
+  )
 }
 
 
-function genPubKeyFromPrivateKey(privateKey: string, options: PrivateKeyOpts): Promise<string> {
-  const openssl = initialConfig.openssl
-  const { alg, pass } = options
+function genPubKeyFromPrivateKey(
+  privateKey: string,
+  passwd: PrivateKeyOpts['pass'],
+  alg: PrivateKeyOpts['alg'],
+): Observable<string> {
 
-  return new Promise((resolve, reject) => {
-    const args = [alg, '-pubout']
+  const args = [alg, '-pubout']
 
-    /* istanbul ignore next */
-    if (pass && privateKey.indexOf('ENCRYPTED') > 0) {
-      args.push('-passin', `pass:${pass}`)
-    }
+  /* istanbul ignore next */
+  if (passwd && privateKey.indexOf('ENCRYPTED') > 0) {
+    args.push('-passin', `pass:${passwd}`)
+  }
+  const input$ = of(privateKey)
 
-    /* istanbul ignore next */
-    const child = execFile(openssl, args, (err, stdout, stderr) => {
-      if (err) {
-        return reject(err)
+  const ret$ = runOpenssl(args, { inputStream: input$ }).pipe(
+    tap(stdout => {
+      /* istanbul ignore next */
+      if (!stdout || !stdout.slice(0, 50).includes('PUBLIC KEY')) {
+        throw new Error('genPubKeyFromPrivateKey() output invalid PUBLIC KEY: ' + stdout.slice(0, 1000))
       }
-      if (stdout && stdout.indexOf('PUBLIC KEY') > 0) {
-        return resolve(stdout)
-      }
-      if (stderr) { // must after stdout
-        return reject(stderr)
-      }
-      return reject(stdout)
-    })
+    }),
 
-    child.stdin.write(privateKey)
-    child.stdin.write(pass)
-    child.stdin.end()
-  })
+  )
+
+  return ret$
 }
 
 
-export function decryptPrivateKey(privateKey: string, options: PrivateKeyOpts): Promise<string> {
-  const openssl = initialConfig.openssl
-  const { alg, pass } = options
+export function decryptPrivateKey(
+  privateKey: string,
+  passwd: PrivateKeyOpts['pass'],
+  alg: PrivateKeyOpts['alg'],
+): Observable<string> {
 
+  /* istanbul ignore next */
   if (!privateKey.includes('ENCRYPTED')) {
-    /* istanbul ignore next */
     if (privateKey.includes('PRIVATE')) {  // unsecure private key
-      return Promise.resolve(privateKey)
+      return of(privateKey)
     }
     else {
-      throw new Error('param key not valid **encrypted** private key')
+      throw new Error('decryptPrivateKey() Param key not valid **encrypted** private key')
     }
   }
 
-  return new Promise((resolve, reject) => {
-    const args: string[] = [alg]
+  const args: string[] = [alg]
+  /* istanbul ignore next */
+  if (passwd && privateKey.indexOf('ENCRYPTED') > 0) {
+    args.push('-passin', `pass:${passwd}`)
+  }
+  const input$ = of(privateKey)
+  const ret$ = runOpenssl(args, { inputStream: input$ }).pipe(
+    tap(stdout => {
+      /* istanbul ignore next */
+      if (! stdout || ! stdout.slice(0, 50).includes('PRIVATE KEY')) {
+        throw new Error('decryptPrivateKey() stdout output invalid PRIVATE KEY: ' + stdout.slice(0, 1000))
+      }
+    }),
+    catchError(throwMaskError),
+  )
 
-    /* istanbul ignore next */
-    if (pass && privateKey.indexOf('ENCRYPTED') > 0) {
-      args.push('-passin', `pass:${pass}`)
-    }
-    /* istanbul ignore next */
-    const child = execFile(openssl, args, (err, stdout, stderr) => {
-      if (err) {
-        return reject(err)
-      }
-      if (stdout && stdout.includes('PRIVATE KEY')) {
-        return resolve(stdout)
-      }
-      if (stderr) { // must after stdout
-        return reject(stderr)
-      }
-      return reject(stdout)
-    })
-
-    child.stdin.write(privateKey)
-    child.stdin.end()
-  })
+  return ret$
 }
 
 
-// return cert
-async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
-  await validateIssueOpts(options)
+/** Return cert */
+function reqCaCert(config: Config, options: IssueOpts): Observable<string> {
+  const valid$ = validateIssueOpts(options)
 
   const { days, centerPath, pass } = options
   const keyFile = `${config.caKeyName}`
-  const args = [
-    'req', '-batch', '-utf8', '-x509', '-new',
-    '-days', days + '',
-    '-key', keyFile,
-  ]
-  const runOpts = { cwd: centerPath }
-  let rtpl = ''
-
-  /* istanbul ignore next */
-  if (config.isWin32) { // use config file
-    rtpl = normalize(await createRandomConfTpl(config, options))
-    args.push('-config', rtpl)
+  const streamOpts: StreamOpts = {
+    args: [
+      'req', '-batch', '-utf8', '-x509', '-new',
+      '-days', days + '',
+      '-key', keyFile,
+    ],
+    runOpts: { cwd: centerPath },
+    rtpl: '',
   }
-  else {  // pass args by -subj
-    const subj = genIssueSubj(options)
 
-    subj && args.push('-subj', subj)
-  }
-  pass && args.push('-passin', `pass:${pass}`)
-  // console.log('issueOpts:', options)
-  // console.log('args:', args)
+  const streamOpts$ = of(streamOpts)
 
-  /* istanbul ignore next */
-  return runOpenssl(args, runOpts)
-    .then((stdout: string) => {
-      if (stdout && stdout.includes('CERTIFICATE')) {
-        // console.log(stdout)
-        rtpl && unlinkRandomConfTpl(rtpl)
-        return stdout
-      }
-      throw new Error('openssl return value: ' + stdout)
-    })
-    .catch(err => {
-      rtpl && unlinkRandomConfTpl(rtpl)
-      throw err
-    })
+  const rtpl$ = iif(
+    () => config.isWin32,
+    streamOpts$.pipe(
+      mergeMap(sopts => {
+        return createRandomConfTpl(config, options).pipe(
+          mergeMap(rtpl => fileExists(rtpl)),
+          tap(rtpl => {
+            /* istanbul ignore next */
+            if (! rtpl) {
+              throw new TypeError('reqCaCert() rtpl blank')
+            }
+          }),
+          tap(rtpl => {
+            sopts.args.push('-config', rtpl)
+            sopts.rtpl = rtpl
+          }),
+          mapTo(sopts),
+        )
+      }),
+    ),
+    streamOpts$.pipe(
+      map(sopts => {
+        const subj = genIssueSubj(options)
+        subj && sopts.args.push('-subj', `"${subj}"`)
+        // console.info('reqCaCert() debug::', sopts, options) // @DEBUG
+        return sopts
+      }),
+    ),
+  ).pipe(
+    map(sopts => {
+      pass && sopts.args.push('-passin', `pass:${pass}`)
+      return sopts
+    }),
+  )
+
+  const ret$ = valid$.pipe(
+    mergeMap(() => rtpl$),
+    concatMap(({ args, runOpts, rtpl }) => {
+      return runOpenssl(args, runOpts)
+        .pipe(
+          tap(stdout => {
+            /* istanbul ignore next */
+            if (! stdout || ! stdout.includes('CERTIFICATE')) {
+              throw new Error('openssl return value: ' + stdout)
+            }
+          }),
+          finalize(() => {
+            unlinkRandomConfTpl(rtpl).subscribe()
+          }),
+          catchError((err: Error) => {
+            unlinkRandomConfTpl(rtpl).subscribe()
+            throw err
+          }),
+        )
+    }),
+
+  )
+
+  return ret$
 }
 
 
-// return csr
-async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRet): Promise<string> {
-  await validateIssueOpts(options)
+/** Generate and return csr base64 */
+function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRet): Observable<string> {
+  const valid$ = validateIssueOpts(options)
+  const tpl$ = of({ config, options, keysRet }).pipe(
+    mergeMap(({ config: conf, options: opts, keysRet: keys }) => {
+      const { centerPath } = opts
+      const privateUnsecureKeyFile = keys.privateUnsecureKeyFile
+      const args = [
+        'req', '-batch', '-utf8', '-new',
+        '-days', '30',
+        '-key', privateUnsecureKeyFile,
+      ]
+      return createRandomConfTpl(conf, opts).pipe(
+        map(normalize),
+        map(rtpl => {
+          args.push('-config', rtpl)
+          return { args, centerPath, rtpl }
+        }),
+      )
+    }),
+  )
+  const ret$ = valid$.pipe(
+    mergeMap(() => tpl$),
+    mergeMap(({ args, centerPath, rtpl }) => {
+      const runOpts = { cwd: centerPath }
+      return runOpenssl(args, runOpts).pipe(
+        tap(stdout => {
+          /* istanbul ignore next */
+          if (!stdout || !stdout.includes('REQUEST')) {
+            throw new Error('openssl return value: ' + stdout)
+          }
+        }),
+        finalize(() => {
+          unlinkRandomConfTpl(rtpl).subscribe()
+        }),
 
-  const { centerPath } = options
-  const privateUnsecureKeyFile = keysRet.privateUnsecureKeyFile
-  const args = [
-    'req', '-batch', '-utf8', '-new',
-    '-days', '30',
-    '-key', privateUnsecureKeyFile,
-  ]
-  const runOpts = { cwd: centerPath }
-  const rtpl = normalize(await createRandomConfTpl(config, options))
+      )
+    }),
+  )
 
-  args.push('-config', rtpl)
-  // console.log('issueOpts:', options)
-  // console.log('keysRet:', keysRet)
-  // console.log('args', args)
-
-  /* istanbul ignore next */
-  return runOpenssl(args, runOpts)
-    .then((stdout: string) => {
-      if (stdout && stdout.includes('REQUEST')) {
-        // console.log(stdout)
-        unlinkRandomConfTpl(rtpl)
-        return stdout
-      }
-      throw new Error('openssl return value: ' + stdout)
-    })
-    .catch(err => {
-      unlinkRandomConfTpl(rtpl)
-      throw err
-    })
+  return ret$
 }
 
 
-/* istanbul ignore next */
-async function validateIssueOpts(options: IssueOpts): Promise<void> {
+function validateIssueOpts(options: IssueOpts): Observable<IssueOpts> {
   const { alg, centerPath, hash, kind, pass } = options
   const caKeyFile = `${centerPath}/${initialConfig.caKeyName}`
 
+  /* istanbul ignore next */
   if (alg === 'ec' && initialConfig.opensslVer && initialConfig.opensslVer < '1.0.2') {
     throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + initialConfig.opensslVer)
   }
@@ -410,18 +654,22 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
       should create center dir by calling initCenter(centerName, path)
     `)
   }
+  /* istanbul ignore next */
   if (typeof pass !== 'string') {
     throw new Error('pass must be typeof string')
   }
   if (pass.length < 4) {
     throw new Error('length of pass must at least 4')
   }
+  /* istanbul ignore next */
   if (pass.length > 1023) {
     throw new Error('length of pass must not greater than 1023 chars if not empty')
   }
+  /* istanbul ignore next */
   if (/\s/.test(pass)) {
     throw new Error('pass phrase contains blank or invisible char')
   }
+  /* istanbul ignore next */
   if (!hash) {
     throw new Error('value of hash empty. must be sha256|sha384')
   }
@@ -429,11 +677,9 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
     throw new Error('value of hash invalid. must be sha256|sha384')
   }
 
+  /* istanbul ignore next */
   if (kind !== 'ca' && kind !== 'server' && kind !== 'client') {
     throw new Error('value of kind invalid. must be ca|server|client')
-  }
-  if (kind !== 'ca' && ! await isFileExists(caKeyFile)) {
-    throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
   }
   if (!options.C || options.C.length !== 2) {
     throw new Error('value of C (Country Name) must be 2 letters')
@@ -444,301 +690,472 @@ async function validateIssueOpts(options: IssueOpts): Promise<void> {
   // if ( ! options.OU) {
   //   throw new Error('value of OU (Organizational Unit Name) invalid')
   // }
+  /* istanbul ignore next */
   if (typeof options.days !== 'number') {
     throw new Error('value of days must typeof number')
   }
   if (options.days <= 0) {
     throw new Error('value of days must greater than zero')
   }
+
+  if (kind === 'ca') {
+    return of(options)
+  }
+  else {
+    const ret$ = fileExists(caKeyFile).pipe(
+      tap(res => {
+        if (! res) {
+          throw new Error(`caKeyFile not exists, file: "${caKeyFile}"`)
+        }
+      }),
+      mapTo(options),
+    )
+    return ret$
+  }
 }
 
 
-async function processIssueOpts(config: Config, options: IssueOpts): Promise<IssueOpts> {
-  const { keyBits, pass } = options
+function processIssueOpts(config: Config, options: IssueOpts): Observable<IssueOpts> {
+  const ret$ = defer(() => getCenterPath(options.centerName)).pipe(
+    map(path => {
+      const { keyBits, pass } = options
 
-  options.centerPath = await getCenterPath(options.centerName)
-  options.configFile || (options.configFile = `${options.centerPath}/${config.configName}`)
+      options.centerPath = path
+      options.configFile || (options.configFile = `${options.centerPath}/${config.configName}`)
 
-  if (options.alg === 'rsa') {
-    if (keyBits && typeof keyBits === 'number') {
-      if (keyBits < 2048) {
-        options.keyBits = 2048
+      if (options.alg === 'rsa') {
+        if (keyBits && typeof keyBits === 'number') {
+          if (keyBits < 2048) {
+            options.keyBits = 2048
+          }
+          if (keyBits > 8192) {
+            options.keyBits = 8192
+          }
+        }
+        else {
+          options.keyBits = 2048
+        }
       }
-      if (keyBits > 8192) {
-        options.keyBits = 8192
+
+      /* istanbul ignore next */
+      if (typeof pass === 'number') {
+        options.pass += ''
       }
-    }
-    else {
-      options.keyBits = 2048
-    }
-  }
 
-  /* istanbul ignore next */
-  if (typeof pass === 'number') {
-    options.pass += ''
-  }
+      for (const prop of reqSubjectFields) {
+        // @ts-ignore
+        if (typeof options[prop] !== 'undefined' && !options[prop]) {
+          // @ts-ignore
+          options[prop] = ''
+        }
+      }
 
-  for (const prop of reqSubjectFields) {
-    // @ts-ignore
-    if (typeof options[prop] !== 'undefined' && !options[prop]) {
-      // @ts-ignore
-      options[prop] = ''
-    }
-  }
+      return options
+    }),
+  )
 
-  return options
+  return ret$
 }
 
 
 function genIssueSubj(options: CertDN): string {
   const arr: string[] = []
 
-  for (const prop of reqSubjectFields) {
-    // @ts-ignore
-    if (typeof options[prop] !== 'undefined' && options[prop]) {
-      // @ts-ignore
-      const value = options[prop]
 
-      value && arr.push(`${prop}=${value}`)
+  for (const prop of reqSubjectFields) {
+    if (typeof options[prop] !== 'undefined' && options[prop]) {
+      const value = options[prop]
+      const ret = Array.isArray(value) || ! value
+        ? value
+        : escapeShell(value)
+
+      value && arr.push(`${prop}=${ret}`)
     }
   }
   return arr.length ? '/' + arr.join('/') : ''
 }
 
 
-// return random file path
-async function createRandomConfTpl(config: Config, signOpts: SignOpts): Promise<string> {
-  const tmp = tmpdir()
-  const rfile = `${tmp}/openssl-` + Math.random() + '.conf'
-  // console.info('tpl:', join(initialConfig.appDir, '/asset', `/${config.confTpl}`))
-  let tpl = (await readFileAsync(join(initialConfig.appDir, '/asset', `/${config.confTpl}`))).toString()
 
-  /* istanbul ignore next */
-  if (!tpl) {
-    throw new Error('loaded openssl config tpl is empty')
-  }
+/** return random config file path */
+function createRandomConfTpl(config: Config, signOpts: IssueOpts): Observable<string> {
+  const rfile = `${tmpdir()}/openssl-` + Math.random() + '.conf'
+  const fields$: Observable<CertDNkeys> = ofrom(reqSubjectFields)
+  const confTplPath = join(initialConfig.appDir, 'asset', `${config.confTpl}`)
 
-  for (const prop of reqSubjectFields) {
-    let value = ''
-    const regx = new RegExp(`%${prop}%`)
+  const tpl$ = defer(() => readFileAsync(confTplPath))
+    .pipe(
+      map(buf => buf.toString()),
+      tap(tpl => {
+        /* istanbul ignore next */
+        if (!tpl) {
+          throw new Error('loaded openssl config tpl is empty')
+        }
+      }),
+    )
 
-    // @ts-ignore
-    if (typeof signOpts[prop] !== 'undefined' && signOpts[prop]) {
-      // @ts-ignore
-      value = <string> signOpts[prop]
-    }
-    tpl = tpl.replace(regx, value)
-  }
-  tpl = tpl.replace(/%hash%/g, signOpts.hash)  // global
+  const parserTpl$ = forkJoin(
+    of(signOpts),
+    tpl$,
+  )
+  .pipe(
+    concatMap(([opts, tpl]) => {
+      const stream$ = fields$.pipe(
+        reduce((acc: string, curr: CertDNkeys) => {
+          let value = ''
+          const regx = new RegExp(`%${curr}%`)
 
-  const sans = signOpts.SAN
-  const ips = signOpts.ips
-  const names = '\nsubjectAltName='
-  let dn = ''
-  let ip = ''
+          if (typeof opts[curr] === 'string' && opts[curr]) {
+            value = <string> opts[curr]
+          }
+          const ret = acc.replace(regx, value)
+          return ret
+        }, tpl),
+      )
+      return stream$.pipe(
+        map(ret => ret.replace(/%hash%/g, opts.hash)),  // global
+      )
+    }),
+  )
 
-  // subjectAltName=DNS:www.foo.com,DNS:www.bar.com
-  if (sans && Array.isArray(sans) && sans.length) {
-    dn = sans.map(name => 'DNS:' + name).join(',')
-  }
+  const ret$ = forkJoin(
+    of(rfile),
+    of({ sans: signOpts.SAN, ips: signOpts.ips }),
+    parserTpl$,
+  ).pipe(
+    concatMap(([file, { sans, ips }, tpl]) => {
+      const names = '\nsubjectAltName='
+      let dn = ''
+      let ip = ''
 
-  // subjectAltName=IP:127.0.0.1,IP:192.168.0.1
-  if (ips && Array.isArray(ips) && ips.length) {
-    ip = ips.map(name => 'IP:' + name).join(',')
-    dn && (ip = ',' + ip)
-  }
-  if (dn || ip) {
-    tpl += (names + dn + ip)
-  }
+      // subjectAltName=DNS:www.foo.com,DNS:www.bar.com
+      if (sans && Array.isArray(sans) && sans.length) {
+        dn = sans.map(name => 'DNS:' + name).join(',')
+      }
 
-  return createFile(rfile, tpl).then(() => {
-    return rfile
-  })
+      // subjectAltName=IP:127.0.0.1,IP:192.168.0.1
+      if (ips && Array.isArray(ips) && ips.length) {
+        ip = ips.map(name => 'IP:' + name).join(',')
+        dn && (ip = ',' + ip)
+      }
+      if (dn || ip) {
+        tpl += (names + dn + ip)
+      }
+
+      return createFileAsync(file, tpl)
+    }),
+  )
+
+  return ret$
 }
 
 
-async function unlinkRandomConfTpl(file: string): Promise<void> {
-  await isFileExists(file) && unlinkAsync(file)
+/** return cert file path */
+export function saveCaCrt(caCrtName: string, centerName: string, data: string): Observable<string> {
+  const ret$ = getCenterPath(centerName).pipe(
+    mergeMap(centerPath => {
+      const file = join(centerPath, caCrtName)
+      return writeFileAsync(file, data, { mode: 0o644 }).then(() => file)
+    }),
+  )
+  return ret$
+}
+
+export function unlinkCaCrt(centerName: string): Observable<void> {
+  const ret$ = getCenterPath(centerName).pipe(
+    mergeMap(centerPath => {
+      const file = `${centerPath}/${initialConfig.caCrtName}`
+      return fileExists(file).pipe(
+        mergeMap(exists => {
+          /* istanbul ignore next */
+          return exists ? unlinkAsync(file) : of(void 0)
+        }),
+      )
+    }),
+  )
+
+  return ret$
 }
 
 
-// return cert file path
-export async function saveCaCrt(config: Config, issueOpts: CaOpts, data: string): Promise<string> {
-  const centerPath = await getCenterPath(issueOpts.centerName)
-  const file = join(centerPath, config.caCrtName)
-
-  await writeFileAsync(file, data, { mode: 0o644 })
-  return file
+/** unlink ca.key */
+export function unlinkCaKey(centerName: string): Observable<void> {
+  // const centerPath = await
+  const ret$ = getCenterPath(centerName).pipe(
+    tap(centerPath => {
+      if (!centerPath) {
+        throw new Error(`centerPath empty for centerName: "${centerName}"`)
+      }
+    }),
+    mergeMap(centerPath => {
+      const file = `${centerPath}/${initialConfig.caKeyName}` // ca.key
+      return fileExists(file).pipe(
+        mergeMap(exists => {
+          /* istanbul ignore next */
+          return exists ? unlinkAsync(file) : of() // unlink ca.key
+        }),
+      )
+    }),
+  )
+  return ret$
 }
 
-export async function unlinkCaCrt(centerName: string): Promise<void> {
-  const centerPath = await getCenterPath(centerName)
-  const file = `${centerPath}/${initialConfig.caCrtName}`
+/** Save private keys to path ./server */
+function savePrivateKeys(
+  config: Config,
+  issueOpts: IssueOpts,
+  keysRet: KeysRet,
+): Observable<{ privateKeyFile: string, privateUnsecureKeyFile: string }> {
 
-  /* istanbul ignore next */
-  if (await isFileExists(file)) {
-    return unlinkAsync(file)
-  }
-}
-
-
-// unlink ca.key
-export async function unlinkCaKey(centerName: string): Promise<void> {
-  const centerPath = await getCenterPath(centerName)
-
-  if (!centerPath) {
-    return Promise.reject(`centerPath empty for centerName: "${centerName}"`)
-  }
-  const file = `${centerPath}/${initialConfig.caKeyName}` // ca.key
-
-  /* istanbul ignore next */
-  if (await isFileExists(file)) {
-    await unlinkAsync(file) // unlink ca.key
-  }
-}
-
-// save private keys to server/
-async function savePrivateKeys(config: Config, issueOpts: IssueOpts, keysRet: KeysRet): Promise<KeysRet> {
   const { centerPath, kind, serial } = issueOpts
   const { privateKey, privateUnsecureKey } = keysRet
 
-  keysRet.privateKeyFile = join(centerPath, kind, `${serial}.key`)
-  keysRet.privateUnsecureKeyFile = `${keysRet.privateKeyFile}.unsecure`
-  await writeFileAsync(keysRet.privateKeyFile, privateKey, { mode: 0o600 })
-  await writeFileAsync(keysRet.privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 })
+  const privateKeyFile = join(centerPath, kind, `${serial}.key`)
+  const privateUnsecureKeyFile = `${privateKeyFile}.unsecure`
 
-  /* istanbul ignore next */
-  if (! await isFileExists(keysRet.privateKeyFile)) {
-    throw new Error(`save private key file failed. file: "${keysRet.privateKeyFile}"`)
-  }
-  return keysRet
+  const ret$ = forkJoin(
+    writeFileAsync(privateKeyFile, privateKey, { mode: 0o600 }),
+    writeFileAsync(privateUnsecureKeyFile, privateUnsecureKey, { mode: 0o600 }),
+  ).pipe(
+    concatMap(() => fileExists(privateKeyFile)),
+    tap(exists => {
+      /* istanbul ignore next */
+      if (!exists) {
+        throw new Error(`save private key file failed. file: "${privateKeyFile}"`)
+      }
+    }),
+    mapTo({ privateKeyFile, privateUnsecureKeyFile }),
+  )
+
+  return ret$
 }
 
 
-// sign csr with ca.key, return crt
-export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
-  await validateSignOpts(signOpts)
-  const { days, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile, centerPath, ips, SAN } = signOpts
-  const args = <string[]> [
-    'ca', '-batch',
-    // '-config', configFile,
-    // '-config', rtpl,
-    '-days', days + '',
-    '-cert', normalize(caCrtFile),
-    '-keyfile', normalize(caKeyFile),
-    '-in', normalize(csrFile),
-    '-passin', `pass:${caKeyPass}`,
-  ]
+/** sign csr with ca.key, return crt */
+export function sign(signOpts: SignOpts, conf?: Config): Observable<string> {
+  const signOpts$ = validateSignOpts(signOpts)
 
-  const localConfig: Config = conf ? { ...initialConfig, ...conf } : initialConfig
+  const ps$ = signOpts$.pipe(
+    map(opts => {
+      const { days, caCrtFile, caKeyFile, caKeyPass, csrFile } = opts
+      const args = <string[]> [
+        'ca', '-batch',
+        // '-config', configFile,
+        // '-config', rtpl,
+        '-days', days + '',
+        '-cert', normalize(caCrtFile),
+        '-keyfile', normalize(caKeyFile),
+        '-in', normalize(csrFile),
+        '-passin', `pass:${caKeyPass}`,
+      ]
+      return { args, opts }
+    }),
+  )
+  const ps2$ = ps$.pipe(
+    mergeMap(({ args, opts }) => {
+      const localConfig: Config = conf ? { ...initialConfig, ...conf } : initialConfig
+      const { configFile, ips, SAN } = opts
 
-  if ((SAN && SAN.length) || (ips && ips.length)) {
-    const rtpl = await createRandomConfTpl(localConfig, signOpts)
+      return iif(
+        () => (SAN && SAN.length) || (ips && ips.length) ? true : false,
+        createRandomConfTpl(localConfig, <IssueOpts> opts).pipe(
+          map(rtpl => {
+            args.push('-config', normalize(rtpl))
+            return { args, opts }
+          }),
+        ),
+        of(args).pipe(
+          map(args3 => {
+            // configFile validated by validateSignOpts()
+            args3.push('-config', normalize(<string> configFile))
+            return { args: args3, opts }
+          }),
+        ),
+      )
+    }),
+  )
 
-    args.push('-config', normalize(rtpl))
-  }
-  else {
-    args.push('-config', normalize(<string> configFile)) // configFile validate by validateSignOpts()
-  }
+  const ret$ = ps2$.pipe(
+    mergeMap(({ args, opts }) => {
+      return runOpenssl(args, { cwd: opts.centerPath }).pipe(
+        tap(stdout => {
+          /* istanbul ignore next */
+          if (! stdout || ! stdout.includes('CERTIFICATE')) {
+            throw new Error('openssl sign csr return value: ' + stdout)
+          }
+        }),
+      )
+    }),
+    catchError(throwMaskError),
+  )
 
-  // console.log('signOpts:', signOpts)
-  // console.log('args:', args)
-
-  /* istanbul ignore next */
-  return runOpenssl(args, { cwd: centerPath })
-    .then((stdout: string) => {
-      if (stdout && stdout.includes('CERTIFICATE')) {
-        return stdout
-      }
-      throw new Error('openssl sign csr return value: ' + stdout)
-    })
+  return ret$
 }
 
 
-// generate pfx file, return file path(under user tmp folder)
-export async function outputClientCert(options: PfxOpts): Promise<string> {
-  await validatePfxOpts(options)
-  const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = options
-  const pfxFile = join(tmpdir(), `/tmp-${Math.random()}.p12`)
-  const args = <string[]> [
-    'pkcs12', '-export', '-aes256',
-    '-in', crtFile,
-    '-inkey', privateKeyFile,
-    '-out', pfxFile,
-  ]
+/** generate pfx file, return file path(under user tmp folder) */
+export function outputClientCert(options: PfxOpts): Observable<string> {
+  const ret$ = defer(() => validatePfxOpts(options)).pipe(
+    mergeMap(() => {
+      const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = options
+      const pfxFile = join(tmpdir(), `/tmp-${Math.random()}.p12`)
+      const args = <string[]> [
+        'pkcs12', '-export', '-aes256',
+        '-in', crtFile,
+        '-inkey', privateKeyFile,
+        '-out', pfxFile,
+      ]
 
-  if (privateKeyPass) {
-    args.push('-passin', `pass:${privateKeyPass}`)
-  }
-  args.push('-passout', (pfxPass ? `pass:${pfxPass}` : 'pass:'))
-
-  /* istanbul ignore next */
-  return runOpenssl(args)
-    .then((stdout: string) => {
-      if (!stdout) {
-        return pfxFile
+      if (privateKeyPass) {
+        args.push('-passin', `pass:${privateKeyPass}`)
       }
-      throw new Error('openssl output pkcs12 failed, return value: ' + stdout)
-    })
+      args.push('-passout', (pfxPass ? `pass:${pfxPass}` : 'pass:'))
 
+      /* istanbul ignore next */
+      return runOpenssl(args).pipe(
+        tap(stdout => {
+          if (stdout) {
+            throw new Error('openssl output pkcs12 failed, return value: ' + stdout)
+          }
+        }),
+        mapTo(pfxFile),
+      )
+    }),
+  )
+  return ret$
 }
 
 
-/* istanbul ignore next */
-async function validateSignOpts(signOpts: SignOpts): Promise<void> {
-  const { SAN, ips, centerPath, days, hash, caCrtFile, caKeyFile, caKeyPass, csrFile, configFile } = signOpts
-
-  if (! await isDirExists(centerPath)) {
-    return Promise.reject(`folder of param centerPath of signOpts not exists: "${centerPath}"`)
-  }
-  if (typeof +days !== 'number') {
-    return Promise.reject(`value of param days of signOpts inavlid: "${days}"`)
-  }
-  if (+days <= 0) {
-    return Promise.reject(`value of param days of signOpts inavlid: "${days}"`)
-  }
-  if (typeof SAN !== 'undefined') {
-    if (!Array.isArray(SAN)) {
-      return Promise.reject('value of param SAN of signOpts inavlid, must Array<string>')
-    }
-    for (const name of SAN) {
-      if (!name) {
-        return Promise.reject('item value of SAN of signOpts empty')
+function validateSignOpts(signOpts: SignOpts): Observable<SignOpts> {
+  const first$ = of(signOpts).pipe(
+    tap(opts => {
+      const { SAN, ips, days, hash, caKeyPass } = opts
+      /* istanbul ignore next */
+      if (typeof +days !== 'number') {
+        throw new Error(`value of param days of signOpts inavlid: "${days}"`)
       }
-    }
-  }
-  if (typeof ips !== 'undefined') {
-    if (!Array.isArray(ips)) {
-      return Promise.reject('value of param ips of signOpts inavlid, must Array<string>')
-    }
-    for (const name of ips) {
-      if (!name) {
-        return Promise.reject('item value of ips of signOpts empty')
+      /* istanbul ignore next */
+      if (+days <= 0) {
+        throw new Error(`value of param days of signOpts inavlid: "${days}"`)
       }
-    }
-  }
 
-  if (!hash) {
-    return Promise.reject(`value of param hash of signOpts inavlid: "${hash}"`)
-  }
-  if (! await isFileExists(caCrtFile)) {
-    return Promise.reject(`file of param caCrtFile of signOpts not exists: "${caCrtFile}"`)
-  }
-  if (! await isFileExists(caKeyFile)) {
-    return Promise.reject(`file of param caKeyFile of signOpts not exists: "${caKeyFile}"`)
-  }
-  if (! await isFileExists(csrFile)) {
-    return Promise.reject(`file of param csrFile of signOpts not exists: "${csrFile}"`)
-  }
-  if (!configFile) {
-    return Promise.reject(`value of param configFile of signOpts empty: "${configFile}"`)
-  }
-  if (! await isFileExists(configFile)) {
-    return Promise.reject(`file of param configFile  of signOpts not exists: "${configFile}"`)
-  }
-  if (!caKeyPass) {
-    return Promise.reject(`value of param caKeyPass of signOpts inavlid: "${caKeyPass}"`)
-  }
+      /* istanbul ignore next */
+      if (typeof SAN !== 'undefined') {
+        if (!Array.isArray(SAN)) {
+          throw new Error('value of param SAN of signOpts inavlid, must Array<string>')
+        }
+        for (const name of SAN) {
+          if (!name) {
+            throw new Error('item value of SAN of signOpts empty')
+          }
+        }
+      }
+      /* istanbul ignore next */
+      if (typeof ips !== 'undefined') {
+        if (!Array.isArray(ips)) {
+          throw new Error('value of param ips of signOpts inavlid, must Array<string>')
+        }
+        for (const name of ips) {
+          if (!name) {
+            throw new Error('item value of ips of signOpts empty')
+          }
+        }
+      }
+
+      /* istanbul ignore next */
+      if (!hash) {
+        throw new Error(`value of param hash of signOpts inavlid: "${hash}"`)
+      }
+
+      /* istanbul ignore next */
+      if (!caKeyPass) {
+        throw new Error(`value of param caKeyPass of signOpts inavlid: "${caKeyPass}"`)
+      }
+    }),
+  )
+
+  const centerPath$ = of(signOpts.centerPath).pipe(
+    mergeMap(centerPath => {
+      return dirExists(centerPath).pipe(
+        tap(exists => {
+          /* istanbul ignore next */
+          if (!exists) {
+            throw new Error(`folder of param centerPath of signOpts not exists: "${centerPath}"`)
+          }
+        }),
+      )
+    }),
+  )
+
+  const caCrtFile$ = of(signOpts.caCrtFile).pipe(
+    mergeMap(caCrtFile => {
+      return fileExists(caCrtFile).pipe(
+        tap(exists => {
+          /* istanbul ignore next */
+          if (! exists) {
+            throw new Error(`file of param caCrtFile of signOpts not exists: "${caCrtFile}"`)
+          }
+        }),
+      )
+    }),
+  )
+
+  const caKeyFile$ = of(signOpts.caKeyFile).pipe(
+    mergeMap(caKeyFile => {
+      return fileExists(caKeyFile).pipe(
+        tap(exists => {
+          /* istanbul ignore next */
+          if (! exists) {
+            throw new Error(`file of param caKeyFile of signOpts not exists: "${caKeyFile}"`)
+          }
+        }),
+      )
+    }),
+  )
+
+  const csrFile$ = of(signOpts.csrFile).pipe(
+    mergeMap(csrFile => {
+      return fileExists(csrFile).pipe(
+        tap(exists => {
+          /* istanbul ignore next */
+          if (! exists) {
+            throw new Error(`file of param csrFile of signOpts not exists: "${csrFile}"`)
+          }
+        }),
+      )
+    }),
+  )
+
+  const config$ = of(signOpts.configFile).pipe(
+    mergeMap(configFile => {
+      /* istanbul ignore next */
+      if (!configFile) {
+        throw new Error('value of param configFile of signOpts empty')
+      }
+      return fileExists(configFile).pipe(
+        tap(exists => {
+          /* istanbul ignore next */
+          if (! exists) {
+            throw new Error(`file of param configFile  of signOpts not exists: "${configFile}"`)
+          }
+        }),
+      )
+
+    }),
+  )
+
+  const ret$ = forkJoin(
+    first$,
+    centerPath$,
+    caCrtFile$,
+    caKeyFile$,
+    csrFile$,
+    config$,
+  ).pipe(
+    mapTo(signOpts),
+  )
+
+  return ret$
 }
 
 

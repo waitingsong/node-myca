@@ -3,6 +3,8 @@
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
+import { defer, of, Observable } from 'rxjs'
+import { concatMap } from 'rxjs/operators'
 
 import * as myca from '../src/index'
 import { getOpensslVer } from '../src/lib/common'
@@ -23,12 +25,24 @@ const mods = rewire('../src/lib/cert')
 
 
 describe(filename, () => {
-  before(async () => {
-    await createDir(tmpDir)
-    initialConfig.opensslVer = await getOpensslVer(initialConfig.openssl)
-    if (initialConfig.opensslVer < '1.0.2') {
-      console.info('openssl version < "1.0.2" not support ec cert generation, current is: ' + initialConfig.opensslVer)
-    }
+  before(done => {
+    defer(() => createDir(tmpDir))
+      .pipe(
+        concatMap(() => getOpensslVer(initialConfig.openssl)),
+      )
+      .subscribe(
+        version => {
+          initialConfig.opensslVer = version
+          if (initialConfig.opensslVer < '1.0.2') {
+            console.info('openssl version < "1.0.2" not support ec cert generation, current is: ' +
+             initialConfig.opensslVer)
+          }
+        },
+        (err: Error) => {
+          assert(false, err.message)
+        },
+        done,
+      )
   })
   beforeEach(async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
@@ -36,7 +50,7 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
     initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
-    await myca.initDefaultCenter()
+    await myca.initDefaultCenter().toPromise()
   })
   afterEach(() => {
     if (initialConfig.opensslVer < '1.0.2') { return }
@@ -61,7 +75,7 @@ describe(filename, () => {
     }
 
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
     }
     catch (ex) {
       return assert(false, ex)
@@ -75,7 +89,7 @@ describe(filename, () => {
     }
 
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -97,7 +111,7 @@ describe(filename, () => {
 
     opts.centerName = ''
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -119,7 +133,7 @@ describe(filename, () => {
 
     opts.centerName = 'fake'
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -141,7 +155,7 @@ describe(filename, () => {
 
     opts.pass = ''
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -163,7 +177,7 @@ describe(filename, () => {
 
     opts.C = ''
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -185,7 +199,7 @@ describe(filename, () => {
 
     opts.CN = ''
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -207,7 +221,7 @@ describe(filename, () => {
 
     opts.days = 0
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -229,7 +243,7 @@ describe(filename, () => {
 
     opts.days = -1
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -251,7 +265,7 @@ describe(filename, () => {
 
     opts.alg = <'rsa'> ''
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -273,7 +287,7 @@ describe(filename, () => {
 
     opts.hash = <'sha256'> 'fake'
     try {
-      await myca.initCaCert(opts)
+      await myca.initCaCert(opts).toPromise()
       assert(false, 'initCaCert() should throw err, but NOT')
     }
     catch (ex) {
@@ -295,14 +309,14 @@ describe(filename, () => {
       C: 'CN',
     }
     const fnName = 'genCaCert'
-    const fn = <(config: myca.Config, options: myca.CaOpts) => Promise<myca.IssueCaCertRet>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, options: myca.CaOpts) => Observable<myca.IssueCaCertRet>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      const ret = await fn(initialConfig, opts)
+      const ret = await fn(initialConfig, opts).toPromise()
 
       assert(ret, 'result empty')
       assert(ret.centerName, 'value of result.centerName invalid')

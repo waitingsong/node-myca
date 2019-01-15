@@ -2,13 +2,16 @@
 
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
+import { concat, forkJoin, iif, EMPTY } from 'rxjs'
+import { catchError, concatMap, mergeMap, tap } from 'rxjs/operators'
 
 import * as myca from '../src/index'
 import { initialConfig } from '../src/lib/config'
 import {
   basename,
-  createDir,
-  createFile,
+  createDirAsync,
+  createFileAsync,
+  dirExists,
   isDirExists,
   isFileExists,
   join,
@@ -29,54 +32,78 @@ initialConfig.defaultCenterPath = `${randomPathG}/${initialConfig.centerDirName}
 
 describe(filename, () => {
   before(async () => {
-    await createDir(tmpDir)
+    await createDirAsync(tmpDir)
   })
   after(done => {
     rmdir(tmpDir, err => err ? console.error(err) : done())
   })
 
-  it('Should initDefaultCenter() works', async () => {
-    try {
-      const centerPath = await myca.initDefaultCenter()
-
-      assert(
-        centerPath === initialConfig.defaultCenterPath,
-        `result not expected. result: "${centerPath}", expected: "${initialConfig.defaultCenterPath}"`,
-      )
-    }
-    catch (ex) {
-      return assert(false, ex)
-    }
-
-    if (! await isDirExists(initialConfig.defaultCenterPath)) {
-      return assert(false, `default center folder not exists, path: "${initialConfig.defaultCenterPath}"`)
-    }
-
-    assert(
-      await myca.isCenterInited('default'),
-      `isCenterInited('default') says folder not exits. path: "${initialConfig.defaultCenterPath}"`,
+  it('Should initDefaultCenter() works', done => {
+    const centerPath$ = myca.initDefaultCenter().pipe(
+      tap(path => {
+        assert(
+          path === initialConfig.defaultCenterPath,
+          `result not expected. result: "${path}", expected: "${initialConfig.defaultCenterPath}"`,
+        )
+      }),
+    )
+    const exists$ = dirExists(initialConfig.defaultCenterPath).pipe(
+      tap(path => {
+        if (! path) {
+          assert(false, `default center folder not exists, path: "${initialConfig.defaultCenterPath}"`)
+        }
+      }),
+    )
+    const centerInited$ = myca.isCenterInited('default').pipe(
+      tap(inited => {
+        assert(
+          inited === true,
+          `isCenterInited('default') says folder not exits. path: "${initialConfig.defaultCenterPath}"`,
+        )
+      }),
     )
 
+    const first$ = centerPath$.pipe(
+      concatMap(() => exists$),
+      concatMap(() => centerInited$),
+    )
     // initialize again
-    try {
-      await myca.initDefaultCenter()
-      assert(false, 'should throw error during duplicate initialization, but NOT')
-    }
-    catch {
-      assert(true)
-    }
+    const second$ = centerPath$.pipe(
+      catchError(() => EMPTY),
+      tap(() => {
+        assert(false, 'should throw error during duplicate initialization, but NOT')
+      }),
+    )
+
+    concat(
+      first$,
+      second$,
+    ).subscribe(
+      () => {},
+      (err: Error) => assert(false, err.message),
+      done,
+    )
 
     // not rm for below test
     // rmdir(join(config.defaultCenterPath, '../'), (err) => err && console.error(err))
   })
 
 
-  it('Should getCenterPath() works', async () => {
-    const centerPath = await myca.getCenterPath('default')
-    const isDefaultCenterInited = await myca.isCenterInited('default')
-    const dirExists = await isDirExists(centerPath)
+  it('Should getCenterPath() works', done => {
+    const centerPath$ = myca.getCenterPath('default')
+    const exists$ = centerPath$.pipe(
+      mergeMap(dirExists),
+    )
+    const isDefaultCenterInited$ = myca.isCenterInited('default')
 
-    assert(dirExists ? isDefaultCenterInited : !isDefaultCenterInited)
+    forkJoin(
+      exists$,
+      isDefaultCenterInited$,
+    ).subscribe(
+      ([path, inited]) => assert(path ? inited : ! inited),
+      err => assert(false, err),
+      done,
+    )
   })
 
 
@@ -87,7 +114,7 @@ describe(filename, () => {
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
 
     try {
-      await myca.initCenter(centerName, centerPath)
+      await myca.initCenter(centerName, centerPath).toPromise()
     }
     catch (ex) {
       return assert(false, ex)
@@ -98,28 +125,27 @@ describe(filename, () => {
     }
 
     assert(
-      await myca.isCenterInited(centerName),
+      await myca.isCenterInited(centerName).toPromise(),
       `isCenterInited(${centerName}) says folder not exits. path: "${centerPath}"`)
 
     // create again
     try {
-      // first with other name
-      await myca.initCenter('otherName', centerPath)
+      await myca.initCenter(centerName, centerPath).toPromise()
       return assert(false, 'initCenter() should throw error for already created folder, but NOT')
     }
     catch (ex) {
       assert(true)
     }
     try {
-      await myca.initCenter(centerName, 'fakepath')
-      return assert(false, 'initCenter() should throw error for already created center, but NOT')
+      await myca.initCenter(centerName, 'fakePath').toPromise()
+      return assert(false, 'initCenter() should throw error for already created centerName, but NOT')
     }
     catch (ex) {
       assert(true)
     }
     try {
-      await myca.initCenter(centerName, centerPath)
-      return assert(false, 'initCenter() should throw error for already created folder, but NOT')
+      await myca.initCenter('fakeName', centerPath).toPromise()
+      return assert(false, 'initCenter() should throw error for already created folder(s), but NOT')
     }
     catch (ex) {
       assert(true)
@@ -136,7 +162,7 @@ describe(filename, () => {
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
 
     try {
-      await myca.initCenter('default', centerPath)  // 'default' not allowed
+      await myca.initCenter('default', centerPath).toPromise()  // 'default' not allowed
       return assert(false, 'initCenter("default") should throw error for value default not allowed, but NOT')
     }
     catch (ex) {
@@ -144,7 +170,7 @@ describe(filename, () => {
     }
 
     try {
-      await myca.initCenter('', centerPath)
+      await myca.initCenter('', centerPath).toPromise()
       return assert(false, 'initCenter() should throw error for invalid param of centerName, but NOT')
     }
     catch (ex) {
@@ -156,7 +182,7 @@ describe(filename, () => {
     }
 
     assert(
-      ! await myca.isCenterInited(centerName),
+      ! await myca.isCenterInited(centerName).toPromise(),
       `isCenterInited(${centerName}) says folder exits, but should NOT. path: "${centerPath}"`)
 
     rmdir(randomPath, err => err && console.error(err))
@@ -172,8 +198,8 @@ describe(filename, () => {
       if (await isFileExists(file)) {
         await unlinkAsync(file)
       }
-      await createFile(file, '')
-      assert(! await myca.getCenterPath('center'), 'should return empty')
+      await createFileAsync(file, '')
+      assert(await myca.getCenterPath('center').toPromise() === '', 'should return empty')
     }
     catch (ex) {
       assert(false, ex)
@@ -200,7 +226,7 @@ describe(filename, () => {
     }
 
     try {
-      await myca.initCenter(centerName, centerPath)
+      await myca.initCenter(centerName, centerPath).toPromise()
       assert(false, 'initCenter() should throw error, but NOT')
     }
     catch (ex) {

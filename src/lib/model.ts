@@ -5,19 +5,6 @@ export interface WriteFileOptions {
   flag?: string
 }
 
-export interface ExecFileOptions {
-  cwd?: string
-  env?: any
-  encoding?: 'utf8' | string
-  timeout?: 0 | number
-  maxBuffer?: number
-  killSignal?: string
-  uid?: number
-  gid?: number
-  windowsHide?: boolean
-  windowsVerbatimArguments?: boolean
-  [prop: string]: any
-}
 
 /**
  * json object converted from center-list.json
@@ -61,13 +48,16 @@ export interface PrivateKeyOpts {
   centerName: 'default' | string
   alg: Alg
   pass: string
-  keyBits: number // for alg==rsa
-  ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
+  /** for alg==rsa */
+  keyBits: number
+  /** for alg==ec */
+  ecParamgenCurve?: 'P-256' | 'P-384'
 }
 
 // passed by customer
 export interface CaOpts {
-  centerName?: 'default' | string  // key name of log dir
+  /** key name of log dir */
+  centerName?: 'default' | string
   alg?: Alg
   days: number
   pass: string  // at least 4 chars
@@ -75,15 +65,23 @@ export interface CaOpts {
   ecParamgenCurve?: 'P-256' | 'P-384' // for alg==ec
   hash?: 'sha256' | 'sha384'
 
-  CN: string    // Common Name
-  OU?: string    // Organizational Unit Name
-  O?: string    // Organization Name
-  C?: string    // Country Name (2 letter code)
-  ST?: string   // State or Province Name
-  L?: string    // Locality Name (eg, city)
+  /** Common Name */
+  CN: string
+  /** Organizational Unit Name */
+  OU?: string
+  /** Organization Name */
+  O?: string
+  /** Country Name (2 letter code) */
+  C?: string
+  /** State or Province Name */
+  ST?: string
+  /** Locality Name (eg, city) */
+  L?: string
   emailAddress?: string
   [prop: string]: any
 }
+
+export type CertDNkeys = keyof CertDN
 
 export interface CertDN {
   CN: string    // Common Name
@@ -190,4 +188,10 @@ export interface PfxOpts {
   privateKeyPass?: string
   crtFile: string
   pfxPass: string
+}
+
+export interface StreamOpts {
+  args: string[]
+  runOpts: any
+  rtpl: string
 }

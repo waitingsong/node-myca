@@ -1,5 +1,6 @@
 import {
   CaOpts,
+  CertDNkeys,
   CertOpts,
   Config,
   InitialFile,
@@ -117,7 +118,7 @@ export const initialIssueOpts: IssueOpts = {
   ...initialSignOpts,
 }
 
-export const reqSubjectFields = [
+export const reqSubjectFields: CertDNkeys[] = [
   'CN',
   'OU',
   'O',

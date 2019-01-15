@@ -3,12 +3,13 @@
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
+import { Observable } from 'rxjs'
 
 import * as myca from '../src/index'
 import { initialConfig, initialDbFiles } from '../src/lib/config'
 import {
   basename,
-  createDir,
+  createDirAsync,
   isDirExists,
   isFileExists,
   join,
@@ -25,14 +26,14 @@ const mods = rewire('../src/lib/center')
 
 describe(filename, () => {
   before(async () => {
-    await createDir(tmpDir)
+    await createDirAsync(tmpDir)
   })
   beforeEach(async () => {
     const random = Math.random()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
 
     initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
-    await myca.initDefaultCenter()
+    await myca.initDefaultCenter().toPromise()
   })
   afterEach(() => {
     rmdir(join(initialConfig.defaultCenterPath, '../'), err => err && console.error(err))
@@ -44,9 +45,8 @@ describe(filename, () => {
 
   it('Should getCenterPath() works', async () => {
     try {
-      const path = await myca.getCenterPath('default')
-
-      path || assert(false, 'getCenterPath("default") should return not empty result, but EMPTY')
+      const path = await myca.getCenterPath('default').toPromise()
+      assert(path, 'getCenterPath("default") should return default path, but blank')
     }
     catch (ex) {
       return assert(false, ex)
@@ -57,11 +57,10 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
 
-    await myca.initCenter(centerName, centerPath)
+    await myca.initCenter(centerName, centerPath).toPromise()
     try {
-      const path = await myca.getCenterPath(centerName)
-
-      path || assert(false, `getCenterPath('${centerName}') should return not empty result, but EMPTY`)
+      const path = await myca.getCenterPath(centerName).toPromise()
+      assert(path, `getCenterPath('${centerName}') should return not empty result, but EMPTY`)
     }
     catch (ex) {
       return assert(false, ex)
@@ -74,7 +73,7 @@ describe(filename, () => {
     const random = Math.random() + ''
 
     try {
-      const centerPath = await myca.getCenterPath(random)
+      const centerPath = await myca.getCenterPath(random).toPromise()
 
       centerPath && assert(false, 'getCenterPath() should return empty result with invalid centerName, but NOT')
     }
@@ -90,14 +89,14 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
     const fnName = 'createCenter'
-    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Observable<string>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      await fn(initialConfig, centerName, centerPath)
+      await fn(initialConfig, centerName, centerPath).toPromise()
     }
     catch (ex) {
       return assert(false, ex)
@@ -122,14 +121,14 @@ describe(filename, () => {
       initialConfig.dbCertsDir,
     ]
     const fnName = 'createCenter'
-    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Observable<string>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      await fn(initialConfig, centerName, centerPath)
+      await fn(initialConfig, centerName, centerPath).toPromise()
     }
     catch (ex) {
       return assert(false, ex)
@@ -152,7 +151,7 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
     const fnName = 'createCenter'
-    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Observable<string>> mods.__get__(fnName)
     const folders: string[] = [
       initialConfig.dbDir,
       initialConfig.serverDir,
@@ -165,7 +164,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn(initialConfig, '', centerPath)
+      await fn(initialConfig, '', centerPath).toPromise()
       assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
     }
     catch (ex) {
@@ -189,7 +188,7 @@ describe(filename, () => {
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
     const centerPath = `${randomPath}/${initialConfig.centerDirName}`
     const fnName = 'createCenter'
-    const fn = <(config: myca.Config, centerName: string, path: string) => Promise<void>> mods.__get__(fnName)
+    const fn = <(config: myca.Config, centerName: string, path: string) => Observable<string>> mods.__get__(fnName)
     const folders: string[] = [
       initialConfig.dbDir,
       initialConfig.serverDir,
@@ -202,7 +201,7 @@ describe(filename, () => {
     }
 
     try {
-      await fn(initialConfig, centerName, '')
+      await fn(initialConfig, centerName, '').toPromise()
       assert(false, 'createCenter() should throw error with empty value of centerName, but NOT')
     }
     catch (ex) {
@@ -381,7 +380,7 @@ describe(filename, () => {
 
   it('Should nextSerial() works', async () => {
     try {
-      const serial = await myca.nextSerial('default', initialConfig)
+      const serial = await myca.nextSerial('default', initialConfig).toPromise()
 
       assert(serial === '01', `value of serial should be 01, but got: "${serial}"`)
     }
@@ -392,7 +391,7 @@ describe(filename, () => {
 
   it('Should nextSerial() works with blank centerName', async () => {
     try {
-      const serial = await myca.nextSerial('', initialConfig)
+      const serial = await myca.nextSerial('', initialConfig).toPromise()
 
       return assert(serial, 'should throw error, but NOT')
     }
@@ -403,12 +402,12 @@ describe(filename, () => {
 
   it('Should nextSerial() works with reading invalid serial', async () => {
     const centerName = 'default'
-    const centerPath = await myca.getCenterPath(centerName)
+    const centerPath = await myca.getCenterPath(centerName).toPromise()
     const serialFile = `${centerPath}/db/serial`
 
     try {
       await writeFileAsync(serialFile, 'BARZ')
-      const serial = await myca.nextSerial(centerName, initialConfig)
+      const serial = await myca.nextSerial(centerName, initialConfig).toPromise()
 
       return assert(false, `should throw error, but NOT. serial:"${serial}"`)
     }
@@ -419,12 +418,12 @@ describe(filename, () => {
 
   it('Should nextSerial() works with reading unsafe integer serial', async () => {
     const centerName = 'default'
-    const centerPath = await myca.getCenterPath(centerName)
+    const centerPath = await myca.getCenterPath(centerName).toPromise()
     const serialFile = `${centerPath}/db/serial`
 
     try {
       await writeFileAsync(serialFile, Math.pow(2, 53).toString(16))
-      const serial = await myca.nextSerial(centerName, initialConfig)
+      const serial = await myca.nextSerial(centerName, initialConfig).toPromise()
 
       return assert(false, `should throw error, but NOT. serial:"${serial}"`)
     }
@@ -435,12 +434,12 @@ describe(filename, () => {
 
   it('Should nextSerial() works with reading 0', async () => {
     const centerName = 'default'
-    const centerPath = await myca.getCenterPath(centerName)
+    const centerPath = await myca.getCenterPath(centerName).toPromise()
     const serialFile = `${centerPath}/db/serial`
 
     try {
       await writeFileAsync(serialFile, 0)
-      const serial = await myca.nextSerial(centerName, initialConfig)
+      const serial = await myca.nextSerial(centerName, initialConfig).toPromise()
 
       return assert(false, `should throw error, but NOT. serial:"${serial}"`)
     }
@@ -463,7 +462,7 @@ describe(filename, () => {
     }
 
     try {
-      await createDir(centerPath)
+      await createDirAsync(centerPath)
       await fn(initialConfig, centerName, centerPath)
     }
     catch (ex) {
@@ -489,7 +488,7 @@ describe(filename, () => {
       return assert(false, `${fnName} is not a function`)
     }
 
-    await createDir(centerPath)
+    await createDirAsync(centerPath)
 
     try {
       await fn(initialConfig, '', centerPath)
@@ -523,14 +522,14 @@ describe(filename, () => {
 
   it('Should loadCenterList() works', async () => {
     const fnName = 'loadCenterList'
-    const fn = <(config: myca.Config) => Promise<myca.CenterList | null>> mods.__get__(fnName)
+    const fn = <(config: myca.Config) => Observable<myca.CenterList | null>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
     }
 
     try {
-      const ret = await fn(initialConfig)
+      const ret = await fn(initialConfig).toPromise()
 
       if (! ret || ! ret.default) {
         assert(false, 'should return valid centerList object')
@@ -546,7 +545,7 @@ describe(filename, () => {
 
   it('Should loadCenterList() works without centerList file', async () => {
     const fnName = 'loadCenterList'
-    const fn = <(config: myca.Config) => Promise<myca.CenterList | null>> mods.__get__(fnName)
+    const fn = <(config: myca.Config) => Observable<myca.CenterList | null>> mods.__get__(fnName)
 
     if (typeof fn !== 'function') {
       return assert(false, `${fnName} is not a function`)
@@ -555,7 +554,7 @@ describe(filename, () => {
 
     try {
       await unlinkAsync(file)
-      await fn(initialConfig)
+      await fn(initialConfig).toPromise()
       assert(false, 'should throw error, but NOT')
     }
     catch (ex) {
