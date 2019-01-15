@@ -8,6 +8,15 @@ Create my CA center, generate a self signed x509 certificate, issue server certi
 [![Coverage Status](https://coveralls.io/repos/github/waitingsong/node-myca/badge.svg?branch=master)](https://coveralls.io/github/waitingsong/node-myca?branch=master)
 
 
+## CLI
+- [myca-cli](https://www.npmjs.com/package/myca-cli)
+- Installing by `npm i -g myca-cli`
+- Command help
+  - `myca`
+  - `myca initca -h`
+  - `myca issue -h`
+
+
 ## Installing
 ```bash
 npm install --save myca
@@ -175,6 +184,7 @@ myca.initDefaultCenter().catch(console.error)
    })
    .catch(console.error)
 ```
+
 
 ## License
 [MIT](LICENSE)

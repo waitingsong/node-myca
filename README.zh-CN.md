@@ -8,6 +8,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/waitingsong/node-myca/badge.svg?branch=master)](https://coveralls.io/github/waitingsong/node-myca?branch=master)
 
 
+## CLI 命令行
+- [myca-cli](https://www.npmjs.com/package/myca-cli)
+- 安装 `npm i -g myca-cli`
+- 命令行帮助
+  - `myca`
+  - `myca initca -h`
+  - `myca issue -h`
+
 
 ## 安装
 ```bash
@@ -176,7 +184,6 @@ myca.initDefaultCenter().catch(console.error)
    })
    .catch(console.error)
 ```
-
 
 ## License
 [MIT](LICENSE)
