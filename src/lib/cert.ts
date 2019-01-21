@@ -1,3 +1,17 @@
+import {
+  chmodAsync,
+  copyFileAsync,
+  createFileAsync,
+  dirExists,
+  fileExists,
+  isFileExists,
+  join,
+  normalize,
+  readFileAsync,
+  tmpdir,
+  unlinkAsync,
+  writeFileAsync,
+} from '@waiting/shared-core'
 import { concat, defer, forkJoin, from as ofrom, iif, of, Observable } from 'rxjs'
 import {
   bufferCount,
@@ -12,21 +26,6 @@ import {
   tap,
 } from 'rxjs/operators'
 import { escapeShell } from 'rxrunscript'
-
-import {
-  chmodAsync,
-  copyFileAsync,
-  createFileAsync,
-  dirExists,
-  fileExists,
-  isFileExists,
-  join,
-  normalize,
-  readFileAsync,
-  tmpdir,
-  unlinkAsync,
-  writeFileAsync,
-} from '../shared/index'
 
 import { getCenterPath, nextSerial } from './center'
 import {

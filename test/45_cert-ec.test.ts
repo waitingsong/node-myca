@@ -1,5 +1,12 @@
 /// <reference types="mocha" />
 
+import {
+  basename,
+  createDir,
+  join,
+  statAsync,
+  tmpdir,
+ } from '@waiting/shared-core'
 import * as assert from 'power-assert'
 // import rewire = require('rewire')
 import * as rmdir from 'rimraf'
@@ -9,13 +16,6 @@ import { concatMap } from 'rxjs/operators'
 import * as myca from '../src/index'
 import { getOpensslVer } from '../src/lib/common'
 import { initialCaOpts, initialCertOpts, initialConfig } from '../src/lib/config'
-import {
-  basename,
-  createDir,
-  join,
-  statAsync,
-  tmpdir,
- } from '../src/shared/index'
 
 
 const filename = basename(__filename)

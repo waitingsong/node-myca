@@ -1,8 +1,7 @@
+import { fileExists, unlinkAsync } from '@waiting/shared-core'
 import { defer, of, Observable } from 'rxjs'
 import { catchError, map, mapTo, mergeMap, reduce } from 'rxjs/operators'
 import { run, RxSpawnOpts } from 'rxrunscript'
-
-import { fileExists, unlinkAsync } from '../shared/index'
 
 import { initialConfig } from './config'
 

@@ -1,5 +1,14 @@
 /// <reference types="mocha" />
 
+import {
+  basename,
+  createDirAsync,
+  isFileExists,
+  join,
+  readFileAsync,
+  statAsync,
+  tmpdir,
+ } from '@waiting/shared-core'
 import * as assert from 'power-assert'
 import rewire = require('rewire')
 import * as rmdir from 'rimraf'
@@ -14,15 +23,6 @@ import {
   initialIssueOpts,
   initialSignOpts,
 } from '../src/lib/config'
-import {
-  basename,
-  createDirAsync,
-  isFileExists,
-  join,
-  readFileAsync,
-  statAsync,
-  tmpdir,
- } from '../src/shared/index'
 
 
 const filename = basename(__filename)

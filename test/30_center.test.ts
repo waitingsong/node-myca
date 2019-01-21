@@ -1,12 +1,5 @@
 /// <reference types="mocha" />
 
-import * as assert from 'power-assert'
-import rewire = require('rewire')
-import * as rmdir from 'rimraf'
-import { Observable } from 'rxjs'
-
-import * as myca from '../src/index'
-import { initialConfig, initialDbFiles } from '../src/lib/config'
 import {
   basename,
   createDirAsync,
@@ -16,7 +9,14 @@ import {
   tmpdir,
   unlinkAsync,
   writeFileAsync,
-} from '../src/shared/index'
+ } from '@waiting/shared-core'
+import * as assert from 'power-assert'
+import rewire = require('rewire')
+import * as rmdir from 'rimraf'
+import { Observable } from 'rxjs'
+
+import * as myca from '../src/index'
+import { initialConfig, initialDbFiles } from '../src/lib/config'
 
 
 const filename = basename(__filename)

@@ -1,5 +1,9 @@
 /// <reference types="mocha" />
 
+import {
+  basename,
+  join,
+ } from '@waiting/shared-core'
 import * as assert from 'power-assert'
 import * as rmdir from 'rimraf'
 import { concat, forkJoin, from as ofrom, iif, of, EMPTY } from 'rxjs'
@@ -8,10 +12,6 @@ import { catchError, concatMap, finalize, map, mergeMap, tap } from 'rxjs/operat
 import * as myca from '../src/index'
 import { maskPasswdInString, throwMaskError } from '../src/lib/common'
 import { initialConfig } from '../src/lib/config'
-import {
-  basename,
-  join,
-} from '../src/shared/index'
 
 
 const filename = basename(__filename)

@@ -1,12 +1,5 @@
 /// <reference types="mocha" />
 
-import * as assert from 'power-assert'
-import * as rmdir from 'rimraf'
-import { concat, forkJoin, iif, EMPTY } from 'rxjs'
-import { catchError, concatMap, mergeMap, tap } from 'rxjs/operators'
-
-import * as myca from '../src/index'
-import { initialConfig } from '../src/lib/config'
 import {
   basename,
   createDirAsync,
@@ -18,7 +11,14 @@ import {
   promisify,
   tmpdir,
   unlinkAsync,
-} from '../src/shared/index'
+} from '@waiting/shared-core'
+import * as assert from 'power-assert'
+import * as rmdir from 'rimraf'
+import { concat, forkJoin, iif, EMPTY } from 'rxjs'
+import { catchError, concatMap, mergeMap, tap } from 'rxjs/operators'
+
+import * as myca from '../src/index'
+import { initialConfig } from '../src/lib/config'
 
 
 const filename = basename(__filename)

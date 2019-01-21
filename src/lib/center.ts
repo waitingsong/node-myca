@@ -1,3 +1,13 @@
+import {
+  copyFileAsync,
+  createDir,
+  createFileAsync,
+  dirExists,
+  isDirExists,
+  isFileExists,
+  readFileAsync,
+  writeFileAsync,
+} from '@waiting/shared-core'
 import { join, normalize } from 'path'
 import {
   concat,
@@ -17,17 +27,6 @@ import {
   mergeMap,
   tap,
  } from 'rxjs/operators'
-
-import {
-  copyFileAsync,
-  createDir,
-  createFileAsync,
-  dirExists,
-  isDirExists,
-  isFileExists,
-  readFileAsync,
-  writeFileAsync,
-} from '../shared/index'
 
 import { initialConfig, initialDbFiles } from './config'
 import { CenterList, Config, InitialFile } from './model'
