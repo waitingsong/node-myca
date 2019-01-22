@@ -7,6 +7,7 @@
  */
 
 
+import { isWin32, userHome } from '@waiting/shared-core'
 import { normalize } from 'path'
 
 import { initialConfig } from './lib/config'
@@ -15,10 +16,8 @@ import { initialConfig } from './lib/config'
 initialConfig.appDir = __dirname + '/..'
 
 /* istanbul ignore next */
-initialConfig.isWin32 = process.platform === 'win32' ? true : false    /* istanbul ignore next */
-initialConfig.userHome = initialConfig.isWin32
-  ? normalize(process.env.USERPROFILE || '')
-  : normalize(`${process.env.HOME}`)
+initialConfig.isWin32 = isWin32
+initialConfig.userHome = userHome
 // dir contains conf file and folders
 initialConfig.defaultCenterPath = normalize(`${initialConfig.userHome}/${initialConfig.centerDirName}`)
 initialConfig.openssl = normalize(initialConfig.openssl)
