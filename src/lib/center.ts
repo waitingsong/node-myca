@@ -28,6 +28,7 @@ import {
   tap,
  } from 'rxjs/operators'
 
+import { genRandomCenterPath } from './common'
 import { initialConfig, initialDbFiles } from './config'
 import { CenterList, Config, InitialFile } from './model'
 
@@ -118,7 +119,8 @@ export function initDefaultCenter(): Observable<Config['defaultCenterPath']> {
 
 
 /** Create center path and folders/files, return center path */
-export function initCenter(centerName: string, path: string): Observable<string> {
+export function initCenter(centerName: string, path?: string): Observable<string> {
+  const centerPath = path ? path : genRandomCenterPath(+new Date())
   const centerName$ = of(centerName).pipe(
     tap(name => {
       if (name === 'default') {
@@ -144,9 +146,8 @@ export function initCenter(centerName: string, path: string): Observable<string>
     mergeMap(() => EMPTY),
   )
 
-  const validDirs$ = of(
-    initialConfig.dbDir,
-    initialConfig.serverDir,
+  const validDirs$ = of(initialConfig.dbDir,
+       initialConfig.serverDir,
     initialConfig.clientDir,
     initialConfig.dbCertsDir,
   ).pipe(
@@ -168,12 +169,12 @@ export function initCenter(centerName: string, path: string): Observable<string>
   const ret$ = concat(
     valid$,
     // create default ca dir under userHome
-    createDir(path),
+    createDir(centerPath),
     // create default cneter dir under userHome
-    createCenter(initialConfig, centerName, path),
+    createCenter(initialConfig, centerName, centerPath),
   ).pipe(
     last(),
-    map(() => normalize(path)),
+    map(() => normalize(centerPath)),
   )
 
   return ret$

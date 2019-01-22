@@ -10,7 +10,7 @@ import { concat, forkJoin, from as ofrom, iif, of, EMPTY } from 'rxjs'
 import { catchError, concatMap, finalize, map, mergeMap, tap } from 'rxjs/operators'
 
 import * as myca from '../src/index'
-import { maskPasswdInString, throwMaskError } from '../src/lib/common'
+import { genRandomCenterPath, maskPasswdInString, throwMaskError } from '../src/lib/common'
 import { initialConfig } from '../src/lib/config'
 
 
@@ -93,4 +93,51 @@ describe(filename, () => {
   })
 
 
+})
+
+
+describe(filename, () => {
+  describe('Should genRandomCenterPath() works', () => {
+
+    it('normal', done => {
+      const { defaultCenterPath } = initialConfig
+      const random$ = ofrom([
+        0,
+        Math.random(),
+        Math.random().toString(),
+        'foo',
+        'foo bar   ',
+        'foo/bar   ',
+      ])
+
+      random$.pipe(
+        tap(random => {
+          const needle = random.toString().trim().replace(/\s|\//g, '_')
+          const expect = `${defaultCenterPath}-${needle}`
+          const ret = genRandomCenterPath(random)
+          assert(ret === expect,
+            `expect: "${expect}", but got "${ret}"`)
+        }),
+        finalize(() => done()),
+      ).subscribe()
+    })
+
+    it('invalid value', done => {
+      const random$ = ofrom([
+        '',
+        '   ',
+      ])
+
+      random$.pipe(
+        map(genRandomCenterPath),
+        catchError(() => of(null)),
+        tap(val => {
+          assert(val === null, `Should throw error but NOT: ${val}`)
+        }),
+        finalize(() => done()),
+      ).subscribe()
+    })
+
+
+  })
 })
