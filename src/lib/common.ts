@@ -84,13 +84,13 @@ export function unlinkRandomConfTpl(file: string): Observable<undefined> {
 }
 
 
-export function genRandomCenterPath(random: string | number): string {
-  if (! random && random !== 0) {
+export function genRandomCenterPath(suffix: string | number): string {
+  if (! suffix && suffix !== 0) {
     throw new TypeError('genRandomCenterPath() param invalid')
   }
-  const suffix = random.toString().trim().replace(/\s|\//g, '_')
-  if (! suffix) {
+  const str = suffix.toString().trim().replace(/\s|\//g, '_')
+  if (! str) {
     throw new TypeError('genRandomCenterPath() param empty')
   }
-  return initialConfig.defaultCenterPath + '-' + suffix
+  return initialConfig.defaultCenterPath + '-' + str
 }
