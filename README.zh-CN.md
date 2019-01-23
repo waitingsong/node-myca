@@ -79,7 +79,7 @@ myca.initDefaultCenter().catch(console.error)
  // import * as myca from 'myca'
  const myca = require('myca')
 
- // 中心名centerName: ec, 路径: /opt/center-ec/
+ // 中心名centerName: ec, 路径: /opt/center-ec/ （可省略）
  myca.initCenter('ec', '/opt/center-ec')
    .then(() => {
      return myca.initCaCert({

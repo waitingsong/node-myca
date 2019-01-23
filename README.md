@@ -79,7 +79,7 @@ myca.initDefaultCenter().catch(console.error)
  // import * as myca from 'myca'
  const myca = require('myca')
 
- // centerName: ec, folder: /opt/center-ec/
+ // centerName: ec, folder: /opt/center-ec/ (can be ommited)
  myca.initCenter('ec', '/opt/center-ec')
    .then(() => {
      return myca.initCaCert({
