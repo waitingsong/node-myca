@@ -120,7 +120,7 @@ export function initDefaultCenter(): Observable<Config['defaultCenterPath']> {
 
 /** Create center path and folders/files, return center path */
 export function initCenter(centerName: string, path?: string): Observable<string> {
-  const centerPath = path ? path : genRandomCenterPath(+new Date())
+  const centerPath = path ? path : genRandomCenterPath(centerName)
   const centerName$ = of(centerName).pipe(
     tap(name => {
       if (name === 'default') {

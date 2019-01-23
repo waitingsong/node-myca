@@ -630,15 +630,20 @@ describe(filename, () => {
       rmdir(randomPath, err => err && console.error(err))
     })
 
-    it('without centerPath param', async () => {
+    it('without centerPath param (use centerName as suffix)', async () => {
       const random = Math.random()
       const centerName = `${pathPrefix}-${random}`
+      const centerPath = genRandomCenterPath(centerName)
 
       try {
         await myca.initCenter(centerName).toPromise()
       }
       catch (ex) {
         return assert(false, ex)
+      }
+
+      if (! await isDirExists(centerPath)) {
+        return assert(false, `spcified center folder not exists, path: "${centerPath}"`)
       }
 
       assert(
