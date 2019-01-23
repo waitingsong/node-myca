@@ -1,7 +1,7 @@
 {
   "name": "myca",
   "author": "waiting",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Create Self-signed CA certificate for development use and issue server or client certificates, generated using openssl",
   "keywords": [
     "CA",
