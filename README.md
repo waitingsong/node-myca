@@ -28,7 +28,9 @@ npm install --save myca
 // import * as myca from 'myca'  // TypeScript
 const myca = require('myca')
 
-myca.initDefaultCenter().catch(console.error)
+myca.initDefaultCenter()
+  .toPromise()
+  .catch(console.error)
 ```
 
 - Initialize CA cert of default center
@@ -44,6 +46,7 @@ myca.initDefaultCenter().catch(console.error)
      O: 'My Company',   // Organization Name (eg, company)
      C: 'CN',   // Country Name (2 letter code)
    })
+   .toPromise()
    .catch(console.error)
 ```
 
@@ -66,6 +69,7 @@ myca.initDefaultCenter().catch(console.error)
      C: 'CN',   // Country Name (2 letter code)
      emailAddress: '',
    })
+   .toPromise()
    .then((ret) => {
      console.log(ret.cert)
      console.log(ret.crtFile)
@@ -81,6 +85,7 @@ myca.initDefaultCenter().catch(console.error)
 
  // centerName: ec, folder: /opt/center-ec/ (can be ommited)
  myca.initCenter('ec', '/opt/center-ec')
+   .toPromise()
    .then(() => {
      return myca.initCaCert({
        centerName: 'ec',
@@ -110,6 +115,7 @@ myca.initDefaultCenter().catch(console.error)
      CN: 'www.waitingsong.com',
      C: 'CN',
    })
+   .toPromise()
    .then((ret) => {
      console.log(ret.cert)
      console.log(ret.crtFile)
@@ -133,6 +139,7 @@ myca.initDefaultCenter().catch(console.error)
      C: 'CN',
      SAN: ['foo.waitingsong.com', 'bar.waitingsong.com'],
    })
+   .toPromise()
    .then((ret) => {
      console.log(ret.cert)
    })
@@ -158,6 +165,7 @@ myca.initDefaultCenter().catch(console.error)
      // 192.168.0.0 – 192.168.255.255
      ips: ['127.0.0.1', '192.168.0.1'], // not support ip mask
    })
+   .toPromise()
    .then((ret) => {
      console.log(ret.cert)
    })
@@ -179,6 +187,7 @@ myca.initDefaultCenter().catch(console.error)
      CN: 'www.waitingsong.com',    // Common Name
      C: 'CN',   // Country Name (2 letter code)
    })
+   .toPromise()
    .then((ret) => {
      console.log(ret.pfxFile)
    })
