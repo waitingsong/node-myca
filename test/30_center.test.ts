@@ -445,7 +445,7 @@ describe(filename, () => {
     const serialFile = `${centerPath}/db/serial`
 
     try {
-      await writeFileAsync(serialFile, 0)
+      await writeFileAsync(serialFile, '0')
       const serial = await myca.nextSerial(centerName, initialConfig).toPromise()
 
       return assert(false, `should throw error, but NOT. serial:"${serial}"`)

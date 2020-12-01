@@ -891,7 +891,7 @@ export function unlinkCaKey(centerName: string): Observable<void> {
       return fileExists(file).pipe(
         mergeMap(exists => {
           /* istanbul ignore next */
-          return exists ? unlinkAsync(file) : of() // unlink ca.key
+          return exists ? unlinkAsync(file) : of(void 0) // unlink ca.key
         }),
       )
     }),
