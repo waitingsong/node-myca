@@ -5,79 +5,101 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "index.ts",
+      "name": "Mocha Tests",
       "type": "node",
-      "request": "launch",
-      "program": "${workspaceRoot}/node_modules/ts-node/dist/bin.js",
       "args": [
-        "-P", "./tsconfig.cjs.json",
-        "src/index.ts"
+        "-u",
+        "bdd",
+        "--timeout",
+        "999999",
+        "--colors",
+        "--parallel=false"
       ],
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector",
-      "runtimeArgs": [
-        "--nolazy"
-      ],
-      "stopOnEntry": false
-    },
-    {
-      "name": "Current TS File",
-      "type": "node",
+      "console": "internalConsole",
+      "env": {
+        "MIDWAY_SERVER_ENV": "unittest",
+        "NODE_ENV": "unittest",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://127.0.0.1:4317",
+        "TS_NODE_PROJECT": "test/tsconfig.json",
+        "POSTGRES_HOST": "127.0.0.1",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": "",
+        "ALI_ALB_IPS": "120.55",
+        "ALI_ALB_GROUPID": "sgp-7z",
+        "ALI_ECS_AID": "LTAI5t",
+        "ALI_ECS_ASECRET": "Dr4",
+        "ALI_ECS_IDS": "",
+        "ALI_ECS_IPS": "",
+        "ALI_OSS_AID": "LTAI4",
+        "ALI_OSS_ASECRET": "FRK",
+        "ALI_OSS_ENDPOINT": "https://oss-cn-hangzhou.aliyuncs.com",
+        "ALI_OSS_BUCKET": ""
+      },
+      "internalConsoleOptions": "openOnFirstSessionStart",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/ts-node/dist/bin.js",
-      "args": [
-        "-P", "./tsconfig.cjs.json",
-        "${relativeFile}"
-      ],
-      "cwd": "${workspaceRoot}",
-      "protocol": "inspector",
-      "runtimeArgs": [
-        "--nolazy"
-      ],
-      "stopOnEntry": false
-    },
-    {
-      "name": "Egg Debug",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npm",
+      "restart": false,
       "runtimeArgs": [
         "run",
-        "debug",
+        "test:local",
         "--",
-        "--inspect-brk"
+        "--runInBand",
+        "--preserve-symlinks"
       ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "**/node_modules/rxjs/**",
+        "**/node_modules/mocha/**",
+        "<node_internals>/**",
+        "<node_internals>/**/*.js"
+      ],
+      "timeout": 30000
+    },
+    {
+      "name": "Midway Dev",
+      "type": "node",
+      "autoAttachChildProcesses": true,
       "console": "integratedTerminal",
+      "env": {
+        "MIDWAY_SERVER_ENV": "local",
+        "NODE_ENV": "local",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://127.0.0.1:4317",
+        "TS_NODE_TYPE_CHECK": "false",
+        "TS_NODE_TRANSPILE_ONLY": "true",
+        "POSTGRES_HOST": "",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "",
+        "POSTGRES_USER": "postgres",
+        "POSTGRES_PASSWORD": ""
+      },
+      "request": "launch",
       "restart": true,
-      "protocol": "auto",
-      "port": 9229,
-      "autoAttachChildProcesses": true
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--preserve-symlinks"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "**/node_modules/**",
+        "**/node_modules/rxjs/**",
+        "<node_internals>/**",
+        "<node_internals>/**/*.js"
+      ],
+      "timeout": 30000
     },
     {
       "name": "Chrome Debug with Karma",
       "type": "chrome",
-      "request": "attach",
       "address": "localhost",
-      "port": 9333,
       "pathMapping": {
         "/": "${workspaceRoot}/",
         "/base/": "${workspaceRoot}/"
-      }
+      },
+      "port": 9333,
+      "request": "attach"
     },
-    {
-      "name": "Mocha Tests",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "-u",
-        "tdd",
-        "--timeout",
-        "999999",
-        "--colors",
-        "${workspaceFolder}/test"
-      ],
-      "internalConsoleOptions": "openOnSessionStart"
-    }
   ]
 }

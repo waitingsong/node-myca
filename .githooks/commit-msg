@@ -19,12 +19,12 @@ fi
 
 branch=$( git branch | grep \* | cut -d ' ' -f2 )
 node "$js" $1 "$branch"
-#ts-node -P tsconfig.cjs.json ./.githooks/is-skip-commitlint.ts $1 "$branch"
+#ts-node -P tsconfig.cjs.json ./.githooks/init-repo/is-skip-commitlint.ts $1 "$branch"
 
 code=$?
 #echo -e 'node exitCode:' $code
 
 if [[ $code = 0 ]] ; then
-  commitlint -e
+  commitlint -e ./.git/COMMIT_EDITMSG
 fi
 

@@ -1,35 +1,50 @@
 {
   "compilerOptions": {
-    "alwaysStrict": true,
-    "charset": "utf8",
+    "baseUrl": ".",
     "declaration": true,
+    "declarationMap": true,
     "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "exactOptionalPropertyTypes": true,
     "experimentalDecorators": true,
-    "importHelpers": false,
-    "inlineSourceMap": false,
-    "module": "ES6",
-    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "newLine": "lf",
-    "noImplicitAny": true,
-    "noImplicitThis": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
-    "outDir": "./dist",
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "paths": {
+      "~/*": ["./src/*"],
+      "@/*": ["./test/*"]
+    },
+    "preserveConstEnums": true,
     "pretty": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "strict": true,
-    "target": "ES2017"
+    "strictPropertyInitialization": false,
+    "stripInternal": true,
+    "target": "ES2022",
+    "types" : ["mocha", "node"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts",
+    "packages/**/*.ts"
   ],
   "exclude": [
-    "asset/",
-    "dist/",
-    "test/",
-    "/test_browser*",
+    "asset",
+    "app/public",
+    "app/views",
+    "dist",
     "node_modules*",
+    "test",
     "**/*.d.ts",
     "**/*.spec.ts"
   ]

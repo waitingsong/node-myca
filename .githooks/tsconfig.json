@@ -1,19 +1,20 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
     "module": "commonjs",
-    "outDir": "./"
+    "newLine": "lf",
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "outDir": "./",
+    "pretty": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "esnext"
   },
   "include": [
-    "*.ts"
+    "init-repo/**/*.ts"
   ],
   "exclude": [
-    "asset/",
-    "dist/",
-    "test/",
-    "node_modules*",
-    "**/*.d.ts",
-    "**/*.spec.ts"
   ]
 }

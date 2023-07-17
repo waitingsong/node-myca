@@ -1,199 +1,131 @@
-# myca
-Create my CA center, generate a self signed x509 certificate, issue server certificate from node.js via openssl. Multiple center supported. RSA, EC(P-256, P-384) supported.
+# NPM mono repository
 
-[![Version](https://img.shields.io/npm/v/myca.svg)](https://www.npmjs.com/package/myca)
+
+[![GitHub tag](https://img.shields.io/github/tag/waitingsong/npm-mono-base.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://travis-ci.org/waitingsong/node-myca.svg?branch=master)](https://travis-ci.org/waitingsong/node-myca)
-[![Build status](https://ci.appveyor.com/api/projects/status/fo667k0k2ki8mv68/branch/master?svg=true)](https://ci.appveyor.com/project/waitingsong/node-myca/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/waitingsong/node-myca/badge.svg?branch=master)](https://coveralls.io/github/waitingsong/node-myca?branch=master)
+[![](https://img.shields.io/badge/lang-TypeScript-blue.svg)]()
+[![ci](https://github.com/waitingsong/npm-mono-base/workflows/ci/badge.svg)](https://github.com/waitingsong/npm-mono-base/actions?query=workflow%3A%22ci%22)
+[![codecov](https://codecov.io/gh/waitingsong/npm-mono-base/branch/main/graph/badge.svg?token=Voxor5PtnG)](https://codecov.io/gh/waitingsong/npm-mono-base)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 
 
-## CLI
-- [myca-cli](https://www.npmjs.com/package/myca-cli)
-- Installing by `npm i -g myca-cli`
-- Command help
-  - `myca`
-  - `myca initca -h`
-  - `myca issue -h`
+以下所有命令行操作都在 `git-bash` 窗口中执行
 
+## 创建新项目
 
-## Installing
-```bash
-npm install --save myca
+### 克隆新项目仓库
+
+```sh
+git clone git@git.foo.com:<group>/<project> && cd <project>
+# 比如
+git clone git@git.foo.com:foo/uc && cd uc
 ```
 
-## Usage
-- Initialize default center
-```js
-// import * as myca from 'myca'  // TypeScript
-const myca = require('myca')
+### 初始化仓库
 
-myca.initDefaultCenter()
-  .toPromise()
-  .catch(console.error)
+```sh
+# GitLab
+git archive --remote=git@github.com:waitingsong/npm-mono-base.git HEAD package.json | tar -x > package.json
+# GitHub
+curl -kL https://github.com.cnpmjs.org/waitingsong/npm-mono-base/raw/main/package.json > package.json
+git add package.json
+git commit -m "chore: initialize"
+npm run bp:add
+git fetch bp -v && git merge bp/main --allow-unrelated-histories -m "Merge remote-tracking branch 'bp/main'"
+
+# 使用目录名作为项目名
+sh init-project.sh
+# 或者指定项目名
+sh init-project.sh @foo/my_project
+
+# 初始化依赖
+npm run repo:init
+lerna list
 ```
 
-- Initialize CA cert of default center
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
+### 根据模板选择初始化子包
 
- myca
-   .initCaCert({
-     days: 10950,  // 30years
-     pass: 'mycapass',
-     CN: 'My Root CA',    // Common Name
-     O: 'My Company',   // Organization Name (eg, company)
-     C: 'CN',   // Country Name (2 letter code)
-   })
-   .toPromise()
-   .catch(console.error)
+#### 创建目录
+```sh
+npm run add:pkg my_pkg
 ```
 
-- Issue a RSA serve certificate
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
+#### 更新项目配置
 
- myca
-   .genCert({
-     caKeyPass: 'mycapass',
-     kind: 'server',   // server cert
-     days: 730,
-     pass: 'fooo',   // at least 4 letters
-     CN: 'www.waitingsong.com',    // Common Name
-     OU: '',   // Organizational Unit Name
-     O: '',   // Organization Name
-     L: '',    // Locality Name (eg, city)
-     ST: '',   // State or Province Name
-     C: 'CN',   // Country Name (2 letter code)
-     emailAddress: '',
-   })
-   .toPromise()
-   .then((ret) => {
-     console.log(ret.cert)
-     console.log(ret.crtFile)
-     console.log(ret.privateUnsecureKey)
-   })
-   .catch(console.error)
-```
+1. 更新仓库顶级 `package.json` 文件 `description` 等字段
+2. 修改**新建**各子包配置文件 `package.json`
+3. 更新本文档 [Packages](#packages) 表格的子包信息
 
-- Initialize more center and create self-signed EC CA certificate (default P-256)
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
+---
 
- // centerName: ec, folder: /opt/center-ec/ (can be ommited)
- myca.initCenter('ec', '/opt/center-ec')
-   .toPromise()
-   .then(() => {
-     return myca.initCaCert({
-       centerName: 'ec',
-       alg: 'ec',
-       days: 10950,
-       pass: 'mycapass',
-       CN: 'My Root CA',
-       O: 'My Company',
-       C: 'CN',
-     })
-   })
-   .catch(console.error)
-```
 
-- Issue a RSA serve certificate under specified center
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
 
- myca
-   .genCert({
-     centerName: 'ec',  // <--- specify centerName
-     caKeyPass: 'mycapass',
-     kind: 'server',
-     days: 730,
-     pass: 'fooo',
-     CN: 'www.waitingsong.com',
-     C: 'CN',
-   })
-   .toPromise()
-   .then((ret) => {
-     console.log(ret.cert)
-     console.log(ret.crtFile)
-     console.log(ret.privateUnsecureKey)
-   })
-   .catch(console.error)
-```
 
-- Issue a serve certificate with Domain Name SANs
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
 
- myca
-   .genCert({
-     caKeyPass: 'mycapass',
-     kind: 'server',
-     days: 730,
-     pass: 'fooo',
-     CN: 'www.waitingsong.com',
-     C: 'CN',
-     SAN: ['foo.waitingsong.com', 'bar.waitingsong.com'],
-   })
-   .toPromise()
-   .then((ret) => {
-     console.log(ret.cert)
-   })
-   .catch(console.error)
-```
 
-- Issue a serve certificate with IP SANs
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
 
- myca
-   .genCert({
-     caKeyPass: 'mycapass',
-     kind: 'server',
-     days: 730,
-     pass: 'fooo',
-     CN: 'www.waitingsong.com',
-     C: 'CN',
-     // https://www.tbs-certificates.co.uk/FAQ/en/normes_tld.html
-     // 10.0.0.0 – 10.255.255.255
-     // 172.16.0.0 – 172.31.255.255
-     // 192.168.0.0 – 192.168.255.255
-     ips: ['127.0.0.1', '192.168.0.1'], // not support ip mask
-   })
-   .toPromise()
-   .then((ret) => {
-     console.log(ret.cert)
-   })
-   .catch(console.error)
+
+
+
+## Packages
+
+| Package      | Version                | Dependencies                 | DevDependencies                |
+| ------------ | ---------------------- | ---------------------------- | ------------------------------ |
+| [`demo`]     | [![main-svg]][main-ch] | [![main-d-svg]][main-d-link] | [![main-dd-svg]][main-dd-link] |
+| [`demo-cli`] | [![cli-svg]][cli-ch]   | [![cli-d-svg]][cli-d-link]   | [![cli-dd-svg]][cli-dd-link]   |
+
+## Initialize and install dependencies
+
+run it at first time and any time
+```sh
+npm run repo:init
 ```
 
 
-- Issue a RSA client p12/pfx certificate
-```js
- // import * as myca from 'myca'
- const myca = require('myca')
+## Compile
 
- myca
-   .genCert({
-     caKeyPass: 'mycapass',
-     kind: 'client',   // pfx cert
-     days: 730,
-     pass: 'fooo',   // at least 4 letters
-     CN: 'www.waitingsong.com',    // Common Name
-     C: 'CN',   // Country Name (2 letter code)
-   })
-   .toPromise()
-   .then((ret) => {
-     console.log(ret.pfxFile)
-   })
-   .catch(console.error)
+Run under root folder
+```sh
+npm run build
+# specify scope
+npm run build @scope/demo-docs
+# specify scopes
+npm run build @scope/demo-docs @scope/demo-serivce
 ```
 
+
+## Update package
+
+```sh
+npm run bootstrap
+```
+
+## Add package
+
+```sh
+npm run add:pkg new_module
+```
+
+## Test
+
+- Use `npm run lint` to check code style.
+- Use `npm run test` to run unit test.
+
+## Clan or Purge
+
+```sh
+# clean build dist, cache and build
+npm run clean
+# clean and remove all node_modules
+npm run purge
+```
+
+## Note
+
+- Run `npm run clean` before `npm run build`, if any file under typescript outDir folder was deleted manually.
+- Default publish registry is `NPM`, configurated in file `lerna.json`
+- Any commands above (such as `npm run build`) running in `Git-Bash` under Windows OS
 
 ## License
 [MIT](LICENSE)
@@ -202,3 +134,22 @@ myca.initDefaultCenter()
 ### Languages
 - [English](README.md)
 - [中文](README.zh-CN.md)
+
+<br>
+
+[`demo`]: https://github.com/waitingsong/npm-mono-base/tree/main/packages/demo
+[main-svg]: https://img.shields.io/npm/v/kmore.svg?maxAge=7200
+[main-ch]: https://github.com/waitingsong/kmore/tree/main/packages/demo/CHANGELOG.md
+[main-d-svg]: https://david-dm.org/waitingsong/kmore.svg?path=packages/kmore
+[main-d-link]: https://david-dm.org/waitingsong/kmore.svg?path=packages/kmore
+[main-dd-svg]: https://david-dm.org/waitingsong/kmore/dev-status.svg?path=packages/kmore
+[main-dd-link]: https://david-dm.org/waitingsong/kmore?path=packages/kmore#info=devDependencies
+
+[`demo-cli`]: https://github.com/waitingsong/kmore/tree/main/packages/kmore-cli
+[cli-svg]: https://img.shields.io/npm/v/kmore-cli.svg?maxAge=7200
+[cli-ch]: https://github.com/waitingsong/kmore/tree/main/packages/kmore-clie/CHANGELOG.md
+[cli-d-svg]: https://david-dm.org/waitingsong/kmore.svg?path=packages/kmore-cli
+[cli-d-link]: https://david-dm.org/waitingsong/kmore.svg?path=packages/kmore-cli
+[cli-dd-svg]: https://david-dm.org/waitingsong/kmore/dev-status.svg?path=packages/kmore-cli
+[cli-dd-link]: https://david-dm.org/waitingsong/kmore?path=packages/kmore-cli#info=devDependencies
+
