@@ -1,0 +1,77 @@
+[ ca ]
+default_ca              = CA_own
+[ CA_own ]
+dir                     = .
+certs                   = $dir
+new_certs_dir           = $dir/db/certs
+database                = $dir/db/index
+serial                  = $dir/db/serial
+RANDFILE                = $dir/db/rand
+certificate             = $dir/ca.crt
+private_key             = $dir/ca.key
+default_days            = 3650
+default_crl_days        = 30
+default_md              = %hash%
+preserve                = no
+policy                  = policy_anything
+string_mask             = utf8only
+x509_extensions         = usr_cert              # The extentions to add to the cert
+
+[ policy_anything ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits            = 2048
+default_md              = %hash%
+distinguished_name      = req_distinguished_name
+attributes              = req_attributes
+x509_extensions	        = v3_ca
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = %C%
+stateOrProvinceName         = State or Province Name (full name) 省
+stateOrProvinceName_default	= %ST%
+localityName                = Locality Name (eg, city) 城市
+localityName_default        = %L%
+organizationName            = Organization Name (eg, company) 组织
+organizationName_default    = %O%
+organizationalUnitName      = Organizational Unit Name (eg, section) 组织单元
+organizationalUnitName_default = %OU%
+
+commonName                  = Common Name
+commonName_default          = %CN%
+commonName_max              = 64
+emailAddress                = Email Address
+emailAddress_default        = %emailAddress%
+emailAddress_max            = 64
+
+[ req_attributes ]
+challengePassword       = A challenge password
+challengePassword_min   = 4
+challengePassword_max   = 20
+unstructuredName        = An optional company name
+#unstructuredName_default	=
+
+[v3_ca]
+subjectKeyIdentifier      = hash
+authorityKeyIdentifier    = keyid:always,issuer:always
+basicConstraints          = CA:true
+keyUsage                  = keyCertSign, cRLSign
+extendedKeyUsage          = serverAuth, clientAuth, codeSigning, emailProtection
+
+
+[ usr_cert ]
+basicConstraints     = CA:FALSE
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage           = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+extendedKeyUsage    = serverAuth, codeSigning, emailProtection
+
+
