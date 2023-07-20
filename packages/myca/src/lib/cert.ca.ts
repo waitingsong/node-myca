@@ -133,7 +133,7 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
   else {
     const subj = genIssueSubj(options)
     subj && streamOpts.args.push('-subj', subj)
-    console.info('reqCaCert() debug::', { subj, options }) // @DEBUG
+    // console.info('reqCaCert() debug::', { subj, options }) // @DEBUG
   }
 
   if (pass) {
