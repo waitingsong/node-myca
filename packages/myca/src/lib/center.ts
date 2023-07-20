@@ -180,16 +180,13 @@ export async function initDbFiles(config: Config, path: string, files: InitialFi
   const db = `${path}/${config.dbDir}`
 
   for (const file of files) {
-    if (! file.name) {
-      throw new Error('file name empty within initDbFiles()')
-    }
-    /* istanbul ignore next */
-    if (typeof file.defaultValue === 'undefined') {
-      throw new Error('file defaultValue empty')
-    }
-    if (typeof file.defaultValue !== 'string' && typeof file.defaultValue !== 'number') {
-      throw new Error('file defaultValue invalid, must be typeof string or number')
-    }
+    assert(file.name, 'file name empty within initDbFiles()')
+    assert(typeof file.defaultValue !== 'undefined', 'file defaultValue empty')
+    assert(
+      typeof file.defaultValue === 'string' || typeof file.defaultValue === 'number',
+      'file defaultValue invalid, must be typeof string or number',
+    )
+
     // eslint-disable-next-line no-await-in-loop
     await createFileAsync(`${db}/${file.name}`, file.defaultValue, file.mode ? { mode: file.mode } : {})
   }

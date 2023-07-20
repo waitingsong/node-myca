@@ -161,23 +161,18 @@ async function genCsrFile(
 
 
 export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> {
-  try {
-    const privateKey = await genPrivateKey(privateKeyOpts)
-    const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg)
-    const privateUnsecureKey = await decryptPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg)
-    const ret: KeysRet = {
-      pubKey,
-      privateKey,
-      privateUnsecureKey,
-      pass: privateKeyOpts.pass,
-      privateKeyFile: '',
-      privateUnsecureKeyFile: '',
-    }
-    return ret
+  const privateKey = await genPrivateKey(privateKeyOpts)
+  const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg)
+  const privateUnsecureKey = await decryptPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg)
+  const ret: KeysRet = {
+    pubKey,
+    privateKey,
+    privateUnsecureKey,
+    pass: privateKeyOpts.pass,
+    privateKeyFile: '',
+    privateUnsecureKeyFile: '',
   }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  return ret
 }
 
 
@@ -213,14 +208,9 @@ async function genRSAKey(
     '-pkeyopt', `rsa_keygen_bits:${keyBits}`,
   ]
 
-  try {
-    const stdout = await runOpenssl(args)
-    assert(stdout.includes('PRIVATE KEY'), `generate private key failed. stdout: "${stdout}"`)
-    return stdout
-  }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  const stdout = await runOpenssl(args)
+  assert(stdout.includes('PRIVATE KEY'), `generate private key failed. stdout: "${stdout}"`)
+  return stdout
 }
 
 
@@ -238,14 +228,9 @@ async function genECKey(
     '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`,
   ]
 
-  try {
-    const stdout = await runOpenssl(args)
-    assert(stdout.includes('PRIVATE KEY'), `generate private key failed. stdout: "${stdout}"`)
-    return stdout
-  }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  const stdout = await runOpenssl(args)
+  assert(stdout.includes('PRIVATE KEY'), `generate private key failed. stdout: "${stdout}"`)
+  return stdout
 }
 
 
@@ -286,14 +271,9 @@ export async function decryptPrivateKey(
     args.push('-passin', `pass:${passwd}`)
   }
 
-  try {
-    const stdout = await runOpenssl(args, { input: privateKey })
-    assert(stdout.slice(0, 50).includes('PRIVATE KEY'), 'decryptPrivateKey() output invalid PRIVATE KEY: ' + stdout.slice(0, 1000))
-    return stdout
-  }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  const stdout = await runOpenssl(args, { input: privateKey })
+  assert(stdout.slice(0, 50).includes('PRIVATE KEY'), 'decryptPrivateKey() output invalid PRIVATE KEY: ' + stdout.slice(0, 1000))
+  return stdout
 }
 
 
@@ -484,28 +464,22 @@ export async function sign(signOpts: SignOpts, conf?: Config): Promise<string> {
   const rtpl = await createRandomConfTpl(localConfig, signOpts as IssueOpts)
   args.push('-config', normalize(rtpl))
 
+  // const { configFile, ips, SAN } = signOpts
+  // if (SAN?.length || ips?.length) {
+  //   const rtpl = await createRandomConfTpl(localConfig, signOpts as IssueOpts)
+  //   args.push('-config', normalize(rtpl))
+  // }
+  // else {
+  //   // configFile validated by validateSignOpts()
+  //   assert(configFile, 'configFile empty')
+  //   args.push('-config', normalize(configFile))
+  // }
 
-  try {
-    // const { configFile, ips, SAN } = signOpts
-    // if (SAN?.length || ips?.length) {
-    //   const rtpl = await createRandomConfTpl(localConfig, signOpts as IssueOpts)
-    //   args.push('-config', normalize(rtpl))
-    // }
-    // else {
-    //   // configFile validated by validateSignOpts()
-    //   assert(configFile, 'configFile empty')
-    //   args.push('-config', normalize(configFile))
-    // }
+  const stdout = await runOpenssl(args, { cwd: signOpts.centerPath })
+  assert(stdout, 'openssl sign csr return value empty')
+  assert(stdout.includes('CERTIFICATE'), 'openssl sign csr return value: ' + stdout)
 
-    const stdout = await runOpenssl(args, { cwd: signOpts.centerPath })
-    assert(stdout, 'openssl sign csr return value empty')
-    assert(stdout.includes('CERTIFICATE'), 'openssl sign csr return value: ' + stdout)
-
-    return stdout
-  }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  return stdout
 }
 
 

@@ -37,22 +37,17 @@ export async function initCaCert(issueOpts: CaOpts): Promise<IssueCaCertRet> {
   }
   assert(opts.centerName, 'centerName empty')
 
-  try {
-    const centerPath = await getCenterPath(opts.centerName)
-    assert(centerPath, `center: ${opts.centerName} not initialized yet`)
-    const file = normalize(`${centerPath}/${initialConfig.caCrtName}`)
-    const exists = await isFileExists(file)
-    assert(! exists, `CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
+  const centerPath = await getCenterPath(opts.centerName)
+  assert(centerPath, `center: ${opts.centerName} not initialized yet`)
+  const file = normalize(`${centerPath}/${initialConfig.caCrtName}`)
+  const exists = await isFileExists(file)
+  assert(! exists, `CA file exists, should unlink it via unlinkCaCert(centerName). file: "${file}"`)
 
-    const { centerName } = opts
-    const certRet = await genCaCert(initialConfig, opts)
-    const crtFile = await saveCaCrt(initialConfig.caCrtName, centerName, certRet.cert)
-    certRet.crtFile = crtFile
-    return certRet
-  }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  const { centerName } = opts
+  const certRet = await genCaCert(initialConfig, opts)
+  const crtFile = await saveCaCrt(initialConfig.caCrtName, centerName, certRet.cert)
+  certRet.crtFile = crtFile
+  return certRet
 }
 
 
@@ -140,14 +135,9 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
     streamOpts.args.push('-passin', `pass:${pass}`)
   }
 
-  try {
-    const stdout = await runOpenssl(streamOpts.args, streamOpts.runOpts)
-    await unlinkRandomConfTpl(streamOpts.rtpl)
-    assert(stdout.includes('CERTIFICATE'), 'reqCaCert() openssl return value: ' + stdout)
+  const stdout = await runOpenssl(streamOpts.args, streamOpts.runOpts)
+  await unlinkRandomConfTpl(streamOpts.rtpl)
+  assert(stdout.includes('CERTIFICATE'), 'reqCaCert() openssl return value: ' + stdout)
 
-    return stdout
-  }
-  catch (ex) {
-    throwMaskError(ex)
-  }
+  return stdout
 }
