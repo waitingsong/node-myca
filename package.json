@@ -20,7 +20,7 @@
     "coveralls": "3",
     "debug": "^4.3.4",
     "eslint": "^8.43.0",
-    "lerna": "6",
+    "lerna": "7",
     "lerna-relinker": "^1.5.0",
     "madge": "^6.0.0",
     "mocha": "10",
