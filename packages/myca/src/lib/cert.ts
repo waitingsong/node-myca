@@ -342,27 +342,13 @@ export async function validateIssueOpts(options: IssueOpts): Promise<IssueOpts> 
       should create center dir by calling initCenter(centerName, path)
     `)
   }
-  /* istanbul ignore next */
-  if (typeof pass !== 'string') {
-    throw new Error('pass must be typeof string')
-  }
-  if (pass.length < 4) {
-    throw new Error('length of pass must at least 4')
-  }
-  /* istanbul ignore next */
-  if (pass.length > 1023) {
-    throw new Error('length of pass must not greater than 1023 chars if not empty')
-  }
-  /* istanbul ignore next */
-  if (/\s/u.test(pass)) {
-    throw new Error('pass phrase contains blank or invisible char')
-  }
-
+  assert(typeof pass === 'string', 'pass must be typeof string')
+  assert(pass.length >= 4, 'length of pass must at least 4')
+  assert(pass.length < 1024, 'length of pass must not greater than 1023 chars if not empty')
+  assert(! /\s/u.test(pass), 'pass phrase contains blank or invisible char')
   assert(hash, 'value of hash empty. must be sha256|sha384')
-
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   assert(hash === 'sha256' || hash === 'sha384', 'value of hash invalid. must be sha256|sha384')
-
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   assert(kind === 'ca' || kind === 'server' || kind === 'client', 'value of kind invalid. must be ca|server|client')
 
@@ -375,13 +361,9 @@ export async function validateIssueOpts(options: IssueOpts): Promise<IssueOpts> 
   // if ( ! options.OU) {
   //   throw new Error('value of OU (Organizational Unit Name) invalid')
   // }
-  /* istanbul ignore next */
-  if (typeof options.days !== 'number') {
-    throw new Error('value of days must typeof number')
-  }
-  if (options.days <= 0) {
-    throw new Error('value of days must greater than zero')
-  }
+
+  assert(typeof options.days === 'number', 'value of days must typeof number')
+  assert(options.days > 0, 'value of days must greater than zero')
 
   if (kind !== 'ca') {
     const exists = await isFileExists(caKeyFile)
@@ -560,20 +542,14 @@ async function validateSignOpts(signOpts: SignOpts): Promise<SignOpts> {
   assert(signOpts.configFile, 'value of param configFile of signOpts empty')
 
   if (typeof SAN !== 'undefined') {
-    if (! Array.isArray(SAN)) {
-      throw new Error('value of param SAN of signOpts inavlid, must Array<string>')
-    }
+    assert(Array.isArray(SAN), `value of param SAN of signOpts, must Array<string>, inavlid: "${SAN.toString()}"`)
     for (const name of SAN) {
-      if (! name) {
-        throw new Error('item value of SAN of signOpts empty')
-      }
+      assert(name, 'item value of SAN of signOpts empty')
     }
   }
   /* istanbul ignore next */
   if (typeof ips !== 'undefined') {
-    if (! Array.isArray(ips)) {
-      throw new Error('value of param ips of signOpts inavlid, must Array<string>')
-    }
+    assert(Array.isArray(ips), `value of param ips of signOpts, must Array<string>, inavlid: "${ips.toString()}"`)
     for (const name of ips) {
       if (! name) {
         throw new Error('item value of ips of signOpts empty')
@@ -617,26 +593,15 @@ async function validateSignOpts(signOpts: SignOpts): Promise<SignOpts> {
 async function validatePfxOpts(pfxOpts: PfxOpts): Promise<void> {
   const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = pfxOpts
 
-  if (! await isFileExists(privateKeyFile)) {
-    throw new Error(`privateKeyFile not exists: "${privateKeyFile}"`)
-  }
-  if (! await isFileExists(crtFile)) {
-    throw new Error(`crtFile not exists: "${crtFile}"`)
-  }
+  assert(await isFileExists(privateKeyFile), `privateKeyFile not exists: "${privateKeyFile}"`)
+  assert(await isFileExists(crtFile), `crtFile not exists: "${crtFile}"`)
+
   if (privateKeyPass) { // can be blank
-    if (privateKeyPass.length < 4) {
-      throw new Error('length of privateKeyPass must at least 4 if not empty')
-    }
-    if (/\s/u.test(privateKeyPass)) {
-      throw new Error('privateKeyPass phrase contains blank or invisible char')
-    }
+    assert(privateKeyPass.length >= 4, 'length of privateKeyPass must at least 4 if not empty')
+    assert(! /\s/u.test(privateKeyPass), 'privateKeyPass phrase contains blank or invisible char')
   }
   if (pfxPass) { // can be blank
-    if (/\s/u.test(pfxPass)) {
-      throw new Error('pfxPass phrase contains blank or invisible char')
-    }
-    if (pfxPass.length < 4) {
-      throw new Error('length of pfxPass must at least 4')
-    }
+    assert(! /\s/u.test(pfxPass), 'pfxPass phrase contains blank or invisible char')
+    assert(pfxPass.length >= 4, 'length of pfxPass must at least 4 if not empty')
   }
 }
