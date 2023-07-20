@@ -12,7 +12,7 @@ import {
 
 import { getCenterPath } from './center.js'
 import { genIssueSubj, genKeys, processIssueOpts, validateIssueOpts } from './cert.js'
-import { createRandomConfTpl, runOpenssl, throwMaskError, unlinkRandomConfTpl } from './common.js'
+import { createRandomConfTpl, runOpenssl, unlinkRandomConfTpl } from './common.js'
 import {
   initialCaCertRet,
   initialCaOpts,

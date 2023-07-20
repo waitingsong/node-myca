@@ -19,8 +19,9 @@ export async function runOpenssl(args: string[], options?: { cwd?: string, input
     currDir = process.cwd()
     cd(options.cwd)
   }
+
+  let stdout = ''
   try {
-    let stdout = ''
     if (options?.input?.length) {
       const resp = await $`echo ${options.input} | ${script} ${args}`
       stdout = resp.stdout
@@ -29,13 +30,15 @@ export async function runOpenssl(args: string[], options?: { cwd?: string, input
       const ret = await $`${script} ${args}`
       stdout = ret.stdout
     }
-    currDir && cd(currDir)
-    return stdout
   }
   catch (ex) {
-    currDir && cd(currDir)
     throwMaskError(ex)
   }
+  finally {
+    currDir && cd(currDir)
+  }
+
+  return stdout
 }
 
 
