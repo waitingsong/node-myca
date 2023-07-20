@@ -547,13 +547,10 @@ async function validateSignOpts(signOpts: SignOpts): Promise<SignOpts> {
       assert(name, 'item value of SAN of signOpts empty')
     }
   }
-  /* istanbul ignore next */
   if (typeof ips !== 'undefined') {
     assert(Array.isArray(ips), `value of param ips of signOpts, must Array<string>, inavlid: "${ips.toString()}"`)
     for (const name of ips) {
-      if (! name) {
-        throw new Error('item value of ips of signOpts empty')
-      }
+      assert(name, 'item value of ips of signOpts empty')
     }
   }
 
