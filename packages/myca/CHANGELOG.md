@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.3](https://github.com/waitingsong/node-myca/compare/v4.1.2...v4.1.3) (2023-07-21)
+
+
+### Bug Fixes
+
+* **myca:** kind for client ([8ff64bd](https://github.com/waitingsong/node-myca/commit/8ff64bdef05dc994b92507787aa021f36f45d8b1))
+
+
+
+
+
 ## [4.1.2](https://github.com/waitingsong/node-myca/compare/v4.1.1...v4.1.2) (2023-07-21)
 
 
