@@ -10,7 +10,20 @@ import { initialConfig, reqSubjectFields } from './config.js'
 import { CertDNkeys, Config, IssueOpts } from './types.js'
 
 
-export async function runOpenssl(args: string[], options?: { cwd?: string, input?: string }): Promise<string> {
+export interface RunOpensslOptions {
+  cwd?: string
+  input?: string
+  /**
+  * @default false
+  */
+  debug?: boolean
+}
+
+export async function runOpenssl(args: string[], options?: RunOpensslOptions): Promise<string> {
+  const vv = $.verbose
+  const verbose = options?.debug ?? false
+  $.verbose = !! verbose
+
   let currDir = ''
 
   // await $`export`
@@ -36,6 +49,7 @@ export async function runOpenssl(args: string[], options?: { cwd?: string, input
   }
   finally {
     currDir && cd(currDir)
+    $.verbose = vv
   }
 
   return stdout
