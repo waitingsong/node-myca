@@ -31,7 +31,7 @@ default_bits            = 2048
 default_md              = %hash%
 distinguished_name      = req_distinguished_name
 attributes              = req_attributes
-req_extensions =        v3_req # The extensions to add to a certificate request
+x509_extensions         = usr_cert               # The extensions to add to a certificate request
 
 
 [ req_distinguished_name ]
