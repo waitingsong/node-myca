@@ -60,6 +60,7 @@
   "files": [
     "README.*.md",
     "tsconfig.json",
+    "tsconfig.base.json",
     "Dockerfile",
     "asset",
     "src/**/*.ts",
