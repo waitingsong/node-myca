@@ -7,17 +7,8 @@ import { createFileAsync } from '@waiting/shared-core'
 import { $, cd } from 'zx'
 
 import { initialConfig, reqSubjectFields } from './config.js'
-import { CertDNkeys, Config, IssueOpts } from './types.js'
+import { CertDNkeys, Config, IssueOpts, RunOpensslOptions } from './types.js'
 
-
-export interface RunOpensslOptions {
-  cwd?: string
-  input?: string
-  /**
-  * @default false
-  */
-  debug?: boolean
-}
 
 export async function runOpenssl(args: string[], options?: RunOpensslOptions): Promise<string> {
   const vv = $.verbose

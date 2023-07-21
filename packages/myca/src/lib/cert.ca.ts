@@ -113,7 +113,7 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
       '-days', days.toString(),
       '-key', keyFile,
     ],
-    runOpts: { cwd: centerPath },
+    runOpts: { cwd: centerPath, debug: config.debug },
     rtpl: '',
   }
 

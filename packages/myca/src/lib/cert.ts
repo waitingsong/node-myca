@@ -142,7 +142,7 @@ async function genCsrFile(
 ): Promise<{csr: string, csrFile: string, keysRet: KeysRet}> {
 
   const privateKeyOpts = { ...initialPrivateKeyOpts, ...issueOpts } as PrivateKeyOpts
-  const keysRet = await genKeys(privateKeyOpts)
+  const keysRet = await genKeys(privateKeyOpts, localConfig.debug)
 
   const { privateKeyFile, privateUnsecureKeyFile } = await savePrivateKeys(localConfig, issueOpts, keysRet)
   keysRet.privateKeyFile = privateKeyFile
@@ -156,10 +156,10 @@ async function genCsrFile(
 }
 
 
-export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> {
-  const privateKey = await genPrivateKey(privateKeyOpts)
-  const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg)
-  const privateUnsecureKey = await decryptPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg)
+export async function genKeys(privateKeyOpts: PrivateKeyOpts, debug = false): Promise<KeysRet> {
+  const privateKey = await genPrivateKey(privateKeyOpts, debug)
+  const pubKey = await genPubKeyFromPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg, debug)
+  const privateUnsecureKey = await decryptPrivateKey(privateKey, privateKeyOpts.pass, privateKeyOpts.alg, debug)
   const ret: KeysRet = {
     pubKey,
     privateKey,
@@ -172,16 +172,16 @@ export async function genKeys(privateKeyOpts: PrivateKeyOpts): Promise<KeysRet> 
 }
 
 
-async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
+async function genPrivateKey(options: PrivateKeyOpts, debug = false): Promise<string> {
   let key = ''
 
   switch (options.alg) {
     case 'rsa':
-      key = await genRSAKey(options.pass, options.keyBits)
+      key = await genRSAKey(options.pass, options.keyBits, debug)
       break
 
     case 'ec':
-      key = await genECKey(options.pass, options.ecParamgenCurve)
+      key = await genECKey(options.pass, options.ecParamgenCurve, debug)
       break
 
     default:
@@ -196,6 +196,7 @@ async function genPrivateKey(options: PrivateKeyOpts): Promise<string> {
 async function genRSAKey(
   pass: PrivateKeyOpts['pass'],
   keyBits: PrivateKeyOpts['keyBits'],
+  debug = false,
 ): Promise<string> {
 
   const args = [
@@ -204,7 +205,7 @@ async function genRSAKey(
     '-pkeyopt', `rsa_keygen_bits:${keyBits}`,
   ]
 
-  const stdout = await runOpenssl(args)
+  const stdout = await runOpenssl(args, { debug })
   assert(stdout.includes('PRIVATE KEY'), `generate private key failed. stdout: "${stdout}"`)
   return stdout
 }
@@ -214,6 +215,7 @@ async function genRSAKey(
 async function genECKey(
   pass: PrivateKeyOpts['pass'],
   ecParamgenCurve: PrivateKeyOpts['ecParamgenCurve'],
+  debug = false,
 ): Promise<string> {
 
   assert(ecParamgenCurve, 'ecParamgenCurve can not be empty')
@@ -224,7 +226,7 @@ async function genECKey(
     '-pkeyopt', `ec_paramgen_curve:${ecParamgenCurve}`,
   ]
 
-  const stdout = await runOpenssl(args)
+  const stdout = await runOpenssl(args, { debug })
   assert(stdout.includes('PRIVATE KEY'), `generate private key failed. stdout: "${stdout}"`)
   return stdout
 }
@@ -234,6 +236,7 @@ async function genPubKeyFromPrivateKey(
   privateKey: string,
   passwd: PrivateKeyOpts['pass'],
   alg: PrivateKeyOpts['alg'],
+  debug = false,
 ): Promise<string> {
 
   const args = [alg, '-pubout']
@@ -243,7 +246,7 @@ async function genPubKeyFromPrivateKey(
     args.push('-passin', `pass:${passwd}`)
   }
 
-  const stdout = await runOpenssl(args, { input: privateKey })
+  const stdout = await runOpenssl(args, { input: privateKey, debug })
   assert(stdout.includes('PUBLIC KEY'), 'genPubKeyFromPrivateKey() output invalid PUBLIC KEY: ' + stdout.slice(0, 1000))
   return stdout
 }
@@ -253,6 +256,7 @@ export async function decryptPrivateKey(
   privateKey: string,
   passwd: PrivateKeyOpts['pass'],
   alg: PrivateKeyOpts['alg'],
+  debug = false,
 ): Promise<string> {
 
   /* istanbul ignore next */
@@ -267,7 +271,7 @@ export async function decryptPrivateKey(
     args.push('-passin', `pass:${passwd}`)
   }
 
-  const stdout = await runOpenssl(args, { input: privateKey })
+  const stdout = await runOpenssl(args, { input: privateKey, debug })
   assert(stdout.slice(0, 50).includes('PRIVATE KEY'), 'decryptPrivateKey() output invalid PRIVATE KEY: ' + stdout.slice(0, 1000))
   return stdout
 }
@@ -295,7 +299,7 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
   await cp(privateUnsecureKeyFile, `${options.centerPath}/${pkeyTmpName}`)
   args.push('-key', `${options.centerPath}/${pkeyTmpName}`)
 
-  const runOpts = { cwd: options.centerPath }
+  const runOpts = { cwd: options.centerPath, debug: config.debug }
   const stdout = await runOpenssl(args, runOpts)
   await unlinkRandomConfTpl(rtpl)
   await unlinkRandomConfTpl(`${options.centerPath}/${pkeyTmpName}`)

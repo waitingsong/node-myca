@@ -41,6 +41,10 @@ export interface Config {
   isWin32: boolean
   configName: string // dynamic assign for win32
   confTpl: string // config template for win32
+  /**
+   * @default false
+   */
+  debug: boolean
 }
 
 export type Alg = 'rsa' | 'ec' // algorithm
@@ -194,6 +198,15 @@ export interface PfxOpts {
 
 export interface StreamOpts {
   args: string[]
-  runOpts: { cwd?: string }
+  runOpts: RunOpensslOptions
   rtpl: string
+}
+
+export interface RunOpensslOptions {
+  cwd?: string
+  input?: string
+  /**
+  * @default false
+  */
+  debug?: boolean
 }

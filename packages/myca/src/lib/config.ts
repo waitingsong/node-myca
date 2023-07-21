@@ -40,6 +40,7 @@ export const initialConfig: Config = {
   isWin32,
   configName: '.config', // under asset/
   confTpl: 'tpl.conf', // under asset/tpl.config.{ca|server|client}
+  debug: false,
 }
 
 const arr = [
