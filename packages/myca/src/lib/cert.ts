@@ -67,14 +67,17 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
   assert(issueOpts.configFile, 'configFile empty')
 
   const csrTmpName = basename(issueCertRet.csrFile) + '.' + Math.random().toString() + '.tmp'
+  const csrTmpPath = `${centerPath}/${csrTmpName}`
   // copy private key to center path, cause may not found under sub path under windows os
-  await cp(issueCertRet.csrFile, `${centerPath}/${csrTmpName}`)
+  await cp(issueCertRet.csrFile, csrTmpPath)
 
   const caCertTmpName = basename(issueCertRet.caCrtFile) + '.' + Math.random().toString() + '.tmp'
-  await cp(issueCertRet.caCrtFile, `${centerPath}/${caCertTmpName}`)
+  const caCertTmpPath = `${centerPath}/${caCertTmpName}`
+  await cp(issueCertRet.caCrtFile, caCertTmpPath)
 
   const caKeyTmpName = basename(issueCertRet.caKeyFile) + '.' + Math.random().toString() + '.tmp'
-  await cp(issueCertRet.caKeyFile, `${centerPath}/${caKeyTmpName}`)
+  const caKeyTmpPath = `${centerPath}/${caKeyTmpName}`
+  await cp(issueCertRet.caKeyFile, caKeyTmpPath)
 
   try {
     const { caKeyPass } = issueOpts
@@ -119,9 +122,9 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
     return issueCertRet
   }
   finally {
-    await rm(csrTmpName, { force: true })
-    await rm(caCertTmpName, { force: true })
-    await rm(caKeyTmpName, { force: true })
+    await rm(csrTmpPath, { force: true })
+    await rm(caCertTmpPath, { force: true })
+    await rm(caKeyTmpPath, { force: true })
   }
 }
 
