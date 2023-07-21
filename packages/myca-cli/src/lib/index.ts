@@ -17,7 +17,7 @@ export async function runCmd(args: RunCmdArgs): Promise<string> {
   const { cmd, options, debug } = args
 
   assert(cmd, 'cmd should not be empty')
-  debug && options
+  debug && console.info('runCmd()', { options })
 
   switch (cmd) {
     case 'init':
@@ -27,7 +27,7 @@ export async function runCmd(args: RunCmdArgs): Promise<string> {
       return initCaCli(options as CaOpts)
 
     case 'issue':
-      return issueCli(options as CertOpts)
+      return issueCli(options as CertOpts, debug)
 
     case 'initcenter':
       return initCenterCli(options as InitCenterArgs)
@@ -56,8 +56,8 @@ async function initCaCli(options: CaOpts): Promise<string> {
 }
 
 
-async function issueCli(options: CertOpts): Promise<string> {
-  const data = await genCert(options)
+async function issueCli(options: CertOpts, debug = false): Promise<string> {
+  const data = await genCert(options, { debug })
   const ret = `Issue a Certificate with:
   pubKey: \n${data.pubKey}\n
   pass: "${data.pass}" ${options.kind === 'server' ? `\n  privateKeyFile: "${data.privateKeyFile}"` : ''}
