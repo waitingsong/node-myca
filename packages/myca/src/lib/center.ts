@@ -40,7 +40,9 @@ export async function nextSerial(centerName: string): Promise<string> {
   const serialPath = `${centerPath}/db/serial`
   const serialExists = await isFileExists(serialPath)
   assert(serialExists, `serial file not exists, path: "${serialPath}"`)
-  const serialContent = await readFile(serialPath, 'utf8')
+  const txt = await readFile(serialPath, 'utf8')
+  const serialContent = txt ? txt.trim() : ''
+  assert(serialContent, `serial file empty, path: "${serialPath}"`)
   const dec = parseInt(serialContent, 16)
   const hex = serialContent
 
