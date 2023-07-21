@@ -11,7 +11,7 @@ import * as myca from '../src/index.js'
 import { removeCenterFiles } from '../src/lib/common.js'
 import { initialCertOpts, initialDbFiles } from '../src/lib/config.js'
 
-import { initialCaOpts, initialConfig, pathPrefix, tmpDir } from './root.config.js'
+import { caOptions, initialCaOpts, initialConfig, pathPrefix, tmpDir } from './root.config.js'
 
 
 describe(fileShortPath(import.meta.url), () => {
@@ -26,19 +26,13 @@ describe(fileShortPath(import.meta.url), () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const random = Math.random().toString()
     const randomPath = `${tmpDir}/${pathPrefix}-${random}`
-    const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      hash: 'sha256',
-      CN: 'My Root CA',
-      C: 'CN',
-    }
 
     initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
     await myca.initDefaultCenter()
-    await myca.initCaCert(opts)
+    await myca.initCaCert(caOptions)
+    await myca.initCaCert({
+      ...caOptions,
+    })
   })
 
   afterEach(async () => {
