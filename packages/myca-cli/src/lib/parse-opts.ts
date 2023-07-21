@@ -15,7 +15,7 @@ import { CliArgs, CmdType, InitCenterArgs } from './types.js'
 // const argv = minimist(process.argv.slice(2))
 
 export function parseCliArgs(arg: typeof argv): CliArgs {
-  const args: CliArgs = { ...initialCliArgs }
+  const args: CliArgs = { ...initialCliArgs, ...arg }
   const cmdArr: string[] = args._
 
   args.cmd = parseCmd(cmdArr)
