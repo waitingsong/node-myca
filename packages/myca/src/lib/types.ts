@@ -101,9 +101,11 @@ export interface CertDN {
   ips?: string[] // subjectAltName ip
 }
 
+export type Kind = 'ca' | 'server' | 'client'
+
 // sign csr
 export interface SignOpts {
-  kind: 'ca' | 'server' | 'client'
+  kind: Kind
   centerPath: string // default as config.defaultCenterPath
   days: number
   hash: 'sha256' | 'sha384'
@@ -118,7 +120,7 @@ export interface SignOpts {
 
 // passed by customer
 export interface CertOpts extends CertDN {
-  kind: 'ca' | 'server' | 'client'
+  kind: Kind
   // serial?: string
   centerName?: 'default' | string // key name of log dir
   alg?: Alg
@@ -190,6 +192,7 @@ export interface InitialFile {
 }
 
 export interface PfxOpts {
+  centerPath: string
   privateKeyFile: string
   privateKeyPass?: string
   crtFile: string

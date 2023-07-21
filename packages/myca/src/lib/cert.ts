@@ -5,7 +5,6 @@ import {
   writeFile,
   rm,
 } from 'fs/promises'
-import { tmpdir } from 'os'
 import { basename, join, normalize } from 'path'
 
 import {
@@ -35,6 +34,7 @@ import {
   IssueCertRet,
   IssueOpts,
   KeysRet,
+  Kind,
   PfxOpts,
   PrivateKeyOpts,
   SignOpts,
@@ -79,6 +79,12 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
   const caKeyTmpPath = `${centerPath}/${caKeyTmpName}`
   await cp(issueCertRet.caKeyFile, caKeyTmpPath)
 
+  const privateKeyTmpName = basename(issueCertRet.privateUnsecureKeyFile + '.' + Math.random().toString() + '.tmp')
+  const privateKeyTmpPath = `${centerPath}/${privateKeyTmpName}`
+
+  const crtTmpName = basename(issueCertRet.crtFile) + '.' + Math.random().toString() + '.tmp'
+  const crtTmpPath = `${centerPath}/${crtTmpName}`
+
   try {
     const { caKeyPass } = issueOpts
     const signOpts: SignOpts = {
@@ -103,13 +109,22 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
 
     // EXPORT TO PKCS#12 FORMAT
     if (issueOpts.kind === 'client') {
+      await cp(issueCertRet.privateUnsecureKeyFile, privateKeyTmpPath)
+      await cp(issueCertRet.crtFile, crtTmpPath)
+
       const clientOpts: PfxOpts = {
-        privateKeyFile: issueCertRet.privateUnsecureKeyFile,
-        crtFile: issueCertRet.crtFile,
+        centerPath,
+        // privateKeyFile: issueCertRet.privateUnsecureKeyFile,
+        // crtFile: issueCertRet.crtFile,
+        privateKeyFile: privateKeyTmpName,
+        crtFile: crtTmpName,
         pfxPass: issueCertRet.pass,
       }
       const tmpFile = await outputClientCert(clientOpts)
       issueCertRet.pfxFile = join(issueOpts.centerPath, issueOpts.kind, `${issueOpts.serial}.p12`)
+      await cp(tmpFile, issueCertRet.pfxFile)
+      await rm(tmpFile, { force: true })
+
       assert(typeof issueCertRet.pfxFile === 'string', 'pfxFile empty')
       await writeFile(tmpFile, issueCertRet.pfxFile, 'utf-8')
       await chmod(issueCertRet.pfxFile as string, 0o600)
@@ -125,6 +140,8 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
     await rm(csrTmpPath, { force: true })
     await rm(caCertTmpPath, { force: true })
     await rm(caKeyTmpPath, { force: true })
+    await rm(privateKeyTmpPath, { force: true })
+    await rm(crtTmpPath, { force: true })
   }
 }
 
@@ -142,7 +159,7 @@ async function processGenCertIssueOpts(options: CertOpts, localConfig: Config): 
 async function genCsrFile(
   issueOpts: IssueOpts,
   localConfig: Config,
-): Promise<{csr: string, csrFile: string, keysRet: KeysRet}> {
+): Promise<{csr: string, csrFile: string, keysRet: KeysRet, kind: Kind}> {
 
   const privateKeyOpts = { ...initialPrivateKeyOpts, ...issueOpts } as PrivateKeyOpts
   const keysRet = await genKeys(privateKeyOpts, localConfig.debug)
@@ -155,7 +172,7 @@ async function genCsrFile(
   const csrFile = join(issueOpts.centerPath, issueOpts.kind, `${issueOpts.serial}.csr`)
   await createFileAsync(csrFile, csr, { encoding: 'utf-8', mode: 0o600 })
 
-  return { csr, csrFile, keysRet }
+  return { csr, csrFile, keysRet, kind: issueOpts.kind }
 }
 
 
@@ -495,9 +512,11 @@ export async function outputClientCert(options: PfxOpts): Promise<string> {
   await validatePfxOpts(options)
 
   const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = options
-  const pfxFile = join(tmpdir(), `/tmp-${Math.random()}.p12`)
+  // const pfxFile = join(tmpdir(), `/tmp-${Math.random()}.p12`)
+  const pfxFile = `client-${Math.random()}.p12`
+
   const args = [
-    'pkcs12', '-export', '-aes256',
+    'pkcs12', '-export',
     '-in', crtFile,
     '-inkey', privateKeyFile,
     '-out', pfxFile,
@@ -508,10 +527,11 @@ export async function outputClientCert(options: PfxOpts): Promise<string> {
   }
   args.push('-passout', pfxPass ? `pass:${pfxPass}` : 'pass:')
 
-  const stdout = await runOpenssl(args)
+  const stdout = await runOpenssl(args, { cwd: options.centerPath })
   assert(! stdout, 'openssl output pkcs12 failed, return value: ' + stdout)
 
-  return pfxFile
+  const ret = join(options.centerPath, pfxFile)
+  return ret
 }
 
 
@@ -569,10 +589,16 @@ async function validateSignOpts(signOpts: SignOpts): Promise<SignOpts> {
 
 /* istanbul ignore next */
 async function validatePfxOpts(pfxOpts: PfxOpts): Promise<void> {
-  const { privateKeyFile, privateKeyPass, crtFile, pfxPass } = pfxOpts
+  const { centerPath, privateKeyFile, privateKeyPass, crtFile, pfxPass } = pfxOpts
 
-  assert(await isFileExists(privateKeyFile), `privateKeyFile not exists: "${privateKeyFile}"`)
-  assert(await isFileExists(crtFile), `crtFile not exists: "${crtFile}"`)
+  assert(
+    await isFileExists(privateKeyFile) || await isFileExists(join(centerPath, privateKeyFile)),
+    `privateKeyFile not exists: "${privateKeyFile}"`,
+  )
+  assert(
+    await isFileExists(crtFile) || await isFileExists(join(centerPath, crtFile)),
+    `crtFile not exists: "${crtFile}"`,
+  )
 
   if (privateKeyPass) { // can be blank
     assert(privateKeyPass.length >= 4, 'length of privateKeyPass must at least 4 if not empty')
