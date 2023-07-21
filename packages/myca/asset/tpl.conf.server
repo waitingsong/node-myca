@@ -72,6 +72,6 @@ basicConstraints     = CA:FALSE
 subjectKeyIdentifier   = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage           = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-extendedKeyUsage    = serverAuth, codeSigning, emailProtection
+extendedKeyUsage    = serverAuth, clientAuth, codeSigning, emailProtection
 
 
