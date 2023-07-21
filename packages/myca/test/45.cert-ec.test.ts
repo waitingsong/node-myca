@@ -29,7 +29,6 @@ describe(fileShortPath(import.meta.url), () => {
 
     initialConfig.defaultCenterPath = `${randomPath}/${initialConfig.centerDirName}`
     await myca.initDefaultCenter()
-    await myca.initCaCert(caOptions)
     await myca.initCaCert({
       ...caOptions,
     })
