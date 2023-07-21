@@ -23,7 +23,8 @@ if (args.cmd) {
   else {
     args.options = args.cmd === 'init' ? null : parseOpts(args.cmd, argv as InitCenterArgs)
     args.debug && console.info(args)
-    await runCmd(args)
+    const ret = await runCmd(args)
+    console.info(ret)
   }
 }
 else {
