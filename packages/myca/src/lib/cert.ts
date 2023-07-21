@@ -18,7 +18,6 @@ import { getCenterPath, nextSerial } from './center.js'
 import {
   createRandomConfTpl,
   runOpenssl,
-  throwMaskError,
   unlinkRandomConfTpl,
 } from './common.js'
 import {
@@ -118,9 +117,6 @@ export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCe
     }
 
     return issueCertRet
-  }
-  catch (ex) {
-    throwMaskError(ex)
   }
   finally {
     await rm(csrTmpName, { force: true })
