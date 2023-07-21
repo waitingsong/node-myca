@@ -86,10 +86,11 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
   const crtTmpPath = `${centerPath}/${crtTmpName}`
 
   try {
-    const { caKeyPass } = issueOpts
+    const { caKeyPass, kind } = issueOpts
     const signOpts: SignOpts = {
       ...initialSignOpts,
       centerPath,
+      kind,
       // caCrtFile: issueCertRet.caCrtFile,
       // caKeyFile: issueCertRet.caKeyFile,
       // csrFile: issueCertRet.csrFile,
