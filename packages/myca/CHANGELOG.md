@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.2](https://github.com/waitingsong/node-myca/compare/v4.1.1...v4.1.2) (2023-07-21)
+
+
+### Bug Fixes
+
+* **myca:** genCert() not use kind during create csr ([1f594b3](https://github.com/waitingsong/node-myca/commit/1f594b3570ea2e3ad1e3b691ba971359cfadab32))
+* **myca:** tmp files not removed ([f4a0d14](https://github.com/waitingsong/node-myca/commit/f4a0d14aae62f7485853f66916ecdb7a00909455))
+* **myca:** tpl.conf.client ([e835bf2](https://github.com/waitingsong/node-myca/commit/e835bf250f2a00317ecb4cee20ad9ad6b5fbcd5b))
+
+
+
+
+
 ## [4.1.1](https://github.com/waitingsong/node-myca/compare/v4.1.0...v4.1.1) (2023-07-21)
 
 **Note:** Version bump only for package myca
