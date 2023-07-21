@@ -372,6 +372,10 @@ export async function processIssueOpts(config: Config, options: IssueOpts): Prom
     }
   }
 
+  if (typeof options.caKeyPass !== 'undefined') {
+    options.caKeyPass = options.caKeyPass.toString()
+  }
+
   /* istanbul ignore next */
   if (typeof pass === 'number') {
     options.pass += ''
