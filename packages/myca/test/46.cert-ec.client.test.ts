@@ -72,6 +72,7 @@ describe(fileShortPath(import.meta.url), () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile === '')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.pfxFile?.endsWith('.pfx'), `value of result.pfxFile invalid: "${ret.pfxFile}"`)
       assert(
         ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
         'value of result.privateKey invalid',
@@ -108,6 +109,7 @@ describe(fileShortPath(import.meta.url), () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile === '')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.pfxFile?.endsWith('.pfx'), `value of result.pfxFile invalid: "${ret.pfxFile}"`)
       assert(
         ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
         'value of result.privateKey invalid',
@@ -141,6 +143,7 @@ describe(fileShortPath(import.meta.url), () => {
       assert(ret.privateKeyFile, 'value of result.privateKeyFile empty')
       assert(ret.privateUnsecureKeyFile === '')
       assert(ret.pubKey && ret.pubKey.includes('PUBLIC KEY'), 'value of result.pubKey invalid')
+      assert(ret.pfxFile?.endsWith('.pfx'), `value of result.pfxFile invalid: "${ret.pfxFile}"`)
       assert(
         ret.privateKey && ret.privateKey.includes('ENCRYPTED PRIVATE KEY'),
         'value of result.privateKey invalid',
