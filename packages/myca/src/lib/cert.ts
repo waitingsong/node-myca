@@ -43,7 +43,7 @@ import {
 
 
 /** issue certificate of server or client by ca.key */
-export async function genCert(options: CertOpts, conf?: Config): Promise<IssueCertRet> {
+export async function genCert(options: CertOpts, conf?: Partial<Config>): Promise<IssueCertRet> {
   const localConfig: Config = conf ? { ...initialConfig, ...conf } : initialConfig
   const issueOpts = await processGenCertIssueOpts(options, localConfig)
   await validateIssueOpts(issueOpts)
