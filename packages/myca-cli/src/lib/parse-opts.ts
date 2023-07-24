@@ -77,7 +77,7 @@ export function parseOpts(cmd: string, options: InitCenterArgs): CliArgs['option
         configurable: true,
         enumerable: true,
         writable: true,
-        // @ts-expect-error
+        // @ts-ignore
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         value: options[key],
       })
