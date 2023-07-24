@@ -23,14 +23,14 @@ export async function runCmd(args: RunCmdArgs): Promise<string> {
     case 'init':
       return initCli()
 
+    case 'initcenter':
+      return initCenterCli(options as InitCenterArgs)
+
     case 'initca':
       return initCaCli(options as CaOpts)
 
     case 'issue':
       return issueCli(options as CertOpts, debug)
-
-    case 'initcenter':
-      return initCenterCli(options as InitCenterArgs)
 
     // default:
     //   throw new Error(`invalid cmd: "${cmd}"`)
@@ -57,10 +57,12 @@ async function initCaCli(options: CaOpts): Promise<string> {
 
 
 async function issueCli(options: CertOpts, debug = false): Promise<string> {
+  assert(options.kind !== 'ca', 'value of kind can not be "ca", generate CA cert via cmd:initca')
+
   const data = await genCert(options, { debug })
   const ret = `Issue a Certificate with:
   pubKey: \n${data.pubKey}\n
-  pass: "${data.pass}" ${options.kind === 'server' ? `\n  privateKeyFile: "${data.privateKeyFile}"` : ''}
+  pass: "${data.pass}" \n
   privateKeyFile: "${data.privateKeyFile}" ${options.kind === 'server' ? `\n  privateUnsecureKeyFile: "${data.privateUnsecureKeyFile}"` : ''}
   centerName: "${data.centerName}"
   caKeyFile: "${data.caKeyFile}"
