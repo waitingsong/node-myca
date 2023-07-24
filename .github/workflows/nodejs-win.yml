@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node: ['lts']
+        node: ['lts/*']
         os: [windows-latest]
 
     steps:
