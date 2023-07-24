@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.4](https://github.com/waitingsong/node-myca/compare/v4.1.3...v4.1.4) (2023-07-24)
+
+
+### Bug Fixes
+
+* **myca-cli:** value of centerName and centerPath within initCenterCli() ([03bc699](https://github.com/waitingsong/node-myca/commit/03bc699c85ecf2397804426fb9e2833cf070ab85))
+
+
+
+
+
 ## [4.1.3](https://github.com/waitingsong/node-myca/compare/v4.1.2...v4.1.3) (2023-07-21)
 
 **Note:** Version bump only for package myca-cli
