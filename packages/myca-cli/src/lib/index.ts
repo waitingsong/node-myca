@@ -1,4 +1,5 @@
 import assert from 'node:assert'
+import { basename } from 'node:path'
 
 import {
   CaOpts,
@@ -7,7 +8,6 @@ import {
   initCaCert,
   initCenter,
   genCert,
-  getCenterPath,
 } from 'myca'
 
 import { InitCenterArgs, RunCmdArgs } from './types.js'
@@ -76,8 +76,10 @@ async function issueCli(options: CertOpts, debug = false): Promise<string> {
 async function initCenterCli(options: InitCenterArgs): Promise<string> {
   const { name, path } = options
 
-  const centerName = await initCenter(name, path)
-  const centerPath = await getCenterPath(centerName)
+  const centerPath = await initCenter(name, path)
+  const centerName = basename(centerPath)
+
+  // const centerPath = await getCenterPath(centerName)
   const ret = `center created with:
   centerName: "${centerName}"
   path: "${centerPath}"
