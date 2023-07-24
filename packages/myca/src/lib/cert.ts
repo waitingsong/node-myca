@@ -65,14 +65,13 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
     crtFile: join(centerPath, issueOpts.kind, `${issueOpts.serial}.crt`),
   }
   assert(issueOpts.configFile, 'configFile empty')
-
   const csrTmpName = basename(issueCertRet.csrFile) + '.' + Math.random().toString() + '.tmp'
-  const csrTmpPath = `${centerPath}/${csrTmpName}`
+  const csrTmpPath = normalize(`${centerPath}/${csrTmpName}`)
   // copy private key to center path, cause may not found under sub path under windows os
   await cp(issueCertRet.csrFile, csrTmpPath)
 
   const caCertTmpName = basename(issueCertRet.caCrtFile) + '.' + Math.random().toString() + '.tmp'
-  const caCertTmpPath = `${centerPath}/${caCertTmpName}`
+  const caCertTmpPath = normalize(`${centerPath}/${caCertTmpName}`)
   await cp(issueCertRet.caCrtFile, caCertTmpPath)
 
   const caKeyTmpName = basename(issueCertRet.caKeyFile) + '.' + Math.random().toString() + '.tmp'
@@ -80,10 +79,10 @@ export async function genCert(options: CertOpts, conf?: Partial<Config>): Promis
   await cp(issueCertRet.caKeyFile, caKeyTmpPath)
 
   const privateKeyTmpName = basename(issueCertRet.privateUnsecureKeyFile + '.' + Math.random().toString() + '.tmp')
-  const privateKeyTmpPath = `${centerPath}/${privateKeyTmpName}`
+  const privateKeyTmpPath = normalize(`${centerPath}/${privateKeyTmpName}`)
 
   const crtTmpName = basename(issueCertRet.crtFile) + '.' + Math.random().toString() + '.tmp'
-  const crtTmpPath = `${centerPath}/${crtTmpName}`
+  const crtTmpPath = normalize(`${centerPath}/${crtTmpName}`)
 
   try {
     const { caKeyPass, kind } = issueOpts
@@ -316,14 +315,16 @@ async function reqServerCert(config: Config, options: IssueOpts, keysRet: KeysRe
   assert(tplExists, 'tpl file not exists: ' + rtpl)
 
   const pkeyTmpName = basename(privateUnsecureKeyFile) + '.' + Math.random().toString() + '.tmp'
+  const pkeyTmpPath = normalize(join(options.centerPath, pkeyTmpName))
   // copy private key to center path, cause may not found under sub path under windows os
-  await cp(privateUnsecureKeyFile, `${options.centerPath}/${pkeyTmpName}`)
-  args.push('-key', `${options.centerPath}/${pkeyTmpName}`)
+  await cp(privateUnsecureKeyFile, pkeyTmpPath)
+  // args.push('-key', pkeyTmpPath)
+  args.push('-key', pkeyTmpName)
 
   const runOpts = { cwd: options.centerPath, debug: config.debug }
   const stdout = await runOpenssl(args, runOpts)
   await unlinkRandomConfTpl(rtpl)
-  await unlinkRandomConfTpl(`${options.centerPath}/${pkeyTmpName}`)
+  await unlinkRandomConfTpl(pkeyTmpPath)
   assert(stdout.includes('CERTIFICATE REQUEST'), 'openssl return value: ' + stdout)
 
   return stdout
