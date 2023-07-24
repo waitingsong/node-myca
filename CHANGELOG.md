@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.6](https://github.com/waitingsong/node-myca/compare/v4.1.5...v4.1.6) (2023-07-24)
+
+
+### Bug Fixes
+
+* **myca:** normalize path ([170a2ba](https://github.com/waitingsong/node-myca/commit/170a2bae74fa5c99af270b527ee0337e094f0007))
+
+
+
+
+
 ## [4.1.5](https://github.com/waitingsong/node-myca/compare/v4.1.4...v4.1.5) (2023-07-24)
 
 **Note:** Version bump only for package myca
