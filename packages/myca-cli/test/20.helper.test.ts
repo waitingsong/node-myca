@@ -7,7 +7,7 @@ import { genCmdHelp } from '../src/lib/helper.js'
 
 
 describe(fileShortPath(import.meta.url), () => {
-  describe('Should myca help works', () => {
+  describe('Should myca help work', () => {
     it('without args', async () => {
       const help = genCmdHelp('')
       assert(help.includes('Standard commands'), help)

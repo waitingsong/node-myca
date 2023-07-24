@@ -40,7 +40,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  describe('Should myca init works', () => {
+  describe('Should myca init work', () => {
     it('normal', async () => {
       const ret = await runCmd(initArgs)
       assert(ret.includes('Default center created at path'), ret)
@@ -48,7 +48,7 @@ describe(fileShortPath(import.meta.url), () => {
     })
   })
 
-  describe('Should myca initca works', () => {
+  describe('Should myca initca work', () => {
     it('normal', async () => {
       const args: RunCmdArgs = {
         cmd: 'initca',

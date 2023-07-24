@@ -45,9 +45,9 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  describe('Should myca initcenter works', () => {
+  describe('Should myca initcenter work', () => {
     it('normal', async () => {
-      const name = 'center-' + Math.random().toString()
+      const name = 'center-' + Math.random().toString() + '.tmp'
       const args: RunCmdArgs = {
         cmd: 'initcenter',
         options: {
