@@ -9,7 +9,8 @@ import {
 } from '@waiting/shared-core'
 
 import * as myca from '../src/index.js'
-import { genCaCert } from '../src/lib/cert.ca.js'
+import { getCenterPath } from '../src/index.js'
+import { genCaCert, unlinkCaCrt, unlinkCaKey } from '../src/lib/cert.ca.js'
 import { removeCenterFiles } from '../src/lib/common.js'
 
 import { initialCaOpts, initialConfig, pathPrefix, tmpDir } from './root.config.js'
@@ -304,4 +305,50 @@ describe(fileShortPath(import.meta.url), () => {
     assert(! await isFileExists(ret.crtFile), `crtFile should not exists at this time. path: "${ret.crtFile}"`)
   })
 
+
+  it('Should unlinkCaCrt() work', async () => {
+    if (initialConfig.opensslVer < '1.0.2') { return }
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      alg: 'ec',
+      days: 10950,
+      pass: 'mycapass',
+      hash: 'sha256',
+      CN: 'My Root CA',
+      OU: 'waitingsong.com',
+      C: 'CN',
+    }
+
+    await myca.initCaCert(opts)
+
+    const centerName = 'default'
+    await unlinkCaCrt(centerName)
+    const centerPath = await getCenterPath(centerName)
+    const file = `${centerPath}/${initialConfig.caCrtName}`
+    const exists = await isFileExists(file)
+    assert(! exists, `file should not exists. path: "${file}"`)
+  })
+
+  it('Should unlinkCaKey() work', async () => {
+    if (initialConfig.opensslVer < '1.0.2') { return }
+    const opts: myca.CaOpts = {
+      ...initialCaOpts,
+      alg: 'ec',
+      days: 10950,
+      pass: 'mycapass',
+      hash: 'sha256',
+      CN: 'My Root CA',
+      OU: 'waitingsong.com',
+      C: 'CN',
+    }
+
+    await myca.initCaCert(opts)
+
+    const centerName = 'default'
+    await unlinkCaKey(centerName)
+    const centerPath = await getCenterPath(centerName)
+    const file = `${centerPath}/${initialConfig.caKeyName}`
+    const exists = await isFileExists(file)
+    assert(! exists, `file should not exists. path: "${file}"`)
+  })
 })
