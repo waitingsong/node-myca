@@ -52,9 +52,7 @@ function parseCmd(args: string[]): CmdType {
 
 
 export function parseOpts(cmd: string, options: InitCenterArgs): CliArgs['options'] {
-  if (cmd === 'init') {
-    throw new Error('cmd should not be "init"')
-  }
+  assert(cmd !== 'init', 'cmd should not be "init"')
 
   if (cmd === 'initcenter') {
     return parseInitCenter(options)
