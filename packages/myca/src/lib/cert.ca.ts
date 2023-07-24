@@ -122,10 +122,7 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
   assert(exists, 'reqCaCert() rtpl blank')
   streamOpts.args.push('-config', rtpl)
   streamOpts.rtpl = rtpl
-  if (config.isWin32) {
-    void 0
-  }
-  else {
+  if (! config.isWin32) {
     const subj = genIssueSubj(options)
     subj && streamOpts.args.push('-subj', subj)
     // console.info('reqCaCert() debug::', { subj, options }) // @DEBUG
