@@ -9,7 +9,7 @@ import {
 } from '@waiting/shared-core'
 import { $ } from 'zx'
 
-import { runCmd, RunCmdArgs } from '../src/index.js'
+import { runCmd, RunCmdArgs } from '../../src/index.js'
 
 
 const defaultCenterPath = join(userHome, '.myca')
@@ -21,7 +21,7 @@ const initArgs: RunCmdArgs = {
 }
 
 describe(fileShortPath(import.meta.url), () => {
-  const cli = './dist/cli.js'
+  const cli = './dist/bin/cli.js'
 
   before(async () => {
     const exists = await isDirExists(defaultCenterPath)

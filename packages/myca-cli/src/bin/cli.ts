@@ -6,10 +6,10 @@
 
 import { argv } from 'zx'
 
-import { genCmdHelp, helpDefault } from './lib/helper.js'
-import { runCmd } from './lib/index.js'
-import { parseCliArgs, parseOpts } from './lib/parse-opts.js'
-import { InitCenterArgs } from './lib/types.js'
+import { genCmdHelp, helpDefault } from '../lib/helper.js'
+import { runCmd } from '../lib/index.js'
+import { parseCliArgs, parseOpts } from '../lib/parse-opts.js'
+import { InitCenterArgs } from '../lib/types.js'
 
 
 const args = parseCliArgs(argv)

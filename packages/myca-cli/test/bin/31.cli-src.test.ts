@@ -11,7 +11,7 @@ import {
 import semver from 'semver'
 import { $ } from 'zx'
 
-import { runCmd, RunCmdArgs } from '../src/index.js'
+import { runCmd, RunCmdArgs } from '../../src/index.js'
 
 
 const defaultCenterPath = join(userHome, '.myca')
@@ -27,7 +27,7 @@ const currentVersion = process.version
 const isVersionMatch = semver.satisfies(currentVersion, requiredVersion)
 
 describe(fileShortPath(import.meta.url), () => {
-  const cli = './src/cli.ts'
+  const cli = './src/bin/cli.ts'
 
   before(async () => {
     if (! isVersionMatch) {

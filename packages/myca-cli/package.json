@@ -30,7 +30,7 @@
   ],
   "type": "module",
   "bin": {
-    "myca": "./dist/cli.js"
+    "myca": "./dist/bin/cli.js"
   },
   "types": "./dist/index.d.ts",
   "exports": {
