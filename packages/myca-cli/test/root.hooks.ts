@@ -1,3 +1,4 @@
+import { $ } from 'zx'
 
 /**
  * @see https://mochajs.org/#root-hook-plugins
@@ -15,6 +16,7 @@ export const mochaHooks = async () => {
 
   return {
     beforeAll: async () => {
+      await $`chmod a+x ./dist/bin/cli.js`
       return
     },
 
