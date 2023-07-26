@@ -114,8 +114,6 @@ describe(fileShortPath(import.meta.url), () => {
         assert(ex.message.includes('value of kind can not be "ca", generate CA cert via cmd:initca'), ex.message)
       }
     })
-
-
     it('common', async () => {
       const pass = 'fooo'
       const kind = 'client'
