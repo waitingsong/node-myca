@@ -22,11 +22,11 @@ import {
   reqSubjectFields,
 } from './config.js'
 import {
+  CaCertDN,
   CaOpts,
-  CertDN,
   Config,
   IssueCaCertRet,
-  IssueOpts,
+  IssueCaOpts,
   PrivateKeyOpts,
   StreamOpts,
 } from './types.js'
@@ -55,7 +55,7 @@ export async function initCaCert(issueOpts: CaOpts): Promise<IssueCaCertRet> {
 
 /** Generate certificate of self-signed CA */
 export async function genCaCert(config: Config, options: CaOpts): Promise<IssueCaCertRet> {
-  const issueOpts: IssueOpts = await processIssueOpts(config, { ...initialCertOpts, ...options } as IssueOpts)
+  const issueOpts: IssueCaOpts = await processIssueOpts(config, { ...initialCertOpts, ...options } as IssueCaOpts)
   issueOpts.kind = 'ca'
   await validateIssueOpts(issueOpts)
   const caKeyFile = join(issueOpts.centerPath, config.caKeyName) // ca.key
@@ -104,7 +104,7 @@ export async function unlinkCaKey(centerName: string): Promise<void> {
 
 
 /** Return cert */
-async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
+async function reqCaCert(config: Config, options: IssueCaOpts): Promise<string> {
   await validateIssueOpts(options)
 
   const { days, centerPath, pass } = options
@@ -141,7 +141,7 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
   return stdout
 }
 
-export function genIssueSubj(options: CertDN): string {
+export function genIssueSubj(options: CaCertDN): string {
   const arr: string[] = []
 
   for (const prop of reqSubjectFields) {
@@ -158,15 +158,8 @@ export function genIssueSubj(options: CertDN): string {
 
       if (typeof val === 'undefined') { continue }
       if (! val) { continue }
-      if (typeof val === 'string') {
-        arr.push(`${prop}=${val}`)
-      }
-      // else if (Array.isArray(val)) {
-      //   arr.push(`${prop}=${val.join(',')}`)
-      // }
-      else {
-        assert(Array.isArray(val), `value of param invalid, not accept Array: ${val.join(',')}`)
-      }
+      assert(typeof val === 'string', 'value of param invalid')
+      arr.push(`${prop}=${val}`)
     }
   }
   return arr.length ? '/' + arr.join('/') : ''

@@ -4,8 +4,8 @@ import { delimiter, join, normalize } from 'path'
 import { genCurrentDirname, isWin32, userHome } from '@waiting/shared-core'
 
 import {
+  CaCertDNkeys,
   CaOpts,
-  CertDNkeys,
   CertOpts,
   Config,
   InitialFile,
@@ -134,7 +134,7 @@ export const initialIssueOpts: IssueOpts = {
   ...initialSignOpts,
 }
 
-export const reqSubjectFields: CertDNkeys[] = [
+export const reqSubjectFields: CaCertDNkeys[] = [
   'CN',
   'OU',
   'O',

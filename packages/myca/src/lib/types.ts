@@ -88,6 +88,7 @@ export interface CaOpts {
 }
 
 export type CertDNkeys = keyof CertDN
+export type CaCertDNkeys = keyof CaCertDN
 
 export interface CertDN {
   CN: string // Common Name
@@ -99,6 +100,15 @@ export interface CertDN {
   emailAddress?: string
   SAN?: string[] // subjectAltName
   ips?: string[] // subjectAltName ip
+}
+export interface CaCertDN {
+  CN: string // Common Name
+  OU?: string // Organizational Unit Name
+  O?: string // Organization Name
+  C: string // Country Name (2 letter code)
+  ST?: string // State or Province Name
+  L?: string // Locality Name (eg, city)
+  emailAddress?: string
 }
 
 export type Kind = 'ca' | 'server' | 'client'
@@ -134,6 +144,16 @@ export interface CertOpts extends CertDN {
 
 // inner usage
 export interface IssueOpts extends SignOpts, CertDN {
+  serial: string // hex
+  centerName: 'default' | string // key name of center dir
+  alg: Alg
+  days: number
+  pass: string
+  keyBits: number // for rsa
+  ecParamgenCurve: 'P-256' | 'P-384' // for alg==ec
+  hash: 'sha256' | 'sha384'
+}
+export interface IssueCaOpts extends SignOpts, CaCertDN {
   serial: string // hex
   centerName: 'default' | string // key name of center dir
   alg: Alg
