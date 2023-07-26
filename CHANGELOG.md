@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.0.0](https://github.com/waitingsong/node-myca/compare/v4.2.0...v5.0.0) (2023-07-26)
+
+
+### Features
+
+* **myca:** genIssueSubj() not allow value of Array ([4c2d50e](https://github.com/waitingsong/node-myca/commit/4c2d50eee1cefdbffe7d2050c5108b9bb5f04fe0))
+* **myca:** update types for ca cert generation ([083533a](https://github.com/waitingsong/node-myca/commit/083533afb302827d26eaf7c3815f1035ad31637e))
+
+
+
+
+
 # [4.2.0](https://github.com/waitingsong/node-myca/compare/v4.1.7...v4.2.0) (2023-07-26)
 
 
