@@ -84,10 +84,7 @@ describe(fileShortPath(import.meta.url), () => {
       ]
 
       await $`pwd`
-      const { stdout, stderr, exitCode } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
-      if (exitCode !== 0) {
-        console.error({ stderr })
-      }
+      const { stdout } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
       // const { stdout } = await $`ts-node-esm ${cli} ${cmd} ${args} `
       assert(stdout)
       assert(stdout.includes('CA certificate created with:'), stdout)
