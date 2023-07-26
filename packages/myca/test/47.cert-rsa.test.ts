@@ -347,5 +347,25 @@ describe(fileShortPath(import.meta.url), () => {
       }
     })
 
+    it('with keyBits < 2048', async () => {
+      if (initialConfig.opensslVer < '1.0.2') { return }
+      const opts: myca.CertOpts = {
+        ...issueOpts,
+      }
+      opts.keyBits = 0
+
+      await myca.genCert(opts)
+    })
+
+    it('with keyBits > 4096', async () => {
+      if (initialConfig.opensslVer < '1.0.2') { return }
+      const opts: myca.CertOpts = {
+        ...issueOpts,
+      }
+      opts.keyBits = 4097
+
+      await myca.genCert(opts)
+    })
+
   })
 })

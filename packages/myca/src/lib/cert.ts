@@ -393,6 +393,7 @@ export async function processIssueOpts(config: Config, options: IssueOpts): Prom
         options.keyBits = 8192
       }
     }
+    /* c8 ignore next 3 */
     else {
       options.keyBits = 2048
     }
