@@ -261,7 +261,7 @@ async function genPubKeyFromPrivateKey(
 
   const args = [alg, '-pubout']
 
-  /* istanbul ignore next */
+  /* c8 ignore next 3 */
   if (passwd && privateKey.indexOf('ENCRYPTED') > 0) {
     args.push('-passin', `pass:${passwd}`)
   }
@@ -279,14 +279,14 @@ export async function decryptPrivateKey(
   debug = false,
 ): Promise<string> {
 
-  /* istanbul ignore next */
+  /* c8 ignore next 3 */
   if (! privateKey.includes('ENCRYPTED')) {
     assert(privateKey.includes('PRIVATE'), 'decryptPrivateKey() Param key not valid **encrypted** private key')
     return privateKey // unsecure private key
   }
 
   const args: string[] = [alg]
-  /* istanbul ignore next */
+  /* c8 ignore next 3 */
   if (passwd && privateKey.indexOf('ENCRYPTED') > 0) {
     args.push('-passin', `pass:${passwd}`)
   }
@@ -335,7 +335,7 @@ export async function validateIssueOpts(options: IssueOpts): Promise<IssueOpts> 
   const { alg, centerPath, hash, kind, pass } = options
   const caKeyFile = `${centerPath}/${initialConfig.caKeyName}`
 
-  /* istanbul ignore next */
+  /* c8 ignore next 3 */
   if (alg === 'ec' && initialConfig.opensslVer && initialConfig.opensslVer < '1.0.2') {
     throw new Error('openssl version < "1.0.2" not support ec generation, current is: ' + initialConfig.opensslVer)
   }
@@ -402,7 +402,7 @@ export async function processIssueOpts(config: Config, options: IssueOpts): Prom
     options.caKeyPass = options.caKeyPass.toString()
   }
 
-  /* istanbul ignore next */
+  /* c8 ignore next 3 */
   if (typeof pass === 'number') {
     options.pass += ''
   }
@@ -589,7 +589,7 @@ async function validateSignOpts(signOpts: SignOpts): Promise<SignOpts> {
 }
 
 
-/* istanbul ignore next */
+/* c8 ignore start */
 async function validatePfxOpts(pfxOpts: PfxOpts): Promise<void> {
   const { centerPath, privateKeyFile, privateKeyPass, crtFile, pfxPass } = pfxOpts
 
@@ -611,3 +611,5 @@ async function validatePfxOpts(pfxOpts: PfxOpts): Promise<void> {
     assert(pfxPass.length >= 4, 'length of pfxPass must at least 4 if not empty')
   }
 }
+/* c8 ignore stop */
+
