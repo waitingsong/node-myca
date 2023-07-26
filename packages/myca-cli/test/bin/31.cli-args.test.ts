@@ -127,8 +127,9 @@ describe(fileShortPath(import.meta.url), () => {
 
     it('double init -h', async () => {
       const cmd = 'init'
+      const cmd2 = 'init'
       const args = ['-h']
-      const { stdout } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} init ${args} `
+      const { stdout } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${cmd2} ${args} `
       assert(stdout.length > 0, `stdout: ${stdout}`)
       assert(stdout.includes(`Usage: ${cmd} [options]`), `stdout: ${stdout}`)
       assert(stdout.includes('Valid options are:'), `stdout: ${stdout}`)
