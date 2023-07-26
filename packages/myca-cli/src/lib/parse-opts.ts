@@ -34,8 +34,8 @@ function parseCmd(args: string[]): CmdType {
     cmd = cmd.toLowerCase()
 
     if (cmdSet.has(cmd)) {
-      if (command) {
-        throw new Error(`Duplicate command: "${cmd}" and "${command}"`)
+      if (command && command !== cmd) {
+        throw new Error(`confusing command: "${cmd}" and "${command}"`)
       }
       else {
         command = cmd
