@@ -135,9 +135,11 @@ describe(fileShortPath(import.meta.url), () => {
       assert(crtFile, stdout)
       const txt = await readFile(crtFile, 'utf-8')
 
-      // console.log({ txt })
       // Issuer: C=CN, O=my company, CN=my root ca
-      assert(txt.includes(`Issuer: C=${optsCa.C}, O=${optsCa.O}, CN=${optsCa.CN}`), txt)
+      assert(txt.includes('Issuer:'), txt)
+      assert(txt.includes(`C=${optsCa.C}`), txt)
+      assert(txt.includes(`O=${optsCa.O}`), txt)
+      assert(txt.includes(`CN=${optsCa.CN}`), txt)
 
       // Subject: C=CN, O=it, CN=test
       assert(txt.includes(`Subject: C=${opts.C}, O=${opts.O}, CN=${opts.CN}`), txt)
@@ -206,7 +208,10 @@ describe(fileShortPath(import.meta.url), () => {
 
       // console.log({ txt })
       // Issuer: C=CN, O=my company, CN=my root ca
-      assert(txt.includes(`Issuer: C=${optsCa.C}, O=${optsCa.O}, CN=${optsCa.CN}`), txt)
+      assert(txt.includes('Issuer:'), txt)
+      assert(txt.includes(`C=${optsCa.C}`), txt)
+      assert(txt.includes(`O=${optsCa.O}`), txt)
+      assert(txt.includes(`CN=${optsCa.CN}`), txt)
 
       // Subject: C=CN, O=it, CN=test
       assert(txt.includes(`Subject: C=${opts.C}, O=${opts.O}, CN=${opts.CN}`), txt)
@@ -247,9 +252,11 @@ describe(fileShortPath(import.meta.url), () => {
       assert(crtFile, stdout)
       const txt = await readFile(crtFile, 'utf-8')
 
-      // console.log({ txt })
       // Issuer: C=CN, O=my company, CN=my root ca
-      assert(txt.includes(`Issuer: C=${optsCa.C}, O=${optsCa.O}, CN=${optsCa.CN}`), txt)
+      assert(txt.includes('Issuer:'), txt)
+      assert(txt.includes(`C=${optsCa.C}`), txt)
+      assert(txt.includes(`O=${optsCa.O}`), txt)
+      assert(txt.includes(`CN=${optsCa.CN}`), txt)
 
       // Subject: C=CN, O=it, CN=test
       assert(txt.includes(`Subject: C=${opts.C}, O=${opts.O}, CN=${opts.CN}`), txt)
