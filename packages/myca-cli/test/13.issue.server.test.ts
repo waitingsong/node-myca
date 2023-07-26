@@ -11,8 +11,6 @@ import { CertOpts, getCenterPath } from 'myca'
 
 import { runCmd, RunCmdArgs } from '../src/index.js'
 
-import { testBaseDir } from './root.config.js'
-
 
 const defaultCenterPath = join(userHome, '.myca')
 let defaultCenterPathBak = join(userHome, '.myca-' + Math.random().toString())
@@ -86,12 +84,12 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  describe('Should myca issue work', () => {
+  describe('Should issue server work', () => {
     it('with invalid ca', async () => {
       const opts: CertOpts = {
         centerName,
         caKeyPass: 'mycapass',
-        kind: 'ca', // server cert
+        kind: 'ca',
         alg: 'ec',
         days: 730,
         pass: 'fooo', // at least 4 letters
@@ -118,7 +116,7 @@ describe(fileShortPath(import.meta.url), () => {
     })
 
 
-    it('server', async () => {
+    it('common', async () => {
       const pass = 'fooo'
       const kind = 'server'
       const opts: CertOpts = {
