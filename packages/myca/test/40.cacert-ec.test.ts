@@ -17,6 +17,17 @@ import { initialCaOpts, initialConfig, pathPrefix, tmpDir } from './root.config.
 
 
 describe(fileShortPath(import.meta.url), () => {
+  const optsCa: myca.CaOpts = {
+    ...initialCaOpts,
+    alg: 'ec',
+    days: 10950,
+    pass: 'mycapass',
+    hash: 'sha256',
+    CN: 'My Root CA',
+    OU: 'waitingsong.com',
+    C: 'CN',
+  }
+
   before(async () => {
     await createDirAsync(tmpDir)
     if (initialConfig.opensslVer < '1.0.2') {
@@ -42,14 +53,7 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() work', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      hash: 'sha256',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
 
     await myca.initCaCert(opts)
@@ -74,16 +78,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with blank centerName', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.centerName = ''
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -97,16 +95,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with fake centerName', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.centerName = 'fake'
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -120,16 +112,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with blank pass', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.pass = ''
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -143,16 +129,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with blank C', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.C = ''
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -166,16 +146,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with blank CN', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.CN = ''
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -189,16 +163,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with zero days', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.days = 0
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -212,16 +180,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with negative days', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.days = -1
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -235,16 +197,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with invalid alg', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.alg = <'rsa'> ''
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -258,16 +214,10 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should initCaCert() works with invalid hash', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
-
     opts.hash = <'sha256'> 'fake'
+
     try {
       await myca.initCaCert(opts)
       assert(false, 'initCaCert() should throw err, but NOT')
@@ -283,13 +233,7 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should genCaCert() works', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      hash: 'sha256',
-      CN: 'My Root CA',
-      C: 'CN',
+      ...optsCa,
     }
 
     const ret = await genCaCert(initialConfig, opts)
@@ -309,14 +253,7 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should unlinkCaCrt() work', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      hash: 'sha256',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
 
     await myca.initCaCert(opts)
@@ -332,14 +269,7 @@ describe(fileShortPath(import.meta.url), () => {
   it('Should unlinkCaKey() work', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
-      ...initialCaOpts,
-      alg: 'ec',
-      days: 10950,
-      pass: 'mycapass',
-      hash: 'sha256',
-      CN: 'My Root CA',
-      OU: 'waitingsong.com',
-      C: 'CN',
+      ...optsCa,
     }
 
     await myca.initCaCert(opts)
