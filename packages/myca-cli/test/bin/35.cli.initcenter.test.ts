@@ -62,7 +62,7 @@ describe(fileShortPath(import.meta.url), () => {
       '--O', opts.O,
       '--C', opts.C,
     ]
-    await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
+    await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
   })
 
   after(async () => {
@@ -89,7 +89,7 @@ describe(fileShortPath(import.meta.url), () => {
       const args: (string)[] = ['--name', name]
 
       await $`pwd`
-      const { stdout } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
+      const { stdout } = await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
       // const { stdout } = await $`ts-node-esm ${cli} ${cmd} ${args} `
       assert(stdout)
       assert(stdout.includes('center created with:'), stdout)
@@ -105,7 +105,7 @@ describe(fileShortPath(import.meta.url), () => {
 
       await $`pwd`
       try {
-        await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
+        await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
         assert(false, 'should throw')
       }
       catch (ex) {
