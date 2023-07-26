@@ -137,6 +137,21 @@ describe(fileShortPath(import.meta.url), () => {
       assert(stdout.includes('Display debug info'), `stdout: ${stdout}`)
     })
 
+    it('confusing command -h', async () => {
+      const cmd = 'init'
+      const cmd2 = 'initca'
+      const args = ['-h']
+      try {
+        await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${cmd2} ${args} `
+      }
+      catch (ex) {
+        assert(ex instanceof Error)
+        const output = ex as ProcessOutput
+        assert(output.exitCode, output)
+        assert(output.stdout.length > 0, `stdout: ${output.stdout}`)
+        assert(output.stdout.includes('confusing command'), `stdout: ${output.stdout}`)
+      }
+    })
   })
 
 })
