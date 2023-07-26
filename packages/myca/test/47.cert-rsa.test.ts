@@ -15,6 +15,17 @@ import { caOptions, initialCaOpts, initialConfig, pathPrefix, tmpDir } from './r
 
 
 describe(fileShortPath(import.meta.url), () => {
+  const issueOpts: myca.CertOpts = {
+    centerName: 'default',
+    caKeyPass: 'mycapass',
+    kind: 'server',
+    alg: 'rsa',
+    days: 730,
+    pass: 'fooo', // at least 4 letters
+    CN: 'www.waitingsong.com', // Common Name
+    C: 'CN', // Country Name (2 letter code)
+  }
+
   before(async () => {
     await createDirAsync(tmpDir)
     if (initialConfig.opensslVer < '1.0.2') {
@@ -45,14 +56,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('common', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        centerName: 'default',
-        caKeyPass: 'mycapass',
-        kind: 'server', // server cert
-        alg: 'rsa',
-        days: 730,
-        pass: 'fooo', // at least 4 letters
-        CN: 'www.waitingsong.com', // Common Name
-        C: 'CN', // Country Name (2 letter code)
+        ...issueOpts,
       }
 
       const ret: myca.IssueCertRet = await myca.genCert(opts)
@@ -86,14 +90,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('with ips and SAN', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        centerName: 'default',
-        caKeyPass: 'mycapass',
-        kind: 'server', // server cert
-        alg: 'rsa',
-        days: 730,
-        pass: 'fooo', // at least 4 letters
-        CN: 'www.waitingsong.com', // Common Name
-        C: 'CN', // Country Name (2 letter code),
+        ...issueOpts,
         ips: ['127.0.0.1'],
         SAN: ['localhost'],
       }
@@ -129,14 +126,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('with passing conf', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        centerName: 'default',
-        caKeyPass: 'mycapass',
-        kind: 'server', // server cert
-        alg: 'rsa',
-        days: 730,
-        pass: 'fooo', // at least 4 letters
-        CN: 'www.waitingsong.com', // Common Name
-        C: 'CN', // Country Name (2 letter code)
+        ...issueOpts,
       }
 
       const ret: myca.IssueCertRet = await myca.genCert(opts, initialConfig)
@@ -178,16 +168,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with blank centerName', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.centerName = ''
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -202,16 +186,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('works with fake centerName', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.centerName = 'fake'
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -226,16 +204,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with blank pass', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.pass = ''
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -249,16 +221,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with invalid C', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN', // must 2 letters
+        ...issueOpts,
       }
-
       opts.C = 'C'
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -282,16 +248,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with blank C', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.C = ''
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -305,16 +265,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with blank CN', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.CN = ''
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -328,16 +282,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with zero days', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.days = 0
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -351,16 +299,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with negative days', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.days = -1
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -374,16 +316,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with invalid alg', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.alg = <'rsa'> ''
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
@@ -397,16 +333,10 @@ describe(fileShortPath(import.meta.url), () => {
     it('with invalid hash', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
-        ...initialCertOpts,
-        alg: 'rsa',
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'My Root CA',
-        OU: 'waitingsong.com',
-        C: 'CN',
+        ...issueOpts,
       }
-
       opts.hash = 'fake' as 'sha256'
+
       try {
         await myca.genCert(opts)
         assert(false, 'genCert() should throw err, but NOT')
