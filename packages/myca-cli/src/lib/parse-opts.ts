@@ -131,11 +131,15 @@ function parseInitCenter(args: typeof argv): InitCenterArgs {
   assert(typeof args === 'object', 'args should be an object')
 
   const { path } = args
-  let { name } = args
+  const { name } = args
 
-  name = String(name)
-  assert(name, 'value of name empty')
   assert(typeof name === 'string', 'value of name should be a string')
-  assert(typeof path === 'string', 'value of path should be a string')
-  return { name, path, _: args._ }
+  assert(name.length, 'value of name empty')
+  assert(typeof name === 'string', 'value of name should be a string')
+  const ret = {
+    name,
+    path: typeof path === 'string' ? path : '',
+    _: args._,
+  }
+  return ret
 }
