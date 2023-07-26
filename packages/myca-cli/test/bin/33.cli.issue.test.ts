@@ -100,7 +100,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
 
     it('01', async () => {
-      const args: (string|number)[] = [
+      const args: (string | number)[] = [
         '--kind', opts.kind,
         '--ips', opts.ips,
         '--SAN', opts.SAN,
@@ -130,7 +130,7 @@ describe(fileShortPath(import.meta.url), () => {
     })
 
     it('02', async () => {
-      const args: (string|number)[] = [
+      const args: (string | number)[] = [
         '--kind', opts.kind,
         '--ips', opts.ips,
         '--SAN', opts.SAN,
@@ -159,5 +159,34 @@ describe(fileShortPath(import.meta.url), () => {
       assert(stdout.includes(opts.kind + sep + '02.key.unsecure'), stdout)
     })
 
+    it('03 w/o ips,san', async () => {
+      const args: (string | number)[] = [
+        '--kind', opts.kind,
+        // '--ips', opts.ips,
+        // '--SAN', opts.SAN,
+        '--centerName', opts.centerName,
+        '--alg', opts.alg,
+        '--caKeyPass', opts.caKeyPass,
+
+        '--days', opts.days,
+        '--pass', opts.pass,
+        '--CN', opts.CN,
+        '--O', opts.O,
+        '--C', opts.C,
+      ]
+
+      await $`pwd`
+      const { stdout } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
+      // const { stdout } = await $`ts-node-esm ${cli} ${cmd} ${args} `
+      assert(stdout)
+      assert(stdout.includes('Issue a Certificate with:'), stdout)
+      assert(stdout.includes('pubKey:'), stdout)
+      assert(stdout.includes('-----BEGIN PUBLIC KEY-----'), stdout)
+      assert(stdout.includes('pass: "mycapass"'), stdout)
+      assert(stdout.includes('privateKeyFile'), stdout)
+      assert(stdout.includes(opts.kind + sep + '03.key'), stdout)
+      assert(stdout.includes('privateUnsecureKeyFile'), stdout)
+      assert(stdout.includes(opts.kind + sep + '03.key.unsecure'), stdout)
+    })
   })
 })
