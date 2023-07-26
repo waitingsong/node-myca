@@ -77,28 +77,29 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  describe('Should issue work', () => {
+  describe('Should issue server work', () => {
     if (! isVersionMatch) {
       console.info(`Skip test, required node version: ${requiredVersion}, current version: ${currentVersion}`)
       return
     }
 
-    it('server', async () => {
-      const cmd = 'issue'
-      const opts = {
-        kind: 'server',
-        ips: '127.0.0.1, 192.168.0.1',
-        SAN: 'localhost',
-        centerName: 'default',
-        alg: 'ec',
-        caKeyPass: 'mycapass',
+    const cmd = 'issue'
+    const opts = {
+      kind: 'server',
+      ips: '127.0.0.1, 192.168.0.1',
+      SAN: 'localhost',
+      centerName: 'default',
+      alg: 'ec',
+      caKeyPass: 'mycapass',
 
-        days: 10950,
-        pass: 'mycapass',
-        CN: 'test',
-        O: 'it',
-        C: 'CN',
-      }
+      days: 10950,
+      pass: 'mycapass',
+      CN: 'test',
+      O: 'it',
+      C: 'CN',
+    }
+
+    it('01', async () => {
       const args: (string|number)[] = [
         '--kind', opts.kind,
         '--ips', opts.ips,
@@ -127,5 +128,36 @@ describe(fileShortPath(import.meta.url), () => {
       assert(stdout.includes('privateUnsecureKeyFile'), stdout)
       assert(stdout.includes(opts.kind + sep + '01.key.unsecure'), stdout)
     })
+
+    it('02', async () => {
+      const args: (string|number)[] = [
+        '--kind', opts.kind,
+        '--ips', opts.ips,
+        '--SAN', opts.SAN,
+        '--centerName', opts.centerName,
+        '--alg', opts.alg,
+        '--caKeyPass', opts.caKeyPass,
+
+        '--days', opts.days,
+        '--pass', opts.pass,
+        '--CN', opts.CN,
+        '--O', opts.O,
+        '--C', opts.C,
+      ]
+
+      await $`pwd`
+      const { stdout } = await $`node --enable-source-maps --loader ts-node/esm ${cli} ${cmd} ${args} `
+      // const { stdout } = await $`ts-node-esm ${cli} ${cmd} ${args} `
+      assert(stdout)
+      assert(stdout.includes('Issue a Certificate with:'), stdout)
+      assert(stdout.includes('pubKey:'), stdout)
+      assert(stdout.includes('-----BEGIN PUBLIC KEY-----'), stdout)
+      assert(stdout.includes('pass: "mycapass"'), stdout)
+      assert(stdout.includes('privateKeyFile'), stdout)
+      assert(stdout.includes(opts.kind + sep + '02.key'), stdout)
+      assert(stdout.includes('privateUnsecureKeyFile'), stdout)
+      assert(stdout.includes(opts.kind + sep + '02.key.unsecure'), stdout)
+    })
+
   })
 })
