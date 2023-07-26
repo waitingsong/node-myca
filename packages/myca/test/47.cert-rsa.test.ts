@@ -52,7 +52,7 @@ describe(fileShortPath(import.meta.url), () => {
     await removeCenterFiles(initialConfig.defaultCenterPath)
   })
 
-  describe('Should genCert() works', () => {
+  describe('Should genCert() work', () => {
     it('common', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
@@ -183,7 +183,7 @@ describe(fileShortPath(import.meta.url), () => {
       }
     })
 
-    it('works with fake centerName', async () => {
+    it('work with fake centerName', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
       const opts: myca.CertOpts = {
         ...issueOpts,

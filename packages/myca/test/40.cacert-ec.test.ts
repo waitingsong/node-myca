@@ -75,7 +75,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with blank centerName', async () => {
+  it('Should initCaCert() work with blank centerName', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -92,7 +92,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with fake centerName', async () => {
+  it('Should initCaCert() work with fake centerName', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -109,7 +109,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with blank pass', async () => {
+  it('Should initCaCert() work with blank pass', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -126,7 +126,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with blank C', async () => {
+  it('Should initCaCert() work with blank C', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -143,7 +143,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with blank CN', async () => {
+  it('Should initCaCert() work with blank CN', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -160,7 +160,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with zero days', async () => {
+  it('Should initCaCert() work with zero days', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -177,7 +177,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with negative days', async () => {
+  it('Should initCaCert() work with negative days', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -194,7 +194,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with invalid alg', async () => {
+  it('Should initCaCert() work with invalid alg', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -211,7 +211,7 @@ describe(fileShortPath(import.meta.url), () => {
     }
   })
 
-  it('Should initCaCert() works with invalid hash', async () => {
+  it('Should initCaCert() work with invalid hash', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,
@@ -230,7 +230,7 @@ describe(fileShortPath(import.meta.url), () => {
 
   // -------------------------
 
-  it('Should genCaCert() works', async () => {
+  it('Should genCaCert() work', async () => {
     if (initialConfig.opensslVer < '1.0.2') { return }
     const opts: myca.CaOpts = {
       ...optsCa,

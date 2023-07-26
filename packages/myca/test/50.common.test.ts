@@ -7,7 +7,7 @@ import { maskPasswdInString, throwMaskError } from '../src/lib/common.js'
 
 describe(fileShortPath(import.meta.url), () => {
 
-  it('Should maskPasswdInString() works', () => {
+  it('Should maskPasswdInString() work', () => {
     const passArr = [
       'mycapsss',
       'mycapsss' + Math.random().toString(),
@@ -37,7 +37,7 @@ describe(fileShortPath(import.meta.url), () => {
 
   })
 
-  it('Should throwMaskError() works', () => {
+  it('Should throwMaskError() work', () => {
     const passArr = [
       'mycapsss',
       'mycapsss' + Math.random().toString(),

@@ -8,7 +8,7 @@ import { initialConfig, pathPrefix, tmpDir } from './root.config.js'
 
 
 describe(fileShortPath(import.meta.url), () => {
-  describe('Should decryptPrivateKey() works', () => {
+  describe('Should decryptPrivateKey() work', () => {
     it('invalid privateKey', async () => {
       if (initialConfig.opensslVer < '1.0.2') { return }
 

@@ -8,7 +8,7 @@ import { initialConfig } from './root.config.js'
 
 
 describe(fileShortPath(import.meta.url), () => {
-  describe('Should genRandomCenterPath() works', () => {
+  describe('Should genRandomCenterPath() work', () => {
     it('normal', () => {
       const { defaultCenterPath } = initialConfig
       const rndArr = [
