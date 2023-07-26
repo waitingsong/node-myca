@@ -11,7 +11,7 @@ import {
 } from '@waiting/shared-core'
 
 import { getCenterPath } from './center.js'
-import { genIssueSubj, genKeys, processIssueOpts, validateIssueOpts } from './cert.js'
+import { genKeys, processIssueOpts, validateIssueOpts } from './cert.js'
 import { createRandomConfTpl, runOpenssl, unlinkRandomConfTpl } from './common.js'
 import {
   initialCaCertRet,
@@ -19,9 +19,11 @@ import {
   initialCertOpts,
   initialConfig,
   initialPrivateKeyOpts,
+  reqSubjectFields,
 } from './config.js'
 import {
   CaOpts,
+  CertDN,
   Config,
   IssueCaCertRet,
   IssueOpts,
@@ -137,4 +139,35 @@ async function reqCaCert(config: Config, options: IssueOpts): Promise<string> {
   assert(stdout.includes('CERTIFICATE'), 'reqCaCert() openssl return value: ' + stdout)
 
   return stdout
+}
+
+export function genIssueSubj(options: CertDN): string {
+  const arr: string[] = []
+
+  for (const prop of reqSubjectFields) {
+    if (typeof options[prop] !== 'undefined' && options[prop]) {
+      const value = options[prop]
+      if (! value) { continue }
+      const val: string | string[] = value
+      // if (Array.isArray(value)) {
+      //   val = value.map(escapeShell)
+      // }
+      // else if (value) {
+      //   val = escapeShell(value)
+      // }
+
+      if (typeof val === 'undefined') { continue }
+      if (! val) { continue }
+      if (typeof val === 'string') {
+        arr.push(`${prop}=${val}`)
+      }
+      // else if (Array.isArray(val)) {
+      //   arr.push(`${prop}=${val.join(',')}`)
+      // }
+      else {
+        assert(Array.isArray(val), `value of param invalid, not accept Array: ${val.join(',')}`)
+      }
+    }
+  }
+  return arr.length ? '/' + arr.join('/') : ''
 }

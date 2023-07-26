@@ -28,7 +28,6 @@ import {
   reqSubjectFields,
 } from './config.js'
 import {
-  CertDN,
   CertOpts,
   Config,
   IssueCertRet,
@@ -39,7 +38,6 @@ import {
   PrivateKeyOpts,
   SignOpts,
 } from './types.js'
-
 
 
 /** issue certificate of server or client by ca.key */
@@ -419,34 +417,6 @@ export async function processIssueOpts(config: Config, options: IssueOpts): Prom
   return options
 }
 
-
-export function genIssueSubj(options: CertDN): string {
-  const arr: string[] = []
-
-  for (const prop of reqSubjectFields) {
-    if (typeof options[prop] !== 'undefined' && options[prop]) {
-      const value = options[prop]
-      if (! value) { continue }
-      const val: string | string[] = value
-      // if (Array.isArray(value)) {
-      //   val = value.map(escapeShell)
-      // }
-      // else if (value) {
-      //   val = escapeShell(value)
-      // }
-
-      if (typeof val === 'undefined') { continue }
-      if (! val) { continue }
-      if (typeof val === 'string') {
-        arr.push(`${prop}=${val}`)
-      }
-      else if (Array.isArray(val)) {
-        arr.push(`${prop}=${val.join(',')}`)
-      }
-    }
-  }
-  return arr.length ? '/' + arr.join('/') : ''
-}
 
 
 /** Save private keys to path ./server */
