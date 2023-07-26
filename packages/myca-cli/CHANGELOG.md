@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [4.2.0](https://github.com/waitingsong/node-myca/compare/v4.1.7...v4.2.0) (2023-07-26)
+
+
+### Features
+
+* **myca-cli:** detect confusing command within parseCmd() ([c3018ba](https://github.com/waitingsong/node-myca/commit/c3018ba649a30072ac4dcb0eebbf99035cf29f9d))
+
+
+
+
+
 ## [4.1.7](https://github.com/waitingsong/node-myca/compare/v4.1.6...v4.1.7) (2023-07-25)
 
 **Note:** Version bump only for package myca-cli
