@@ -1,5 +1,8 @@
 import { $ } from 'zx'
 
+
+process.env['NODE_OPTIONS'] = '--enable-source-maps --no-warnings --loader ts-node/esm'
+
 /**
  * @see https://mochajs.org/#root-hook-plugins
  * beforeAll:

@@ -10,7 +10,7 @@ describe(fileShortPath(import.meta.url), () => {
   describe('Should cli work', () => {
     it('no args', async () => {
       try {
-        await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli}  `
+        await $`node ${cli}  `
         assert(false, 'should throw')
       }
       catch (ex) {
@@ -28,7 +28,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('-h without cmd', async () => {
       try {
         const args = ['-h']
-        await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${args} `
+        await $`node ${cli} ${args} `
         assert(false, 'should throw')
       }
       catch (ex) {
@@ -46,7 +46,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('init -h', async () => {
       const cmd = 'init'
       const args = ['-h']
-      const { stdout } = await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
+      const { stdout } = await $`node ${cli} ${cmd} ${args} `
       assert(stdout.length > 0, `stdout: ${stdout}`)
       assert(stdout.includes(`Usage: ${cmd} [options]`), `stdout: ${stdout}`)
       assert(stdout.includes('Valid options are:'), `stdout: ${stdout}`)
@@ -57,7 +57,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('initca -h', async () => {
       const cmd = 'initca'
       const args = ['-h']
-      const { stdout } = await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
+      const { stdout } = await $`node ${cli} ${cmd} ${args} `
       assert(stdout.length > 0, `stdout: ${stdout}`)
       assert(stdout.includes(`Usage: ${cmd} [options]`), `stdout: ${stdout}`)
       assert(stdout.includes('Valid options are:'), `stdout: ${stdout}`)
@@ -83,7 +83,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('issue -h', async () => {
       const cmd = 'issue'
       const args = ['-h']
-      const { stdout } = await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
+      const { stdout } = await $`node ${cli} ${cmd} ${args} `
       assert(stdout.length > 0, `stdout: ${stdout}`)
       assert(stdout.includes(`Usage: ${cmd} [options]`), `stdout: ${stdout}`)
       assert(stdout.includes('Valid options are:'), `stdout: ${stdout}`)
@@ -114,7 +114,7 @@ describe(fileShortPath(import.meta.url), () => {
     it('initcenter -h', async () => {
       const cmd = 'initcenter'
       const args = ['-h']
-      const { stdout } = await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${args} `
+      const { stdout } = await $`node ${cli} ${cmd} ${args} `
       assert(stdout.length > 0, `stdout: ${stdout}`)
       assert(stdout.includes(`Usage: ${cmd} [options]`), `stdout: ${stdout}`)
       assert(stdout.includes('Valid options are:'), `stdout: ${stdout}`)
@@ -129,7 +129,7 @@ describe(fileShortPath(import.meta.url), () => {
       const cmd = 'init'
       const cmd2 = 'init'
       const args = ['-h']
-      const { stdout } = await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${cmd2} ${args} `
+      const { stdout } = await $`node ${cli} ${cmd} ${cmd2} ${args} `
       assert(stdout.length > 0, `stdout: ${stdout}`)
       assert(stdout.includes(`Usage: ${cmd} [options]`), `stdout: ${stdout}`)
       assert(stdout.includes('Valid options are:'), `stdout: ${stdout}`)
@@ -142,7 +142,7 @@ describe(fileShortPath(import.meta.url), () => {
       const cmd2 = 'initca'
       const args = ['-h']
       try {
-        await $`node --enable-source-maps --no-warnings --loader ts-node/esm ${cli} ${cmd} ${cmd2} ${args} `
+        await $`node ${cli} ${cmd} ${cmd2} ${args} `
       }
       catch (ex) {
         assert(ex instanceof Error)
