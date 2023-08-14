@@ -24,7 +24,7 @@
     "madge": "^6.1.0",
     "mocha": "10",
     "mocha-lcov-reporter": "1",
-    "rewire": "6",
+    "rewire": "7",
     "rimraf": "5",
     "rollup-plugin-dts": "^5.3.0",
     "ts-node": "^10.9.1",
