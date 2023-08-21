@@ -12,6 +12,12 @@ Create my CA center, generate a self signed x509 certificate, issue server certi
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lernajs.io/)
 
 
+
+## 安装全局依赖
+```sh
+npm i -g c8 lerna rollup tsx
+```
+
 ## Installing
 ```bash
 npm install --save myca
