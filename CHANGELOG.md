@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [5.1.0](https://github.com/waitingsong/node-myca/compare/v5.0.0...v5.1.0) (2023-08-21)
+
+
+### Features
+
+* **cli:** use tsx instead of ts-node-esm as cli Hashbang ([c70d916](https://github.com/waitingsong/node-myca/commit/c70d91672d36806ac366cbbc05df357d30caf75b))
+
+
+
+
+
 # [5.0.0](https://github.com/waitingsong/node-myca/compare/v4.2.0...v5.0.0) (2023-07-26)
 
 

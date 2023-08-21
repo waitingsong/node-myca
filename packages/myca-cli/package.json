@@ -1,7 +1,7 @@
 {
   "name": "myca-cli",
   "author": "waiting",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "command line of creating Self-signed CA certificate for development use and issue server or client certificates, generated using openssl",
   "keywords": [
     "CA",
@@ -52,11 +52,9 @@
   "dependencies": {
     "@waiting/shared-core": "^21.5.0",
     "minimist": "^1.2.8",
-    "myca": "^5.0.0",
+    "myca": "^5.1.0",
     "tsx": "^3.12.7",
     "zx": "7"
-  },
-  "devDependencies": {
   },
   "engines": {
     "node": ">=16.13.0"
