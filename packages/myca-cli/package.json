@@ -53,7 +53,7 @@
     "@waiting/shared-core": "^21.5.0",
     "minimist": "^1.2.8",
     "myca": "^5.0.0",
-    "ts-node": "^10.9.1",
+    "tsx": "^3.12.7",
     "zx": "7"
   },
   "devDependencies": {
