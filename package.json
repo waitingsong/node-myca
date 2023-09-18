@@ -16,7 +16,7 @@
     "@types/node": "20",
     "@waiting/eslint-config": "^8.8.0",
     "@waiting/shared-core": "^21.4.2",
-    "@waiting/shared-types": "^21.4.0",
+    "@waiting/shared-types": "^22.0.0",
     "autocannon": "7",
     "coveralls": "3",
     "cross-env": "7",
